@@ -11,6 +11,10 @@ class Game:
         self.__board_size = 0
 
         self.__cases: List[List[Case]] = []
+        self.__is_started = True
 
-    def create_board(self):
-        self.__cases = [[Case() for _ in range(self.__board_size)] for _ in range(self.__board_size)]
+    def is_started(self):
+        return self.__is_started
+
+    def set_started(self, is_started: bool):
+        self.__is_started = is_started
