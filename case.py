@@ -12,3 +12,5 @@ class Direction(Enum):
     SOUTH = 2
     EAST = 3
     WEST = 4
+
+#Ratio
