@@ -2,10 +2,12 @@ from enum import Enum
 
 
 class Case:
-    def __init__(self):
+    def __init__(self,type):
         self.__is_empty = True
         self.__player = 0
-
+        self.__type_case = type
+    def get_case(self):
+        return self.__type_case
 
 class Direction(Enum):
     NORTH = 1
