@@ -1,13 +1,14 @@
-from projet_final.Case import Case
+from case import Case
+from player import Player
 
 
 class Game:
+
     def __init__(self):
-        self.__player = []
+        self.__player: list[Player] = []
         self.__board_size = 0
 
-    def board(self):
-        self.__cases = [[Case() for _ in range(self.__board_size)] for _ in range(self.__board_size)]
+        self.__cases: list[list[Case]] = []
 
-    def player_move(self):
-        self.__cases[0][0]
+    def create_board(self):
+        self.__cases = [[Case() for _ in range(self.__board_size)] for _ in range(self.__board_size)]
