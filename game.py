@@ -45,3 +45,6 @@ class Game:
                         y += 1
                 z -= 1
             self.__cases.append(rows_cases)
+    def place_barrier(self,pose_barrier1x,pose_barrier2x,pose_barrier1y,pose_barrier2y):
+        self.__cases[pose_barrier1x][pose_barrier1y].set_case_type(CaseType.BARRIER)
+        self.__cases[pose_barrier2x][pose_barrier2y].set_case_type(CaseType.BARRIER)
