@@ -1,6 +1,15 @@
 from typing import List
 
 from case import Case, CaseType
+from direction import Direction
+from direction_wrapper.east import East
+from direction_wrapper.north import North
+from direction_wrapper.north_east import NorthEast
+from direction_wrapper.north_west import NorthWest
+from direction_wrapper.south import South
+from direction_wrapper.south_east import SouthEast
+from direction_wrapper.south_west import SouthWest
+from direction_wrapper.west import West
 from player import Player
 
 
@@ -12,12 +21,28 @@ class Game:
         self.__cases = []
         self.create_board()
         self.__is_started = True
+        self.__direction_wrapper = {
+            Direction.EAST: East(self),
+            Direction.NORTH: North(self),
+            Direction.NORTH_EAST: NorthEast(self),
+            Direction.NORTH_WEST: NorthWest(self),
+            Direction.SOUTH: South(self),
+            Direction.SOUTH_EAST: SouthEast(self),
+            Direction.SOUTH_WEST: SouthWest(self),
+            Direction.WEST: West(self)
+        }
 
     def is_started(self):
         return self.__is_started
 
     def set_started(self, is_started: bool):
         self.__is_started = is_started
+
+    def has_case(self, x, y):
+        return len(self.__cases) > x and len(self.__cases[x]) > y
+
+    def get_case(self, x, y) -> Case:
+        return self.__cases[x][y]
 
     def create_board(self):
         size = self.__board_size * 2 - 1
@@ -45,3 +70,7 @@ class Game:
                         y += 1
                 z -= 1
             self.__cases.append(rows_cases)
+
+    def jump_player(self, player: Player, direction: Direction):
+        location = self.__direction_wrapper[direction].adapt_for_jump(player)
+        player.set_location(location[0], location[1])

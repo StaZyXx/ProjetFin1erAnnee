@@ -3,3 +3,7 @@ class Player:
         self.__amount_barrier = 0
         self.__x = 0
         self.__y = 0
+
+    def set_location(self, x, y):
+        self.__x = x
+        self.__y = y
