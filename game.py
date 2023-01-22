@@ -75,9 +75,7 @@ class Game:
         location = self.__direction_wrapper[direction].adapt_for_jump(player)
         player.set_location(location[0], location[1])
 
-    def can_place_barrier(self, x1, x2, y1, y2):
-        return self.__cases[x1][y1].get_case_type() == CaseType.BARRIER_SLOT and \
-            self.__cases[x2][y2].get_case_type() == CaseType.BARRIER_SLOT
+    # TODO : ADAPT WITH DIRECTION WRAPPER
 
     def place_barrier(self, x1, x2, y1, y2):
         self.__cases[x1][y1].set_case_type(CaseType.BARRIER)

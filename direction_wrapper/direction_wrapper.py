@@ -14,3 +14,6 @@ class DirectionWrapper:
 
     def can_adapt_for_jump(self, x, y):
         return True
+
+    def can_place_barrier(self, x, y):
+        return False
