@@ -17,8 +17,14 @@ class BarrierType(Enum):
 class Case:
     def __init__(self, case_type):
         self.__is_empty = True
-        self.__player = 0
+        self.__player = None
         self.__case_type: CaseType = case_type
+
+    def get_player(self):
+        return self.__player
+
+    def set_player(self, player):
+        self.__player = player
 
     def has_player(self):
         return self.__player != 0

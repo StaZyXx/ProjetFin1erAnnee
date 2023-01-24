@@ -83,3 +83,21 @@ class Game:
         else:
             if self.get_case(x,y).get_case_type() == CaseType.SLOT_BARRIER_VERTICAL:
                 #TODO PLACE BARRIER
+    def place_player(self):# A vérifier que les pions tombent bien au millieu du plateau
+        player1 = Player()
+        player2 = Player()
+        player1.set_location(self.__board_size*2-1,self.__board_size-1)#Ce pion est en bas au millieu
+        player2.set_location(0,self.__board_size - 1)# Ce joueur est en haut au millieu
+        self.get_case(self.__board_size*2-1,self.__board_size-1).set_player(player1)
+        self.get_case(0, self.__board_size-1).set_player(player2)
+
+        if len(self.__player) == 4:
+            player3 = Player()
+            player4 = Player()
+            player3.set_location(self.__board_size - 1, 0)  # Ce joueur est a gauche au millieu
+            player4.set_location(self.__board_size - 1, self.__board_size * 2 - 1)  # Ce joueur est a droite au millieu
+            self.get_case(self.__board_size - 1, 0).set_player(player3)
+            self.get_case(self.__board_size - 1, self.__board_size * 2 - 1).set_player(player4)
+
+
+
