@@ -1,6 +1,6 @@
 from typing import List
 
-from case import Case, CaseType
+from case import Case, CaseType, BarrierType
 from direction import Direction
 from direction_wrapper.east import East
 from direction_wrapper.north import North
@@ -72,11 +72,14 @@ class Game:
             self.__cases.append(rows_cases)
 
     def jump_player(self, player: Player, direction: Direction):
-        location = self.__direction_wrapper[direction].adapt_for_jump(player)
+        player_location = player.get_location()
+        location = self.__direction_wrapper[direction].adapt_for_jump(player_location[0], player_location[1])
         player.set_location(location[0], location[1])
 
-    # TODO : ADAPT WITH DIRECTION WRAPPER
-
-    def place_barrier(self, x1, x2, y1, y2):
-        self.__cases[x1][y1].set_case_type(CaseType.BARRIER)
-        self.__cases[x2][y2].set_case_type(CaseType.BARRIER)
+    def place_barrier(self, x, y, barrier_type):
+        if barrier_type == BarrierType.HORIZONTAL:
+            if self.get_case(x, y).get_case_type() == CaseType.SLOT_BARRIER_HORIZONTAL:
+                #TODO PLACE BARRIER
+        else:
+            if self.get_case(x,y).get_case_type() == CaseType.SLOT_BARRIER_VERTICAL:
+                #TODO PLACE BARRIER

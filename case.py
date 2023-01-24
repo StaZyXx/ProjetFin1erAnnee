@@ -3,9 +3,15 @@ from enum import Enum
 
 class CaseType(Enum):
     DEFAULT = 0
-    BARRIER_SLOT = 1
-    BARRIER = 2
-    BLANK = 3
+    SLOT_BARRIER_HORIZONTAL = 1
+    SLOT_BARRIER_VERTICAL = 2
+    BARRIER = 3
+    BLANK = 4
+
+
+class BarrierType(Enum):
+    HORIZONTAL = 0
+    VERTICAL = 1
 
 
 class Case:
