@@ -17,3 +17,6 @@ class DirectionWrapper:
 
     def can_place_barrier(self, x, y):
         return False
+
+    def check_path(self, initialPosition: [int, int]):
+        return False

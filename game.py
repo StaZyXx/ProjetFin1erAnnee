@@ -88,31 +88,58 @@ class Game:
             if self.get_case(x,y).get_case_type() == CaseType.SLOT_BARRIER_VERTICAL:
                 #TODO PLACE BARRIER
     def place_player(self):# A vérifier que les pions tombent bien au millieu du plateau
-        self.__player1 = Player()
-        self.__player2 = Player()
+        self.__player1 = Player(1)
+        self.__player2 = Player(2)
         self.__player1.set_location(self.__board_size*2-1,self.__board_size-1)#Ce pion est en bas au millieu
         self.__player2.set_location(0,self.__board_size - 1)# Ce joueur est en haut au millieu
         self.get_case(self.__board_size*2-1,self.__board_size-1).set_player(self.__player1)
         self.get_case(0, self.__board_size-1).set_player(self.__player2)
 
         if len(self.__player) == 4:
-            self.__player3 = Player()
-            self.__player4 = Player()
+            self.__player3 = Player(3)
+            self.__player4 = Player(4)
             self.__player3.set_location(self.__board_size - 1, 0)  # Ce joueur est a gauche au millieu
             self.__player4.set_location(self.__board_size - 1, self.__board_size * 2 - 1)  # Ce joueur est a droite au millieu
             self.get_case(self.__board_size - 1, 0).set_player(self.__player3)
             self.get_case(self.__board_size - 1, self.__board_size * 2 - 1).set_player(self.__player4)
+
+    def check_all_path(self):
+        for player in self.__player:
+            if self.check_path(player):
+                return True
+        return False
+
+    def check_path(self, player: Player):
+        while check_win(player, player.get_location()):
+            for direction in self.__direction_wrapper:
+                if self.__direction_wrapper[direction].check_path(player.get_location()[0], player.get_location()[1]):
+                    return True
+    def check_win(self, player: Player, location: [int, int]):
+        match (player.get_id()):
+            case 1:
+                if location[0] == 0:
+                    return True
+            case 2:
+                if location[0] == self.__board_size * 2 - 1:
+                    return True
+            case 3:
+                if location[1] == self.__board_size * 2 - 1:
+                    return True
+            case 4:
+                if location[1] == 0:
+                    return True
+            case _:
+                return False
     def check_winner(self):#A tester
-        if self.__player1.get_location()[0] == 0:
+        if check_win(self.__player1, self.__player1.get_location()):
             return self.__player1
-        elif self.__player2.get_location()[0] == self.__board_size-1:
+        if check_win(self.__player2, self.__player2.get_location()):
             return self.__player2
-        elif self.__player3.get_location()[1] == self.__board_size-1:
+        if check_win(self.__player3, self.__player3.get_location()):
             return self.__player3
-        elif self.__player4.get_location()[1] == 0:
+        if check_win(self.__player4, self.__player4.get_location()):
             return self.__player4
-        else:
-            return None
+        return None
     def stop_game(self):
         self.__is_started = False
 
