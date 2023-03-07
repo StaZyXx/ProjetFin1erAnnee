@@ -83,10 +83,10 @@ class Game:
     def place_barrier(self, x, y, barrier_type):
         if barrier_type == BarrierType.HORIZONTAL:
             if self.get_case(x, y).get_case_type() == CaseType.SLOT_BARRIER_HORIZONTAL:
-                #TODO PLACE BARRIER
+            #TODO PLACE BARRIER
         else:
             if self.get_case(x,y).get_case_type() == CaseType.SLOT_BARRIER_VERTICAL:
-                #TODO PLACE BARRIER
+            #TODO PLACE BARRIER
     def place_player(self):# A vérifier que les pions tombent bien au millieu du plateau
         self.__player1 = Player(1)
         self.__player2 = Player(2)
@@ -110,9 +110,9 @@ class Game:
         return False
 
     def check_path(self, player: Player):
-        while check_win(player, player.get_location()):
+        while self.check_win(player, player.get_location()):
             for direction in self.__direction_wrapper:
-                if self.__direction_wrapper[direction].check_path(player.get_location()[0], player.get_location()[1]):
+                if self.__direction_wrapper[direction].check_path(player.get_location()):
                     return True
     def check_win(self, player: Player, location: [int, int]):
         match (player.get_id()):
@@ -131,13 +131,13 @@ class Game:
             case _:
                 return False
     def check_winner(self):#A tester
-        if check_win(self.__player1, self.__player1.get_location()):
+        if self.check_win(self.__player1, self.__player1.get_location()):
             return self.__player1
-        if check_win(self.__player2, self.__player2.get_location()):
+        if self.check_win(self.__player2, self.__player2.get_location()):
             return self.__player2
-        if check_win(self.__player3, self.__player3.get_location()):
+        if self.check_win(self.__player3, self.__player3.get_location()):
             return self.__player3
-        if check_win(self.__player4, self.__player4.get_location()):
+        if self.check_win(self.__player4, self.__player4.get_location()):
             return self.__player4
         return None
     def stop_game(self):

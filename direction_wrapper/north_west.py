@@ -17,8 +17,8 @@ class NorthWest(DirectionWrapper):
         if not self.get_game().has_case(x, y - 2): return False
         if not self.get_game().get_case(x, y - 2).has_player(): return False
         if not self.get_game().has_case(x, y - 1): return False
-        if self.get_game().get_case(x, y - 1).get_case_type() != CaseType.BARRIER_SLOT: return False
+        if self.get_game().get_case(x, y - 1).get_case_type() != CaseType.SLOT_BARRIER_HORIZONTAL: return False
         if not self.get_game().has_case(x, y - 3): return False
-        if self.get_game().get_case(x, y - 3).get_case_type() != CaseType.BARRIER_SLOT: return False
+        if self.get_game().get_case(x, y - 3).get_case_type() != CaseType.SLOT_BARRIER_HORIZONTAL: return False
         return self.get_game().has_case(x, y - 4) and self.get_game().get_case(x, y - 4).get_case_type() == \
             CaseType.DEFAULT and not self.get_game().get_case(x, y - 4).has_player()

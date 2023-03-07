@@ -29,7 +29,7 @@ class Case:
     def has_player(self):
         return self.__player != 0
 
-    def get_case_type(self):
+    def get_case_type(self) -> CaseType:
         return self.__case_type
 
     def set_case_type(self, case_type: CaseType):
