@@ -10,3 +10,4 @@ class Direction(Enum):
     SOUTH_WEST = 6
     WEST = 7
     NORTH_WEST = 8
+    DEFAULT = 0

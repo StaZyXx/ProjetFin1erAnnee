@@ -1,3 +1,4 @@
+from case import CaseType
 from game import Game
 
 
@@ -15,8 +16,8 @@ class DirectionWrapper:
     def can_adapt_for_jump(self, x, y):
         return True
 
-    def can_place_barrier(self, x, y):
-        return False
+    def can_place_barrier(self, x, y) -> bool:
+        return True
 
     def check_path(self, initialPosition: [int, int]):
         return False

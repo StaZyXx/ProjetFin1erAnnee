@@ -2,6 +2,7 @@ from typing import List
 
 from case import Case, CaseType, BarrierType
 from direction import Direction
+from direction_wrapper.default import DefaultDirection
 from direction_wrapper.east import East
 from direction_wrapper.north import North
 from direction_wrapper.north_east import NorthEast
@@ -33,7 +34,8 @@ class Game:
             Direction.SOUTH: South(self),
             Direction.SOUTH_EAST: SouthEast(self),
             Direction.SOUTH_WEST: SouthWest(self),
-            Direction.WEST: West(self)
+            Direction.WEST: West(self),
+            Direction.DEFAULT: DefaultDirection(self)
         }
 
     def is_started(self):
@@ -83,6 +85,7 @@ class Game:
     def place_barrier(self, x, y, barrier_type):
         if barrier_type == BarrierType.HORIZONTAL:
             if self.get_case(x, y).get_case_type() == CaseType.SLOT_BARRIER_HORIZONTAL:
+                self.__direction_wrapper[Direction.NORTH].can_place_barrier()
             #TODO PLACE BARRIER
         else:
             if self.get_case(x,y).get_case_type() == CaseType.SLOT_BARRIER_VERTICAL:
