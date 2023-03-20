@@ -21,7 +21,7 @@ class Game:
         self.__player3: Player = None
         self.__player4: Player = None
         self.__player: List[Player] = []
-        self.__board_size = 7
+        self.__board_size = 9
         self.__cases = []
         self.create_board()
         self.__is_started = True
