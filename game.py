@@ -66,19 +66,19 @@ class Game:
             if z % 2 == 0:
                 for _ in range(size):
                     if y % 2 == 0:
-                        print(rows_cases.append(Case(CaseType.DEFAULT)))
+                        rows_cases.append(Case(CaseType.DEFAULT))
                         y -= 1
                     else:
-                        print(rows_cases.append(Case(CaseType.BARRIER)))
+                        rows_cases.append(Case(CaseType.BARRIER))
                         y += 1
                 z -= 1
             else:
                 for _ in range(size):
                     if y % 2 == 0:
-                        print(rows_cases.append(Case(CaseType.BLANK)))
+                        rows_cases.append(Case(CaseType.BLANK))
                         y -= 1
                     else:
-                        print(rows_cases.append(Case(CaseType.BARRIER)))
+                        rows_cases.append(Case(CaseType.BARRIER))
                         y += 1
                 z -= 1
             self.__cases.append(rows_cases)
@@ -92,19 +92,21 @@ class Game:
         direction = self.__direction_wrapper[Direction.DEFAULT]
         if direction.can_place_barrier(x, y, barrier_type):
             direction.place_barrier(x, y, barrier_type)
-    def place_player(self, amount: int):# A vérifier que les pions tombent bien au millieu du plateau
+
+    def place_player(self, amount: int):  # A vérifier que les pions tombent bien au millieu du plateau
         self.__player1 = Player(1)
         self.__player2 = Player(2)
-        self.__player1.set_location(self.__board_size*2-1,self.__board_size-1)#Ce pion est en bas au millieu
-        self.__player2.set_location(0,self.__board_size - 1)# Ce joueur est en haut au millieu
-        self.get_case(self.__board_size*2-1,self.__board_size-1).set_player(self.__player1)
-        self.get_case(0, self.__board_size-1).set_player(self.__player2)
+        self.__player1.set_location(self.__board_size * 2 - 1, self.__board_size - 1)  # Ce pion est en bas au millieu
+        self.__player2.set_location(0, self.__board_size - 1)  # Ce joueur est en haut au millieu
+        self.get_case(self.__board_size * 2 - 1, self.__board_size - 1).set_player(self.__player1)
+        self.get_case(0, self.__board_size - 1).set_player(self.__player2)
 
         if amount == 4:
             self.__player3 = Player(3)
             self.__player4 = Player(4)
             self.__player3.set_location(self.__board_size - 1, 0)  # Ce joueur est a gauche au millieu
-            self.__player4.set_location(self.__board_size - 1, self.__board_size * 2 - 1)  # Ce joueur est a droite au millieu
+            self.__player4.set_location(self.__board_size - 1,
+                                        self.__board_size * 2 - 1)  # Ce joueur est a droite au millieu
             self.get_case(self.__board_size - 1, 0).set_player(self.__player3)
             self.get_case(self.__board_size - 1, self.__board_size * 2 - 1).set_player(self.__player4)
 
@@ -119,6 +121,7 @@ class Game:
             for direction in self.__direction_wrapper:
                 if self.__direction_wrapper[direction].check_path(player.get_location()):
                     return True
+
     def check_win(self, player: Player, location: [int, int]):
         match (player.get_id()):
             case 1:
@@ -135,7 +138,8 @@ class Game:
                     return True
             case _:
                 return False
-    def check_winner(self):#A tester
+
+    def check_winner(self):  # A tester
         if self.check_win(self.__player1, self.__player1.get_location()):
             return self.__player1
         if self.check_win(self.__player2, self.__player2.get_location()):
@@ -145,16 +149,9 @@ class Game:
         if self.check_win(self.__player4, self.__player4.get_location()):
             return self.__player4
         return None
+
     def stop_game(self):
         self.__is_started = False
 
     def amount_barrier(self):
         return self.__amount[int(self.__board_size / 2 - 1)]
-
-
-
-
-
-
-
-

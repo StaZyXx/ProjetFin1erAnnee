@@ -1,15 +1,11 @@
 from case import CaseType, BarrierType
 from direction_wrapper.direction_wrapper import DirectionWrapper
-from game import Game
 
 
 class DefaultDirection(DirectionWrapper):
 
-    def __init__(self, game: Game):
+    def __init__(self, game):
         super().__init__(game)
-
-    def get_game(self) -> Game:
-        return self.__game
 
     def adapt_for_jump(self, x, y) -> (int, int):
         return 0, 0

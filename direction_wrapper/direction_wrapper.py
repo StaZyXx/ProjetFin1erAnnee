@@ -1,13 +1,12 @@
 from case import CaseType, BarrierType
-from game import Game
 
 
 class DirectionWrapper:
 
-    def __init__(self, game: Game):
+    def __init__(self, game):
         self.__game = game
 
-    def get_game(self) -> Game:
+    def get_game(self):
         return self.__game
 
     def adapt_for_jump(self, x, y) -> (int, int):

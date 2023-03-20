@@ -1,11 +1,10 @@
 from case import CaseType
 from direction_wrapper.direction_wrapper import DirectionWrapper
-from game import Game
 
 
 class NorthEast(DirectionWrapper):
 
-    def __init__(self, game: Game):
+    def __init__(self, game):
         super().__init__(game)
 
     def adapt_for_jump(self, x, y) -> (int, int):
