@@ -16,6 +16,7 @@ class BarrierType(Enum):
 
 class Case:
     def __init__(self, case_type):
+        self.__barrier_type = None
         self.__is_empty = True
         self.__player = None
         self.__case_type: CaseType = case_type
@@ -34,3 +35,11 @@ class Case:
 
     def set_case_type(self, case_type: CaseType):
         self.__case_type = case_type
+        return self
+
+    def set_barrier_type(self, barrier_type: BarrierType):
+        self.__barrier_type = barrier_type
+        return self
+
+    def get_barrier_type(self):
+        return self.__barrier_type

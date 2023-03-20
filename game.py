@@ -83,14 +83,10 @@ class Game:
         player.set_location(location[0], location[1])
 
     def place_barrier(self, x, y, barrier_type):
-        if barrier_type == BarrierType.HORIZONTAL:
-            if self.get_case(x, y).get_case_type() == CaseType.SLOT_BARRIER_HORIZONTAL:
-                self.__direction_wrapper[Direction.NORTH].can_place_barrier()
-            #TODO PLACE BARRIER
-        else:
-            if self.get_case(x,y).get_case_type() == CaseType.SLOT_BARRIER_VERTICAL:
-            #TODO PLACE BARRIER
-    def place_player(self):# A vérifier que les pions tombent bien au millieu du plateau
+        direction = self.__direction_wrapper[Direction.DEFAULT]
+        if direction.can_place_barrier(x, y, barrier_type):
+            direction.place_barrier(x, y, barrier_type)
+    def place_player(self, amount: int):# A vérifier que les pions tombent bien au millieu du plateau
         self.__player1 = Player(1)
         self.__player2 = Player(2)
         self.__player1.set_location(self.__board_size*2-1,self.__board_size-1)#Ce pion est en bas au millieu
@@ -98,7 +94,7 @@ class Game:
         self.get_case(self.__board_size*2-1,self.__board_size-1).set_player(self.__player1)
         self.get_case(0, self.__board_size-1).set_player(self.__player2)
 
-        if len(self.__player) == 4:
+        if amount == 4:
             self.__player3 = Player(3)
             self.__player4 = Player(4)
             self.__player3.set_location(self.__board_size - 1, 0)  # Ce joueur est a gauche au millieu
