@@ -37,6 +37,12 @@ class Game:
             Direction.WEST: West(self),
             Direction.DEFAULT: DefaultDirection(self)
         }
+        self.__amount = {
+            5: 12,
+            7: 16,
+            9: 20,
+            11: 24,
+        }
 
     def is_started(self):
         return self.__is_started
@@ -141,6 +147,10 @@ class Game:
         return None
     def stop_game(self):
         self.__is_started = False
+
+    def amount_barrier(self):
+        return self.__amount[self.__board_size / 2 - 1]
+
 
 
 
