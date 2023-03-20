@@ -22,7 +22,7 @@ class Game:
         self.__player3: Player = None
         self.__player4: Player = None
         self.__player: List[Player] = []
-        self.__board_size = 9
+        self.__board_size = 10
         self.__cases = []
         self.create_board()
         self.__is_started = True
@@ -69,7 +69,7 @@ class Game:
                         rows_cases.append(Case(CaseType.DEFAULT))
                         y -= 1
                     else:
-                        rows_cases.append(Case(CaseType.BARRIER))
+                        rows_cases.append(Case(CaseType.SLOT_BARRIER_VERTICAL))
                         y += 1
                 z -= 1
             else:
@@ -78,10 +78,15 @@ class Game:
                         rows_cases.append(Case(CaseType.BLANK))
                         y -= 1
                     else:
-                        rows_cases.append(Case(CaseType.BARRIER))
+                        rows_cases.append(Case(CaseType.SLOT_BARRIER_HORIZONTAL))
                         y += 1
                 z -= 1
             self.__cases.append(rows_cases)
+    def show_board(self):
+        for i in range(len(self.__cases)):
+            print("")
+            for j in range (len(self.__cases[i])):
+                print(self.__cases[i][j].get_case_type().value, end=" ")
 
     def jump_player(self, player: Player, direction: Direction):
         player_location = player.get_location()
@@ -156,4 +161,6 @@ class Game:
     def amount_barrier(self):
         return self.__amount[int(self.__board_size / 2 - 1)]
 
-    #test
+jeu = Game()
+
+jeu.show_board()
