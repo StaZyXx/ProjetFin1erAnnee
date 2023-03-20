@@ -155,3 +155,5 @@ class Game:
 
     def amount_barrier(self):
         return self.__amount[int(self.__board_size / 2 - 1)]
+
+    #test
