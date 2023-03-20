@@ -149,7 +149,7 @@ class Game:
         self.__is_started = False
 
     def amount_barrier(self):
-        return self.__amount[self.__board_size / 2 - 1]
+        return self.__amount[int(self.__board_size / 2 - 1)]
 
 
 
