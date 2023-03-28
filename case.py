@@ -18,7 +18,7 @@ class Case:
     def __init__(self, case_type):
         self.__barrier_type = None
         self.__is_empty = True
-        self.__player = None
+        self.__player = 0
         self.__case_type: CaseType = case_type
 
     def get_player(self):
