@@ -12,19 +12,20 @@ from direction_wrapper.south_east import SouthEast
 from direction_wrapper.south_west import SouthWest
 from direction_wrapper.west import West
 from player import Player
+from view import View
 
 
 class Game:
 
     def __init__(self):
+        self.__current_player = None
         self.__player1: Player = None
         self.__player2: Player = None
         self.__player3: Player = None
         self.__player4: Player = None
         self.__player: List[Player] = []
-        self.__board_size = 11
+        self.__board_size = 0
         self.__cases = []
-        self.create_board()
         self.__is_started = True
         self.__direction_wrapper = {
             Direction.EAST: East(self),
@@ -43,6 +44,13 @@ class Game:
             9: 20,
             11: 24,
         }
+
+    def start(self, size: int, players: int):
+        self.__board_size = size
+
+        self.create_board()
+        self.place_player(players)
+        self.__is_started = True
 
     def is_started(self):
         return self.__is_started
@@ -88,7 +96,7 @@ class Game:
             print("")
             for j in range(len(self.__cases[i])):
                 case = self.__cases[i][j]
-                match(case.get_case_type().value):
+                match case.get_case_type().value:
                     case 0:
                         if case.has_player():
                             print("J", end="")
@@ -106,7 +114,6 @@ class Game:
                     case 4:
                         print("", end="")
 
-
     def jump_player(self, player: Player, direction: Direction):
         player_location = player.get_location()
         location = self.__direction_wrapper[direction].adapt_for_jump(player_location[0], player_location[1])
@@ -115,13 +122,49 @@ class Game:
     def place_barrier(self, x, y, barrier_type):
         direction = self.__direction_wrapper[Direction.DEFAULT]
         if direction.can_place_barrier(x, y, barrier_type):
+            print("Barrier placed at " + str(x) + " " + str(y) + " " + str(barrier_type))
             direction.place_barrier(x, y, barrier_type)
+
+    def determine_direction(self, y, x):
+        playerY, playerX = self.__current_player.get_location()
+
+        if self.__current_player.get_id() == 2:
+            if playerX + 1 == x:
+                return Direction.SOUTH
+        if playerX == x:
+            if playerY > y:
+                return Direction.NORTH
+            else:
+                return Direction.SOUTH
+        elif playerY == y:
+            if playerX > x:
+                return Direction.WEST
+            else:
+                return Direction.EAST
+        elif playerX > x:
+            if playerY > y:
+                return Direction.NORTH_WEST
+            else:
+                return Direction.SOUTH_WEST
+        elif playerX < x:
+            if playerY > y:
+                return Direction.NORTH_EAST
+            else:
+                return Direction.SOUTH_EAST
+
+    def move_player(self, x, y):
+        direction = self.determine_direction(x, y)
+        print("Direction " + str(direction))
+        dw = self.__direction_wrapper[direction]
+        if dw.can_move(self.__current_player):
+            dw.move(self.__current_player)
+            self.switch_player()
 
     def place_player(self, amount: int):  # A vérifier que les pions tombent bien au millieu du plateau
         self.__player1 = Player(1)
         self.__player2 = Player(2)
+        self.__current_player = self.__player1
 
-        print(str(self.__board_size) + " - " + str(len(self.__cases)))
         self.__player1.set_location(self.__board_size * 2 - 2, self.__board_size - 1)  # Ce pion est en bas au millieu
         self.__player2.set_location(0, self.__board_size - 2)  # Ce joueur est en haut au millieu
         self.get_case(self.__board_size * 2 - 2, self.__board_size - 1).set_player(self.__player1)
@@ -176,15 +219,33 @@ class Game:
             return self.__player4
         return None
 
+    def switch_player(self):
+        if self.__player3 is not None:
+            if self.__current_player == self.__player1:
+                self.__current_player = self.__player2
+            elif self.__current_player == self.__player2:
+                self.__current_player = self.__player3
+            elif self.__current_player == self.__player3:
+                self.__current_player = self.__player4
+            else:
+                self.__current_player = self.__player1
+        else:
+            if self.__current_player == self.__player1:
+                print("Player 1")
+                self.__current_player = self.__player2
+            else:
+                self.__current_player = self.__player1
+
     def stop_game(self):
         self.__is_started = False
 
     def amount_barrier(self):
         return self.__amount[int(self.__board_size / 2 - 1)]
 
+    def get_cases(self) -> [[Case]]:
+        return self.__cases
+
 
 jeu = Game()
 
-jeu.place_player(4)
-
-jeu.show_board()
+View(jeu)

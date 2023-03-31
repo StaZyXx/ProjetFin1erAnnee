@@ -15,6 +15,12 @@ class DirectionWrapper:
     def can_adapt_for_jump(self, x, y):
         return True
 
+    def can_move(self, player):
+        return True
+
+    def move(self, player):
+        return
+
     def can_place_barrier(self, x, y, barrier_type: BarrierType) -> bool:
         return True
 
