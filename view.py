@@ -2,6 +2,7 @@ import tkinter
 from tkinter import *
 from tkinter import messagebox as mb, Text
 
+import direction
 from case import CaseType, BarrierType
 
 
@@ -44,6 +45,10 @@ class View:
             self.__selection_frame.destroy()
             self.__game_frame = tkinter.Frame(self.__root)
             self.__game_frame.grid(row=0, column=0, rowspan=5)
+            self.__root.bind('z', lambda event: self.key_board(direction.Direction.NORTH, game))
+            self.__root.bind('q', lambda event: self.key_board(direction.Direction.WEST, game))
+            self.__root.bind('s', lambda event: self.key_board(direction.Direction.SOUTH, game))
+            self.__root.bind('d', lambda event: self.key_board(direction.Direction.EAST, game))
             game.start(size, 2)
 
             self.show_board(game)
@@ -107,3 +112,8 @@ class View:
         else:
             game.move_player(x, y)
             self.show_board(game)
+
+    def key_board(self, direction, game):
+        print("key", direction)
+        game.move_player_with_direction(direction)
+        self.show_board(game)

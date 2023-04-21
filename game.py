@@ -160,6 +160,13 @@ class Game:
             dw.move(self.__current_player)
             self.switch_player()
 
+    def move_player_with_direction(self, direction):
+        dw = self.__direction_wrapper[direction]
+        print("can move " + str(dw.can_move(self.__current_player)))
+        if dw.can_move(self.__current_player):
+            dw.move(self.__current_player)
+            self.switch_player()
+
     def place_player(self, amount: int):  # A vérifier que les pions tombent bien au millieu du plateau
         self.__player1 = Player(1)
         self.__player2 = Player(2)
@@ -231,7 +238,6 @@ class Game:
                 self.__current_player = self.__player1
         else:
             if self.__current_player == self.__player1:
-                print("Player 1")
                 self.__current_player = self.__player2
             else:
                 self.__current_player = self.__player1
