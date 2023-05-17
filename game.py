@@ -173,13 +173,13 @@ class Game:
         self.__current_player = self.__player1
 
         self.__player1.set_location(self.__board_size * 2 - 2, self.__board_size - 1)  # Ce pion est en bas au millieu
-        self.__player2.set_location(0, self.__board_size - 2)  # Ce joueur est en haut au millieu
+        self.__player2.set_location(0, self.__board_size - 1)  # Ce joueur est en haut au millieu
         self.get_case(self.__board_size * 2 - 2, self.__board_size - 1).set_player(self.__player1)
         self.get_case(0, self.__board_size - 1).set_player(self.__player2)
 
         if amount == 4:
             self.__player3 = Player(3)
-            self.__player4 = Player(4)
+        é    self.__player4 = Player(4)
             self.__player3.set_location(self.__board_size - 1, 0)  # Ce joueur est a gauche au millieu
             self.__player4.set_location(self.__board_size - 1,
                                         self.__board_size * 2 - 2)  # Ce joueur est a droite au millieu
