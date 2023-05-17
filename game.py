@@ -179,7 +179,7 @@ class Game:
 
         if amount == 4:
             self.__player3 = Player(3)
-        é    self.__player4 = Player(4)
+            self.__player4 = Player(4)
             self.__player3.set_location(self.__board_size - 1, 0)  # Ce joueur est a gauche au millieu
             self.__player4.set_location(self.__board_size - 1,
                                         self.__board_size * 2 - 2)  # Ce joueur est a droite au millieu
