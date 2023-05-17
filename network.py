@@ -17,9 +17,18 @@ class Server :
         self.player3, self.adress3 = None, None
         self.player4, self.adress4 = None, None
 
-    def ecoute(self,player,adress,num_play):
+    def ecoute(self):
         while True :
             self.__socket.listen(5)
+            if self.__player2 == None:
+                player = self.player2
+                adress = self.adress2
+            elif self.__player3 == None:
+                player = self.player3
+                adress = self.adress3
+            elif self.__player4 == None:
+                player = self.player4
+                adress = self.adress4
             player,adress = self.__socket.accept()
             player.send(f"Vous êtes le joueur {num_play} !".encode())
             print(f"Le joueur {num_play} à rejoint la partie !")
@@ -35,6 +44,15 @@ class Client :
         mess = self.__socket.recv(1024)
         mess = mess.decode("utf8")
         print(mess)
+
+    def receipt_message(self):
+        message = self.__socket.recv(1024)
+        message = message.decode("utf8")
+        return message
+
+    def send_message(self,message):
+        self.__socket.send(message.encode())
+
 
 choice = str(input("Quelle est le role server/client ? (s/c)"))
 if choice == "s":
