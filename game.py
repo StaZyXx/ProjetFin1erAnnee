@@ -218,11 +218,11 @@ class Game:
     def check_winner(self):  # A tester
         if self.check_win(self.__player1, self.__player1.get_location()):
             return self.__player1
-        if self.check_win(self.__player2, self.__player2.get_location()):
+        elif self.check_win(self.__player2, self.__player2.get_location()):
             return self.__player2
-        if self.check_win(self.__player3, self.__player3.get_location()):
+        elif self.check_win(self.__player3, self.__player3.get_location()):
             return self.__player3
-        if self.check_win(self.__player4, self.__player4.get_location()):
+        elif self.check_win(self.__player4, self.__player4.get_location()):
             return self.__player4
         return None
 
