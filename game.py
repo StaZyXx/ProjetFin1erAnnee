@@ -91,29 +91,6 @@ class Game:
                 z -= 1
             self.__cases.append(rows_cases)
 
-    def show_board(self):
-        for i in range(len(self.__cases)):
-            print("")
-            for j in range(len(self.__cases[i])):
-                case = self.__cases[i][j]
-                match case.get_case_type().value:
-                    case 0:
-                        if case.has_player():
-                            print("J", end="")
-                        else:
-                            print(" ", end="")
-                    case 1:
-                        print("X", end=" ")
-                    case 2:
-                        print("X", end="")
-                    case 3:
-                        if case.get_barrier_type() == BarrierType.VERTICAL:
-                            print("|", end="")
-                        else:
-                            print("-", end="")
-                    case 4:
-                        print("", end="")
-
     def jump_player(self, player: Player, direction: Direction):
         player_location = player.get_location()
         location = self.__direction_wrapper[direction].adapt_for_jump(player_location[0], player_location[1])
@@ -154,13 +131,13 @@ class Game:
 
     def move_player(self, x, y):
         direction = self.determine_direction(x, y)
-        print("Direction " + str(direction))
-        dw = self.__direction_wrapper[direction]
-        if dw.can_move(self.__current_player):
-            dw.move(self.__current_player)
-            self.switch_player()
+        self.move_player_with_direction(direction)
+
 
     def move_player_with_direction(self, direction):
+        if self.check_winner() is not None:
+            self.stop_game()
+            return
         dw = self.__direction_wrapper[direction]
         print("can move " + str(dw.can_move(self.__current_player)))
         if dw.can_move(self.__current_player):
@@ -199,6 +176,7 @@ class Game:
                     return True
 
     def check_win(self, player: Player, location: [int, int]):
+        print("Check win " + str(player.get_id()) + " " + str(location))
         match (player.get_id()):
             case 1:
                 if location[0] == 0:
@@ -220,10 +198,11 @@ class Game:
             return self.__player1
         if self.check_win(self.__player2, self.__player2.get_location()):
             return self.__player2
-        if self.check_win(self.__player3, self.__player3.get_location()):
-            return self.__player3
-        if self.check_win(self.__player4, self.__player4.get_location()):
-            return self.__player4
+        if self.__player3 is not None and self.__player4 is not None:
+            if self.check_win(self.__player3, self.__player3.get_location()):
+                return self.__player3
+            if self.check_win(self.__player4, self.__player4.get_location()):
+                return self.__player4
         return None
 
     def switch_player(self):
