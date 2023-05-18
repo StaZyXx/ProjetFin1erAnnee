@@ -19,10 +19,6 @@ class Game:
 
     def __init__(self):
         self.__current_player = None
-        self.__player1: Player = None
-        self.__player2: Player = None
-        self.__player3: Player = None
-        self.__player4: Player = None
         self.__player: List[Player] = []
         self.__board_size = 0
         self.__cases = []
@@ -63,6 +59,9 @@ class Game:
 
     def get_case(self, x, y) -> Case:
         return self.__cases[x][y]
+
+    def get_player(self, index: int) -> Player:
+        return self.__player[index - 1]
 
     def create_board(self):
         size = self.__board_size * 2 - 1
@@ -147,23 +146,27 @@ class Game:
             self.switch_player()
 
     def place_player(self, amount: int):  # A vérifier que les pions tombent bien au millieu du plateau
-        self.__player1 = Player(1)
-        self.__player2 = Player(2)
-        self.__current_player = self.__player1
+        player1 = Player(1)
+        player2 = Player(2)
+        self.__player.append(player1)
+        self.__player.append(player2)
+        self.__current_player = player1
 
-        self.__player1.set_location(self.__board_size * 2 - 2, self.__board_size - 1)  # Ce pion est en bas au millieu
-        self.__player2.set_location(0, self.__board_size - 1)  # Ce joueur est en haut au millieu
-        self.get_case(self.__board_size * 2 - 2, self.__board_size - 1).set_player(self.__player1)
-        self.get_case(0, self.__board_size - 1).set_player(self.__player2)
+        player1.set_location(self.__board_size * 2 - 2, self.__board_size - 1)  # Ce pion est en bas au millieu
+        player2.set_location(0, self.__board_size - 1)  # Ce joueur est en haut au millieu
+        self.get_case(self.__board_size * 2 - 2, self.__board_size - 1).set_player(player1)
+        self.get_case(0, self.__board_size - 1).set_player(player2)
 
         if amount == 4:
-            self.__player3 = Player(3)
-            self.__player4 = Player(4)
-            self.__player3.set_location(self.__board_size - 1, 0)  # Ce joueur est a gauche au millieu
-            self.__player4.set_location(self.__board_size - 1,
-                                        self.__board_size * 2 - 2)  # Ce joueur est a droite au millieu
-            self.get_case(self.__board_size - 1, 0).set_player(self.__player3)
-            self.get_case(self.__board_size - 1, self.__board_size * 2 - 2).set_player(self.__player4)
+            player3 = Player(3)
+            player4 = Player(4)
+            self.__player.append(player3)
+            self.__player.append(player4)
+            player3.set_location(self.__board_size - 1, 0)  # Ce joueur est a gauche au millieu
+            player4.set_location(self.__board_size - 1,
+                                 self.__board_size * 2 - 2)  # Ce joueur est a droite au millieu
+            self.get_case(self.__board_size - 1, 0).set_player(player3)
+            self.get_case(self.__board_size - 1, self.__board_size * 2 - 2).set_player(player4)
 
     def check_all_path(self):
         for player in self.__player:
@@ -172,12 +175,15 @@ class Game:
         return False
 
     def check_path(self, player: Player):
-        while self.check_win(player, player.get_location()):
+        while self.check_win_with_location(player, player.get_location()):
             for direction in self.__direction_wrapper:
                 if self.__direction_wrapper[direction].check_path(player.get_location()):
                     return True
 
-    def check_win(self, player: Player, location: [int, int]):
+    def check_win(self, player):
+        return self.check_win_with_location(player, player.get_location())
+
+    def check_win_with_location(self, player: Player, location: [int, int]):
         print("Check win " + str(player.get_id()) + " " + str(location))
         match (player.get_id()):
             case 1:
@@ -196,32 +202,32 @@ class Game:
                 return False
 
     def check_winner(self):  # A tester
-        if self.check_win(self.__player1, self.__player1.get_location()):
-            return self.__player1
-        if self.check_win(self.__player2, self.__player2.get_location()):
-            return self.__player2
-        if self.__player3 is not None and self.__player4 is not None:
-            if self.check_win(self.__player3, self.__player3.get_location()):
-                return self.__player3
-            if self.check_win(self.__player4, self.__player4.get_location()):
-                return self.__player4
+        if self.check_win(self.get_player(1)):
+            return self.get_player(1)
+        if self.check_win(self.get_player(2)):
+            return self.get_player(2)
+        if len(self.__player) == 4:
+            if self.check_win(self.get_player(3)):
+                return self.get_player(3)
+            if self.check_win(self.get_player(4)):
+                return self.get_player(4)
         return None
 
     def switch_player(self):
-        if self.__player3 is not None:
-            if self.__current_player == self.__player1:
-                self.__current_player = self.__player2
-            elif self.__current_player == self.__player2:
-                self.__current_player = self.__player3
-            elif self.__current_player == self.__player3:
-                self.__current_player = self.__player4
+        if len(self.__player) == 4:
+            if self.__current_player == self.get_player(1):
+                self.__current_player = self.get_player(2)
+            elif self.__current_player == self.get_player(2):
+                self.__current_player = self.get_player(3)
+            elif self.__current_player == self.get_player(3):
+                self.__current_player = self.get_player(4)
             else:
-                self.__current_player = self.__player1
+                self.__current_player = self.get_player(1)
         else:
-            if self.__current_player == self.__player1:
-                self.__current_player = self.__player2
+            if self.__current_player == self.get_player(1):
+                self.__current_player = self.get_player(2)
             else:
-                self.__current_player = self.__player1
+                self.__current_player = self.get_player(1)
 
     def stop_game(self):
         self.__is_started = False
