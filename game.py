@@ -156,6 +156,9 @@ class Game:
         direction = self.determine_direction(x, y)
         print("Direction " + str(direction))
         dw = self.__direction_wrapper[direction]
+        if dw.can_adapt_for_jump(self.__current_player.get_location()[0], self.__current_player.get_location()[1]):
+            self.jump_player(self.__current_player, direction)
+            return
         if dw.can_move(self.__current_player):
             dw.move(self.__current_player)
             self.switch_player()

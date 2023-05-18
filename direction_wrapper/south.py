@@ -9,9 +9,11 @@ class South(DirectionWrapper):
 
     def can_move(self, player):
         x, y = player.get_location()
-        print(player.get_location())
         print(x, y, self.get_game().has_case(x + 2, y), self.get_game().get_case(x + 2, y).get_case_type())
+        print(self.get_game().get_case(x + 1, y).get_case_type())
         if self.get_game().has_case(x + 2, y):
+            if self.get_game().get_case(x + 1, y).get_case_type() == CaseType.BARRIER:
+                return False
             return self.get_game().get_case(x + 2, y).get_case_type() == CaseType.DEFAULT and not \
                 self.get_game().get_case(x + 2, y).has_player()
 
