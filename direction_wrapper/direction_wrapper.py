@@ -27,6 +27,9 @@ class DirectionWrapper:
     def move(self, player):
         return
 
+    def jump(self, player):
+        return
+
     def can_place_barrier(self, x, y, barrier_type: BarrierType) -> bool:
         return False
 
