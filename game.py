@@ -178,7 +178,7 @@ class Game:
                 return False
         return True
 
-    def check_path(self, player: Player, location=None, max_checks=10):
+    def check_path(self, player: Player, location=None, max_checks=1000):
         if max_checks <= 0:
             return False
 
@@ -192,14 +192,12 @@ class Game:
         max_checks -= 1
         for direction in Direction:
             if self.__direction_wrapper[direction].can_adapt_for_jump(location[0], location[1]):
-                self.check_path(player, self.__direction_wrapper[direction].adapt_for_jump(location[0], location[1]),
-                                max_checks)
-                continue
+                return self.check_path(player,
+                                       self.__direction_wrapper[direction].adapt_for_jump(location[0], location[1]),
+                                       max_checks)
             elif self.__direction_wrapper[direction].can_move(location):
-
-                self.check_path(player, self.__direction_wrapper[direction].adapt_for_move(location),
-                                max_checks)
-                continue
+                return self.check_path(player, self.__direction_wrapper[direction].adapt_for_move(location),
+                                       max_checks)
 
         return False
 
