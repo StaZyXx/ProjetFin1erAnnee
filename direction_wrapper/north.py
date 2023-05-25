@@ -10,8 +10,9 @@ class North(DirectionWrapper):
     def can_move(self, location: [int, int]) -> bool:
         x, y = location
         if self.get_game().has_case(x - 2, y):
-            if self.get_game().get_case(x - 1, y).get_case_type() == CaseType.BARRIER:
-                return False
+            if self.get_game().has_case(x - 1, y):
+                if self.get_game().get_case(x - 1, y).get_case_type() == CaseType.BARRIER:
+                    return False
 
             return self.get_game().get_case(x - 2, y).get_case_type() == CaseType.DEFAULT and not \
                 self.get_game().get_case(x - 2, y).has_player()

@@ -172,6 +172,7 @@ class Game:
             self.get_case(self.__board_size - 1, self.__board_size * 2 - 2).set_player(player4)
 
     def check_all_path(self):
+        print(self.__player)
         for player in self.__player:
             if not self.check_path(player):
                 return False
@@ -182,18 +183,20 @@ class Game:
             return False
 
         if location is None:
-            location = [0, 0]  # Position de départ
+            location = player.get_location()  # Position de départ
 
         if self.check_win_with_location(player, location):
+            print("Win", player.get_id(), location, max_checks)
             return True
 
+        max_checks -= 1
         for direction in Direction:
-            max_checks -= 1
             if self.__direction_wrapper[direction].can_adapt_for_jump(location[0], location[1]):
                 self.check_path(player, self.__direction_wrapper[direction].adapt_for_jump(location[0], location[1]),
                                 max_checks)
                 continue
             elif self.__direction_wrapper[direction].can_move(location):
+
                 self.check_path(player, self.__direction_wrapper[direction].adapt_for_move(location),
                                 max_checks)
                 continue
@@ -208,6 +211,7 @@ class Game:
         match (player.get_id()):
             case 1:
                 if location[0] == 0:
+                    print("Win 1")
                     return True
             case 2:
                 if location[0] == self.__board_size * 2 - 1:
