@@ -13,10 +13,16 @@ class DirectionWrapper:
         return 0, 0
 
     def can_adapt_for_jump(self, x, y):
-        return True
+        return False
 
-    def can_move(self, player):
-        return True
+    def can_move(self, location: [int, int]) -> bool:
+        return False
+
+    def player_can_move(self, player):
+        return self.can_move(player.get_location())
+
+    def adapt_for_move(self, location: [int, int]) -> [int, int]:
+        return
 
     def move(self, player):
         return
@@ -25,10 +31,7 @@ class DirectionWrapper:
         return
 
     def can_place_barrier(self, x, y, barrier_type: BarrierType) -> bool:
-        return True
+        return False
 
     def place_barrier(self, x, y, barrier_type: BarrierType):
         return
-
-    def check_path(self, initialPosition: [int, int]):
-        return False
