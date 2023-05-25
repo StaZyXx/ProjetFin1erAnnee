@@ -11,7 +11,7 @@ class DefaultDirection(DirectionWrapper):
         return 0, 0
 
     def can_adapt_for_jump(self, x, y):
-        return True
+        return False
 
     def can_place_barrier(self, x, y, barrier_type: BarrierType) -> bool:
 
@@ -39,6 +39,3 @@ class DefaultDirection(DirectionWrapper):
             case = self.get_game().get_case(x + 2, y)
             case.set_case_type(CaseType.BARRIER)
             case.set_barrier_type(BarrierType.VERTICAL)
-
-    def check_path(self, initialPosition: [int, int]):
-        return False

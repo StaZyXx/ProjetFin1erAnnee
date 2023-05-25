@@ -17,6 +17,7 @@ class South(DirectionWrapper):
 
     def adapt_for_move(self, location: [int, int]) -> [int, int]:
         return location[0] + 2, location[1]
+
     def move(self, player):
         x, y = player.get_location()
         self.get_game().get_case(x + 2, y).set_player(player)

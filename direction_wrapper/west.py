@@ -37,6 +37,3 @@ class West(DirectionWrapper):
         if self.get_game().get_case(x, y - 3).get_case_type() != CaseType.SLOT_BARRIER_VERTICAL: return False
         return self.get_game().has_case(x, y - 4) and self.get_game().get_case(x, y - 4).get_case_type() == \
             CaseType.DEFAULT and not self.get_game().get_case(x, y - 4).has_player()
-
-    def can_place_barrier(self, x, y):
-        return True
