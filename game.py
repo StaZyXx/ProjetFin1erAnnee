@@ -55,7 +55,7 @@ class Game:
         self.__is_started = is_started
 
     def has_case(self, x, y):
-        return len(self.__cases) > x and len(self.__cases[x]) > y
+        return len(self.__cases) > x >= 0 and len(self.__cases[x]) > y >= 0
 
     def get_case(self, x, y) -> Case:
         return self.__cases[x][y]
@@ -100,6 +100,9 @@ class Game:
         if direction.can_place_barrier(x, y, barrier_type):
             print("Barrier placed at " + str(x) + " " + str(y) + " " + str(barrier_type))
             direction.place_barrier(x, y, barrier_type)
+            if not self.check_all_path():
+                print("Barrier removed at " + str(x) + " " + str(y) + " " + str(barrier_type))
+                return False
 
     def determine_direction(self, y, x):
         playerY, playerX = self.__current_player.get_location()
@@ -140,8 +143,8 @@ class Game:
         if dw.can_adapt_for_jump(self.__current_player.get_location()[0], self.__current_player.get_location()[1]):
             self.jump_player(self.__current_player, direction)
             return
-        print("can move " + str(dw.can_move(self.__current_player)))
-        if dw.can_move(self.__current_player):
+        print("can move " + str(dw.player_can_move(self.__current_player)))
+        if dw.player_can_move(self.__current_player):
             dw.move(self.__current_player)
             self.switch_player()
 
@@ -170,15 +173,31 @@ class Game:
 
     def check_all_path(self):
         for player in self.__player:
-            if self.check_path(player):
-                return True
-        return False
+            if not self.check_path(player):
+                return False
+        return True
 
-    def check_path(self, player: Player):
-        while self.check_win_with_location(player, player.get_location()):
-            for direction in self.__direction_wrapper:
-                if self.__direction_wrapper[direction].check_path(player.get_location()):
-                    return True
+    def check_path(self, player: Player, location=None, max_checks=10):
+        if max_checks <= 0:
+            return False
+
+        if location is None:
+            location = [0, 0]  # Position de départ
+
+        if self.check_win_with_location(player, location):
+            return True
+
+        for direction in Direction:
+            if self.__direction_wrapper[direction].can_adapt_for_jump(location[0], location[1]):
+                self.check_path(player, self.__direction_wrapper[direction].adapt_for_jump(location[0], location[1]),
+                                max_checks - 1)
+                continue
+            if self.__direction_wrapper[direction].can_move(location):
+                self.check_path(player, self.__direction_wrapper[direction].adapt_for_move(location),
+                                max_checks - 1)
+                continue
+
+        return False
 
     def check_win(self, player):
         return self.check_win_with_location(player, player.get_location())

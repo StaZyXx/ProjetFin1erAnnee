@@ -7,8 +7,8 @@ class North(DirectionWrapper):
     def __init__(self, game):
         super().__init__(game)
 
-    def can_move(self, player):
-        x, y = player.get_location()
+    def can_move(self, location: [int, int]) -> bool:
+        x, y = location
         if self.get_game().has_case(x - 2, y):
             if self.get_game().get_case(x - 1, y).get_case_type() == CaseType.BARRIER:
                 return False
@@ -16,6 +16,8 @@ class North(DirectionWrapper):
             return self.get_game().get_case(x- 2, y).get_case_type() == CaseType.DEFAULT and not \
                 self.get_game().get_case(x- 2, y).has_player()
 
+    def adapt_for_move(self, location: [int, int]) -> [int, int]:
+        return location[0] - 2, location[1]
     def move(self, player):
         x, y = player.get_location()
         self.get_game().get_case(x - 2, y).set_player(player)
