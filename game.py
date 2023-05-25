@@ -92,9 +92,7 @@ class Game:
             self.__cases.append(rows_cases)
 
     def jump_player(self, player: Player, direction: Direction):
-        player_location = player.get_location()
-        location = self.__direction_wrapper[direction].adapt_for_jump(player_location[0], player_location[1])
-        player.set_location(location[0], location[1])
+        self.__direction_wrapper[direction].jump(player)
 
     def place_barrier(self, x, y, barrier_type):
         direction = self.__direction_wrapper[Direction.DEFAULT]
@@ -140,6 +138,7 @@ class Game:
         dw = self.__direction_wrapper[direction]
         if dw.can_adapt_for_jump(self.__current_player.get_location()[0], self.__current_player.get_location()[1]):
             self.jump_player(self.__current_player, direction)
+            self.switch_player()
             return
         print("can move " + str(dw.can_move(self.__current_player)))
         if dw.can_move(self.__current_player):

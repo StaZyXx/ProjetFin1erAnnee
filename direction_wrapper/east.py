@@ -23,6 +23,12 @@ class East(DirectionWrapper):
         self.get_game().get_case(x, y + 2).set_player(player)
         player.set_location(x, y + 2)
         self.get_game().get_case(x, y).set_player(0)
+
+    def jump(self, player):
+        x, y = player.get_location()
+        self.get_game().get_case(x, y - 4).set_player(player)
+        player.set_location(x, y - 4)
+        self.get_game().get_case(x, y).set_player(0)
     def can_adapt_for_jump(self, x, y):
 
         if not self.get_game().has_case(x, y + 2): #Check si il y a une case

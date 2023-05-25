@@ -25,6 +25,12 @@ class North(DirectionWrapper):
     def adapt_for_jump(self, x, y) -> (int, int):
         return x, y - 4
 
+    def jump(self, player):
+        x, y = player.get_location()
+        self.get_game().get_case(x - 4, y).set_player(player)
+        player.set_location(x - 4, y)
+        self.get_game().get_case(x, y).set_player(0)
+
     def can_adapt_for_jump(self, x, y):
 
         if not self.get_game().has_case(x - 2, y): return False
