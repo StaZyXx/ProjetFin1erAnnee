@@ -262,4 +262,5 @@ class Game:
 
 jeu = Game()
 
+#TODO REMOVE ARGUMENT FOR REPLACE WITH GAME SELECTION ON VIEW
 View(jeu)
