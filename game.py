@@ -100,9 +100,9 @@ class Game:
         if direction.can_place_barrier(x, y, barrier_type):
             print("Barrier placed at " + str(x) + " " + str(y) + " " + str(barrier_type))
             direction.place_barrier(x, y, barrier_type)
-            if not self.check_all_path():
-                print("Barrier removed at " + str(x) + " " + str(y) + " " + str(barrier_type))
-                return False
+            #if not self.check_all_path():
+            #    print("Barrier removed at " + str(x) + " " + str(y) + " " + str(barrier_type))
+            #    return False
 
     def determine_direction(self, y, x):
         playerY, playerX = self.__current_player.get_location()
@@ -192,7 +192,7 @@ class Game:
                 self.check_path(player, self.__direction_wrapper[direction].adapt_for_jump(location[0], location[1]),
                                 max_checks - 1)
                 continue
-            if self.__direction_wrapper[direction].can_move(location):
+            elif self.__direction_wrapper[direction].can_move(location):
                 self.check_path(player, self.__direction_wrapper[direction].adapt_for_move(location),
                                 max_checks - 1)
                 continue
