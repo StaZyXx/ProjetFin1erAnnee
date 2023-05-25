@@ -177,28 +177,34 @@ class Game:
                 return False
         return True
 
-    def check_path(self, player: Player, location=None, max_checks=1000):
-        if max_checks <= 0:
-            return False
+    def check_path(self, player: Player):
+        currentLocation = player.get_location()
+        dict = []
+        dict.append(currentLocation)
+        for amount in range(10):
+            for i in range(len(dict)):
+                location = dict[i]
+                for direction in Direction:
+                    x, y = self.get_relative_location(location, direction)
+                    if x == -1 or y == -1:
+                        continue
+                    print("x " + str(x) + " y " + str(y))
 
-        if location is None:
-            location = player.get_location()  # Position de départ
+                    dict.append([x, y])
 
-        if self.check_win_with_location(player, location):
-            print("Win", player.get_id(), location, max_checks)
-            return True
+                    if self.check_win_with_location(player, [x, y]):
+                        return True
+                dict.remove(location)
 
-        max_checks -= 1
-        for direction in Direction:
-            if self.__direction_wrapper[direction].can_adapt_for_jump(location[0], location[1]):
-                return self.check_path(player,
-                                       self.__direction_wrapper[direction].adapt_for_jump(location[0], location[1]),
-                                       max_checks)
-            elif self.__direction_wrapper[direction].can_move(location):
-                return self.check_path(player, self.__direction_wrapper[direction].adapt_for_move(location),
-                                       max_checks)
 
-        return False
+
+    def get_relative_location(self, location: [int, int], direction: Direction):
+        if self.__direction_wrapper[direction].can_move(location):
+            return self.__direction_wrapper[direction].adapt_for_move(location)
+        elif self.__direction_wrapper[direction].can_adapt_for_jump(location[0], location[1]):
+            return self.__direction_wrapper[direction].adapt_for_jump(location[0], location[1])
+        else:
+            return -1, -1
 
     def check_win(self, player):
         return self.check_win_with_location(player, player.get_location())
@@ -211,7 +217,8 @@ class Game:
                     print("Win 1")
                     return True
             case 2:
-                if location[0] == self.__board_size * 2 - 1:
+                if location[0] == self.__board_size * 2 - 2:
+                    print("Win 2")
                     return True
             case 3:
                 if location[1] == self.__board_size * 2 - 1:
