@@ -155,6 +155,7 @@ class Game:
     def move_player(self, x, y):
         direction = self.determine_direction(x, y)
         print("Direction " + str(direction))
+        print(self.__cases)
         dw = self.__direction_wrapper[direction]
         if dw.can_move(self.__current_player):
             dw.move(self.__current_player)

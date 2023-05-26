@@ -26,11 +26,12 @@ class Client :
         return received_list
 
 class Server :
-    def __init__(self,nbr_joueur):
-        self.__nbr_joueur = nbr_joueur
+    def __init__(self):
+        self.__nbr_joueur = 1
         self.__s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.__s.connect(("8.8.8.8", 80))
         self.__adress_ip = self.__s.getsockname()[0]
+        print(self.__adress_ip)
         self.__host, self.__post = ('',4000)
 
         self.__socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -41,9 +42,6 @@ class Server :
         self.player3, self.adress3 = None, None
         self.player4, self.adress4 = None, None
         self.player_act = 2
-        
-    def give_ip(self):
-        return self.__adress_ip
         
     def join(self):
         self.listen()
@@ -79,3 +77,17 @@ class Server :
             self.player3.sendall(serialized_list)
             self.player4.sendall(serialized_list)
         
+retour = str(input("0 pour etre client et 1 pour etre serveur : "))
+if retour == "1":
+    mon_dict = {"nom": "Gayerie", "prenom": "David"}           
+    test = Server()
+    test.join()
+    time.sleep(0.2)
+    test.send_message_server_all_client(mon_dict)
+if retour == "0":      
+    pas = Client()  
+    pas.conection()
+    L = pas.receipt_message_client()
+     
+while True :
+    pass
