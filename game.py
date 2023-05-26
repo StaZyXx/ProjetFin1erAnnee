@@ -180,11 +180,14 @@ class Game:
     def check_all_path(self):
         print(self.__player)
 
-        with ThreadPoolExecutor() as executor:
+        lock = threading.Lock()
+
+        has_win = [False] * len(self.__player)
+
+        with ThreadPoolExecutor(max_workers=4) as executor:
             futures = []
             for index, player in enumerate(self.__player):
-                has_win = False
-                future = executor.submit(self.check_path, player, has_win, index)
+                future = executor.submit(self.check_path, player, has_win, index, lock)
                 futures.append(future)
 
             # Attente de la fin de toutes les tâches
@@ -192,31 +195,38 @@ class Game:
                 future.result()
 
         # Vérification des drapeaux
-            if not has_win:
+        for flag in has_win:
+            if not flag:
                 return False
 
         return True
 
-    def check_path(self, player: Player, flags, index):
+    def check_path(self, player: Player, has_win, index, lock):
         currentLocation = player.get_location()
-        dict = []
-        dict.append(currentLocation)
-        for amount in range(10):
-            for i in range(len(dict)):
-                location = dict[i]
+        locations_to_explore = [currentLocation]  # Liste des positions à explorer
+        explored_locations = set()  # Ensemble des positions explorées
+
+        for amount in range(self.__board_size * 2 - 1):
+            new_locations = []  # Liste temporaire pour stocker les nouvelles positions à explorer
+            for location in locations_to_explore:
                 for direction in Direction:
                     x, y = self.get_relative_location(location, direction)
                     if x == -1 or y == -1:
                         continue
                     print("x " + str(x) + " y " + str(y))
 
-                    dict.append([x, y])
-
                     if self.check_win_with_location(player, [x, y]):
-                        flags = True  # Un chemin a été trouvé pour ce joueur
+                        # Un chemin a été trouvé pour ce joueur
+                        with lock:
+                            has_win[index] = True
                         return
 
-                dict.remove(location)
+                    new_location = (x, y)
+                    if new_location not in explored_locations:
+                        new_locations.append(new_location)
+                        explored_locations.add(new_location)
+
+            locations_to_explore = new_locations
 
     def get_relative_location(self, location: [int, int], direction: Direction):
         if self.__direction_wrapper[direction].can_move(location):
@@ -289,5 +299,5 @@ class Game:
 
 jeu = Game()
 
-#TODO REMOVE ARGUMENT FOR REPLACE WITH GAME SELECTION ON VIEW
+# TODO REMOVE ARGUMENT FOR REPLACE WITH GAME SELECTION ON VIEW
 View(jeu)
