@@ -296,8 +296,3 @@ class Game:
     def get_cases(self) -> [[Case]]:
         return self.__cases
 
-
-jeu = Game()
-
-# TODO REMOVE ARGUMENT FOR REPLACE WITH GAME SELECTION ON VIEW
-View(jeu)
