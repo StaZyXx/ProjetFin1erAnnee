@@ -53,3 +53,27 @@ class Server:
         data += chunk
         received_list = pickle.loads(data)
         return received_list
+
+
+class Network:
+
+    def __init__(self, server, initial_client):
+        self.__server = server
+        self.__initial_client = initial_client
+        self.__clients = [initial_client]
+
+    def get_server(self) -> Server:
+        return self.__server
+
+    def get_initial_client(self) -> Client:
+        return self.__initial_client
+
+    def get_clients(self, current_client) -> [Client]:
+        new_clients = []
+        for client in self.__clients:
+            if client != current_client:
+                new_clients.append(client)
+        return new_clients
+
+    def add_client(self, client):
+        self.__clients.append(client)
