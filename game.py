@@ -1,3 +1,4 @@
+import threading
 from typing import List
 
 from case import Case, CaseType, BarrierType
@@ -172,12 +173,24 @@ class Game:
 
     def check_all_path(self):
         print(self.__player)
-        for player in self.__player:
-            if not self.check_path(player):
+        flags = [False] * len(self.__player)  # Drapeaux pour indiquer si un chemin a été trouvé pour chaque joueur
+        threads = []
+        for index, player in enumerate(self.__player):
+            thread = threading.Thread(target=self.check_path, args=(player, flags, index))
+            threads.append(thread)
+            thread.start()
+
+        for thread in threads:
+            thread.join()
+
+        # Vérification des drapeaux
+        for flag in flags:
+            if not flag:
                 return False
+
         return True
 
-    def check_path(self, player: Player):
+    def check_path(self, player: Player, flags, index):
         currentLocation = player.get_location()
         dict = []
         dict.append(currentLocation)
@@ -193,10 +206,10 @@ class Game:
                     dict.append([x, y])
 
                     if self.check_win_with_location(player, [x, y]):
-                        return True
+                        flags[index] = True  # Un chemin a été trouvé pour ce joueur
+                        return
+
                 dict.remove(location)
-
-
 
     def get_relative_location(self, location: [int, int], direction: Direction):
         if self.__direction_wrapper[direction].can_move(location):
