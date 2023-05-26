@@ -24,6 +24,13 @@ class Client :
         received_list = pickle.loads(data)
         print(received_list)
         return received_list
+    
+    
+    def send_message_client(self,liste):
+        serialized_list = pickle.dumps(liste)
+        self.__socket.sendall(serialized_list)
+        
+    
 
 class Server :
     def __init__(self,nbr_joueur):
@@ -31,6 +38,7 @@ class Server :
         self.__s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.__s.connect(("8.8.8.8", 80))
         self.__adress_ip = self.__s.getsockname()[0]
+        print(self.__adress_ip)
         self.__host, self.__post = ('',4000)
 
         self.__socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -78,4 +86,30 @@ class Server :
         if self.__nbr_joueur != 1 :
             self.player3.sendall(serialized_list)
             self.player4.sendall(serialized_list)
+        
+    def receipt_message_client(self,recipient):
+        data = b''
+        chunk = recipient.recv(4096)
+        data += chunk
+        received_list = pickle.loads(data)
+        print(received_list)
+        return received_list 
+    
+rep = str(input("tu veux faire quoi ?"))
+if rep == "0":
+    serv = Server(1)
+    serv.join()
+    serv.receipt_message_client(serv.player2)
+elif rep == "1":
+    L = {'Nepal': 'Kathmandu', 'Italy': 'Rome', 'England': 'London'}
+    clt = Client()
+    clt.conection()
+    time.sleep(1)
+    clt.send_message_client(L)
+
+    
+    
+
+    
+        
         
