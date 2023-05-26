@@ -33,6 +33,7 @@ class Server:
         self.__host, self.__post = (host, port_host)
         self.__socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.__socket.bind((self.__host, self.__post))
+        self.__initial_client = Client(host)
 
     def listen(self):
         self.__socket.listen(5)
