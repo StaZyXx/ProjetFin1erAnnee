@@ -1,4 +1,5 @@
 import threading
+from concurrent.futures import ThreadPoolExecutor
 from typing import List
 
 from case import Case, CaseType, BarrierType
@@ -108,7 +109,6 @@ class Game:
                     self.get_case(x, y).set_case_type(CaseType.SLOT_BARRIER_VERTICAL)
                     self.get_case(x + 2, y).set_case_type(CaseType.SLOT_BARRIER_VERTICAL)
 
-
     def determine_direction(self, y, x):
         playerY, playerX = self.__current_player.get_location()
 
@@ -179,19 +179,20 @@ class Game:
 
     def check_all_path(self):
         print(self.__player)
-        flags = [False] * len(self.__player)  # Drapeaux pour indiquer si un chemin a été trouvé pour chaque joueur
-        threads = []
-        for index, player in enumerate(self.__player):
-            thread = threading.Thread(target=self.check_path, args=(player, flags, index))
-            threads.append(thread)
-            thread.start()
 
-        for thread in threads:
-            thread.join()
+        with ThreadPoolExecutor() as executor:
+            futures = []
+            for index, player in enumerate(self.__player):
+                has_win = False
+                future = executor.submit(self.check_path, player, has_win, index)
+                futures.append(future)
+
+            # Attente de la fin de toutes les tâches
+            for future in futures:
+                future.result()
 
         # Vérification des drapeaux
-        for flag in flags:
-            if not flag:
+            if not has_win:
                 return False
 
         return True
@@ -212,7 +213,7 @@ class Game:
                     dict.append([x, y])
 
                     if self.check_win_with_location(player, [x, y]):
-                        flags[index] = True  # Un chemin a été trouvé pour ce joueur
+                        flags = True  # Un chemin a été trouvé pour ce joueur
                         return
 
                 dict.remove(location)
@@ -288,5 +289,5 @@ class Game:
 
 jeu = Game()
 
-# TODO REMOVE ARGUMENT FOR REPLACE WITH GAME SELECTION ON VIEW
+#TODO REMOVE ARGUMENT FOR REPLACE WITH GAME SELECTION ON VIEW
 View(jeu)
