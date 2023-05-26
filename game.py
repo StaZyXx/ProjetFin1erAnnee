@@ -100,7 +100,13 @@ class Game:
             direction.place_barrier(x, y, barrier_type)
             if not self.check_all_path():
                 print("Barrier removed at " + str(x) + " " + str(y) + " " + str(barrier_type))
-                return False
+                if barrier_type == BarrierType.HORIZONTAL:
+                    self.get_case(x, y).set_case_type(CaseType.SLOT_BARRIER_HORIZONTAL)
+                    self.get_case(x, y + 2).set_case_type(CaseType.SLOT_BARRIER_HORIZONTAL)
+                else:
+                    self.get_case(x, y).set_case_type(CaseType.SLOT_BARRIER_VERTICAL)
+                    self.get_case(x + 2, y).set_case_type(CaseType.SLOT_BARRIER_VERTICAL)
+
 
     def determine_direction(self, y, x):
         playerY, playerX = self.__current_player.get_location()
@@ -196,8 +202,6 @@ class Game:
                         return True
                 dict.remove(location)
 
-
-
     def get_relative_location(self, location: [int, int], direction: Direction):
         if self.__direction_wrapper[direction].can_move(location):
             return self.__direction_wrapper[direction].adapt_for_move(location)
@@ -269,5 +273,5 @@ class Game:
 
 jeu = Game()
 
-#TODO REMOVE ARGUMENT FOR REPLACE WITH GAME SELECTION ON VIEW
+# TODO REMOVE ARGUMENT FOR REPLACE WITH GAME SELECTION ON VIEW
 View(jeu)

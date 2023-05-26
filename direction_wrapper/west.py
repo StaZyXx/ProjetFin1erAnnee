@@ -29,8 +29,8 @@ class West(DirectionWrapper):
 
     def jump(self, player):
         x, y = player.get_location()
-        self.get_game().get_case(x, y + 4).set_player(player)
-        player.set_location(x, y + 4)
+        self.get_game().get_case(x, y - 4).set_player(player)
+        player.set_location(x, y - 4)
         self.get_game().get_case(x, y).set_player(0)
 
     def can_adapt_for_jump(self, x, y):
