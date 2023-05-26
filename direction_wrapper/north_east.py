@@ -11,10 +11,8 @@ class NorthEast(DirectionWrapper):
         return 0, 0
 
     def can_move(self, location: [int, int]) -> bool:
-        x, y = location
-        if self.get_game().has_case(x + 1, y - 2):
-            return self.get_game().get_case(x + 1, y - 2).get_case_type() == CaseType.DEFAULT and not \
-                self.get_game().get_case(x + 1, y - 2).has_player()
+        return False
+        #TODO CHECK CONSIGNE
 
     def adapt_for_move(self, location: [int, int]) -> [int, int]:
         return location[0] + 1, location[1] - 2
