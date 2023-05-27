@@ -100,6 +100,8 @@ class View:
             canvas.bind("<Button-1>", lambda event: self.click(x, y, game))
 
     def click(self, x, y, game):
+        if not game.is_started():
+            return
         case = game.get_case(x, y)
         if case.get_case_type() == CaseType.SLOT_BARRIER_HORIZONTAL or case.get_case_type() == \
                 CaseType.SLOT_BARRIER_VERTICAL:
@@ -115,5 +117,7 @@ class View:
 
     def key_board(self, direction, game):
         print("key", direction)
+        if not game.is_started():
+            return
         game.move_player_with_direction(direction)
         self.show_board(game)
