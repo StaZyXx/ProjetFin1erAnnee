@@ -253,7 +253,7 @@ class Game:
                     print("Win 2")
                     return True
             case 3:
-                if location[1] == self.__board_size * 2 - 1:
+                if location[1] == self.__board_size * 2 - 2:
                     return True
             case 4:
                 if location[1] == 0:

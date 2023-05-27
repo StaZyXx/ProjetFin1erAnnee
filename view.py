@@ -49,7 +49,7 @@ class View:
             self.__root.bind('q', lambda event: self.key_board(direction.Direction.WEST, game))
             self.__root.bind('s', lambda event: self.key_board(direction.Direction.SOUTH, game))
             self.__root.bind('d', lambda event: self.key_board(direction.Direction.EAST, game))
-            game.start(size, 2)
+            game.start(size, 4)
 
             self.show_board(game)
         else:
