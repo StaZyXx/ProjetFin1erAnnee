@@ -108,6 +108,8 @@ class Game:
                 else:
                     self.get_case(x, y).set_case_type(CaseType.SLOT_BARRIER_VERTICAL)
                     self.get_case(x + 2, y).set_case_type(CaseType.SLOT_BARRIER_VERTICAL)
+            else:
+                self.switch_player()
 
     def determine_direction(self, y, x):
         playerY, playerX = self.__current_player.get_location()
