@@ -11,8 +11,20 @@ class NorthWest(DirectionWrapper):
         return 0, 0
 
     def can_move(self, location: [int, int]) -> bool:
-        return False
-        #TODO CHECK CONSIGNE
+        if not self.get_game().has_case(location[0] - 2, location[1] - 2):
+            return False
+        if self.get_game().get_case(location[0] - 2, location[1] - 2).has_player():
+            return False
+        if not self.get_game().has_case(location[0] - 2, location[1] + 1):
+            return False
+        if self.get_game().get_case(location[0] - 2,
+                                    location[1] - 1).get_case_type() != CaseType.SLOT_BARRIER_VERTICAL:
+            return False
+
+        if not self.get_game().has_case(location[0] - 2, location[1]):
+            return False
+
+        return self.get_game().get_case(location[0] - 2, location[1]).has_player()
 
     def adapt_for_move(self, location: [int, int]) -> [int, int]:
         return location[0] - 2, location[1] - 2
