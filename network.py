@@ -1,49 +1,80 @@
 import socket
-
 import time
+import pickle
 
-class Server :
-    def __init__(self):
-        self.__s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.__s.connect(("8.8.8.8", 80))
-        self.__adress_ip = self.__s.getsockname()[0]
-        print(self.__adress_ip)
-        self.__host, self.__post = ('',4000)
 
-        self.__socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.__socket.bind((self.__host,self.__post))
-#utilisation de la class player (le joueur serveur n'est donc pas compté)
-        self.player2, self.adress2 = None, None
-        self.player3, self.adress3 = None, None
-        self.player4, self.adress4 = None, None
-
-    def ecoute(self,player,adress,num_play):
-        while True :
-            self.__socket.listen(5)
-            player,adress = self.__socket.accept()
-            player.send(f"Vous êtes le joueur {num_play} !".encode())
-            print(f"Le joueur {num_play} à rejoint la partie !")
-            break
-class Client :
-    def __init__(self):
-        self.__adress = str(input("Renseignez l'ip de connexion : "))
-        self.__host, self.__port = (self.__adress,4000)
+class Client:
+    def __init__(self, address_ip):
+        self.__address = address_ip
+        self.__host, self.__port = (self.__address, 4000)
         self.__socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-    def connexion(self):
-        self.__socket.connect((self.__host,self.__port))
-        mess = self.__socket.recv(1024)
-        mess = mess.decode("utf8")
-        print(mess)
+    def connect(self):  # renvoie 1 si il a réussi à se co et 0 dans l'autre cas
+        try:
+            self.__socket.connect((self.__host, self.__port))
+            return 1
+        except socket.error:
+            return 0
 
-choice = str(input("Quelle est le role server/client ? (s/c)"))
-if choice == "s":
-    server = Server()
-    server.ecoute(server.player2, server.adress2, 2)
-    server.ecoute(server.player3, server.adress3, 3)
-    server.ecoute(server.player4, server.adress4, 4)
-elif choice == "c":
-    client = Client()
-    client.connexion()
-    while(True):
-        pass
+    def receipt_message_client(self):
+        data = b''
+        chunk = self.__socket.recv(4096)
+        data += chunk
+        received_list = pickle.loads(data)
+        return received_list
+
+    def send_message_client(self, message):
+        serialized_list = pickle.dumps(message)
+        self.__socket.sendall(serialized_list)
+
+
+class Server:
+    def __init__(self, host, port_host):
+        self.__host, self.__post = (host, port_host)
+        self.__socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.__socket.bind((self.__host, self.__post))
+        self.__initial_client = Client(host)
+
+    def listen(self):
+        self.__socket.listen(5)
+        return self.__socket.accept()
+
+    def send_message_server(self, recipient, message):
+        serialized_list = pickle.dumps(message)
+        recipient.sendall(serialized_list)
+
+    def send_message_server_all_client(self, message, players):
+        serialized_list = pickle.dumps(message)
+        for player in players:
+            player.sendall(serialized_list)
+
+    def receipt_message_client(self, recipient):
+        data = b''
+        chunk = recipient.recv(4096)
+        data += chunk
+        received_list = pickle.loads(data)
+        return received_list
+
+
+class Network:
+
+    def __init__(self, server, initial_client):
+        self.__server = server
+        self.__initial_client = initial_client
+        self.__clients = [initial_client]
+
+    def get_server(self) -> Server:
+        return self.__server
+
+    def get_initial_client(self) -> Client:
+        return self.__initial_client
+
+    def get_clients(self, current_client) -> [Client]:
+        new_clients = []
+        for client in self.__clients:
+            if client != current_client:
+                new_clients.append(client)
+        return new_clients
+
+    def add_client(self, client):
+        self.__clients.append(client)
