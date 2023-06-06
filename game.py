@@ -162,6 +162,7 @@ class Game:
         self.__player.append(player1)
         self.__player.append(player2)
         self.__current_player = player1
+        player2.set_true_bot()
 
         player1.set_location(self.__board_size * 2 - 2, self.__board_size - 1)  # Ce pion est en bas au millieu
         player2.set_location(0, self.__board_size - 1)  # Ce joueur est en haut au millieu
@@ -288,6 +289,11 @@ class Game:
                 self.__current_player = self.get_player(2)
             else:
                 self.__current_player = self.get_player(1)
+        if self.__current_player.is_bot():
+            self.move_bot()
+    def move_bot(self):
+
+
 
     def stop_game(self):
         self.__is_started = False

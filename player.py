@@ -4,7 +4,12 @@ class Player:
         self.__id = id
         self.__x = 0
         self.__y = 0
+        self.__is_bot = False
 
+    def set_bot(self):
+        self.__is_bot = True
+    def is_bot(self):
+        return self.__is_bot
     def get_id(self) -> int:
         return self.__id
 
