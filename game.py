@@ -1,3 +1,4 @@
+import random
 import threading
 from concurrent.futures import ThreadPoolExecutor
 from typing import List
@@ -14,7 +15,6 @@ from direction_wrapper.south_east import SouthEast
 from direction_wrapper.south_west import SouthWest
 from direction_wrapper.west import West
 from player import Player
-from view import View
 
 
 class Game:
@@ -145,24 +145,25 @@ class Game:
     def move_player_with_direction(self, direction):
         if self.check_winner() is not None:
             self.stop_game()
-            return
+            return False
         dw = self.__direction_wrapper[direction]
         if dw.can_adapt_for_jump(self.__current_player.get_location()[0], self.__current_player.get_location()[1]):
             self.jump_player(self.__current_player, direction)
             self.switch_player()
-            return
+            return True
         print("can move " + str(dw.player_can_move(self.__current_player)))
         if dw.player_can_move(self.__current_player):
             dw.move(self.__current_player)
             self.switch_player()
-
+            return True
+        return False
     def place_player(self, amount: int):  # A vérifier que les pions tombent bien au millieu du plateau
         player1 = Player(1)
         player2 = Player(2)
         self.__player.append(player1)
         self.__player.append(player2)
         self.__current_player = player1
-        player2.set_true_bot()
+        #player2.set_bot()
 
         player1.set_location(self.__board_size * 2 - 2, self.__board_size - 1)  # Ce pion est en bas au millieu
         player2.set_location(0, self.__board_size - 1)  # Ce joueur est en haut au millieu
@@ -291,9 +292,28 @@ class Game:
                 self.__current_player = self.get_player(1)
         if self.__current_player.is_bot():
             self.move_bot()
+
     def move_bot(self):
+        list_slot_barrier = []
+        if random.randint(0, 100) < 29:
+            for i in range(len(self.get_cases())):
+                for j in range(len(self.get_cases()[i])):
+                    if self.get_case(j, i).get_case_type() == CaseType.SLOT_BARRIER_HORIZONTAL:
+                        list_slot_barrier.append((i, j, BarrierType.HORIZONTAL))
+                    elif self.get_case(j, i).get_case_type() == CaseType.SLOT_BARRIER_VERTICAL:
+                        list_slot_barrier.append((i, j, BarrierType.VERTICAL))
 
-
+            barrier_index = random.randint(0, len(list_slot_barrier) - 1)
+            x, y, case_type = list_slot_barrier[barrier_index]
+            print(x, y, case_type)
+            print(list_slot_barrier[barrier_index])
+            self.place_barrier(y, x, case_type)
+        else:
+            is_moving = False
+            while not is_moving:
+                direction = random.randint(0, len(self.__direction_wrapper)-1)
+                print(list(self.__direction_wrapper.values())[0])
+                is_moving = self.move_player_with_direction(list(self.__direction_wrapper.keys())[direction])
 
     def stop_game(self):
         self.__is_started = False
@@ -303,4 +323,3 @@ class Game:
 
     def get_cases(self) -> [[Case]]:
         return self.__cases
-
