@@ -34,12 +34,11 @@ class East(DirectionWrapper):
         self.get_game().get_case(x, y).set_player(0)
 
     def can_adapt_for_jump(self, x, y):
-
         if not self.get_game().has_case(x, y + 2):  # Check si il y a une case
             return False
         if not self.get_game().get_case(x, y + 2).has_player():  # Check si il y a un joueur
             return False
-        if not self.get_game().has_case(x, y + 1):  # Check si il
+        if not self.get_game().has_case(x, y + 1):
             return False
         if self.get_game().get_case(x, y + 1).get_case_type() != CaseType.SLOT_BARRIER_VERTICAL:
             return False
