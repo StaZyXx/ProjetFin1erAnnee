@@ -143,6 +143,7 @@ class Game:
         self.move_player_with_direction(direction)
 
     def move_player_with_direction(self, direction):
+        print("move player " + str(direction))
         if self.check_winner() is not None:
             self.stop_game()
             return False

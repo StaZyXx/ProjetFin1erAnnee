@@ -11,20 +11,17 @@ class SouthEast(DirectionWrapper):
         return x, y - 4
 
     def can_move(self, location: [int, int]) -> bool:
-        if not self.get_game().has_case(location[0] + 2, location[1] + 2):
+        if not self.get_game().has_case(location[0] + 2, location[1] + 2) or \
+                self.get_game().get_case(location[0] + 2, location[1] + 2).has_player():
             return False
-        if self.get_game().get_case(location[0] + 2, location[1] + 2).has_player():
-            return False
-        if not self.get_game().has_case(location[0] + 2, location[1] + 1):
-            return False
-        if self.get_game().get_case(location[0] + 2,
-                                    location[1] + 1).get_case_type() != CaseType.SLOT_BARRIER_VERTICAL:
-            return False
-
-        if not self.get_game().has_case(location[0] + 2, location[1]):
-            return False
-
-        return self.get_game().get_case(location[0] + 2, location[1]).has_player()
+        if self.get_game().has_case(location[0], location[1] + 2) and \
+                self.get_game().get_case(location[0], location[1] + 2).has_player() and self.get_game().get_case(
+                    location[0], location[1] + 3).get_case_type() == CaseType.BARRIER:
+            return True
+        return self.get_game().has_case(location[0] + 2, location[1]) and \
+            self.get_game().get_case(location[0] + 2, location[1]).has_player() \
+            and self.get_game().get_case(location[0] + 3, location[1]) \
+                .get_case_type() == CaseType.BARRIER
 
     def adapt_for_move(self, location: [int, int]) -> [int, int]:
         return location[0] + 2, location[1] + 2
