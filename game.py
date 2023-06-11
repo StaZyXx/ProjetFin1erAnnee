@@ -108,8 +108,10 @@ class Game:
                 else:
                     self.get_case(x, y).set_case_type(CaseType.SLOT_BARRIER_VERTICAL)
                     self.get_case(x + 2, y).set_case_type(CaseType.SLOT_BARRIER_VERTICAL)
-            else:
-                self.switch_player()
+                return False
+        else :
+            return False
+        return True
 
     def determine_direction(self, y, x):
         playerY, playerX = self.__current_player.get_location()
@@ -147,14 +149,17 @@ class Game:
         if self.check_winner() is not None:
             self.stop_game()
             return False
+          
         dw = self.__direction_wrapper[direction]
         if dw.can_adapt_for_jump(self.__current_player.get_location()[0], self.__current_player.get_location()[1]):
             self.jump_player(self.__current_player, direction)
             self.switch_player()
             return True
+
         print("can move " + str(dw.player_can_move(self.__current_player)))
         if dw.player_can_move(self.__current_player):
             dw.move(self.__current_player)
+            result = 1
             self.switch_player()
             return True
         return False
