@@ -1,5 +1,4 @@
 import pygame
-from pygame.locals import *
 
 
 class View:
@@ -17,9 +16,13 @@ class View:
         self.__screen = pygame.display.set_mode((1500, 850))  # Définit la taille de la fenetre
         self.__background = pygame.image.load("./assets/background.jpg").convert()  # Charge l'image
 
-        self.__size = (1500, 850)
-        self.__blue_image = pygame.Surface(self.__size, pygame.SRCALPHA)
+        #Création des tailles de polices
+        self.__96_font = pygame.font.SysFont('./fonts/Carme.ttf', 96, bold=False)
+        self.__64_font = pygame.font.SysFont('./fonts/Carme.ttf', 64, bold=False)
+        self.__48_font = pygame.font.SysFont('./fonts/Carme.ttf', 48, bold=False)
+        self.__32_font = pygame.font.SysFont('./fonts/Carme.ttf', 32, bold=False)
 
+        self.__blue_image = pygame.Surface((1500, 850), pygame.SRCALPHA)
 
         self.boucle_home_page()
 
@@ -43,15 +46,13 @@ class View:
                         self.__running = False
                         self.__mode = "multiplayer"
                     elif self.__get_leave.collidepoint(self.__cursor_pos):
-                        if self.__button1 == 1:
-                            print("leave")
-                            pygame.quit()
+                        print("leave")
+                        pygame.quit()
 
         if self.__mode == "solo":
             self.boucle_param("solo")
         if self.__mode == "multiplayer":
             self.boucle_choice_server_client()
-
 
     def home_page(self):
         self.__screen.blit(self.__background, (0, 0))
@@ -74,7 +75,6 @@ class View:
         self.__get_leave = self.__leave.get_rect()
         self.__get_leave.topleft = (700, 610)
 
-
         self.__screen.blit(self.__blue_image, (0, 0))
         self.__screen.blit(self.__quorridor, (620, 125))
         self.__screen.blit(self.__solo, (730, 315))
@@ -83,9 +83,9 @@ class View:
 
         pygame.display.flip()  # Mettre a jour l'affichage
 
-    def boucle_param(self,mode):
+    def boucle_param(self, mode):
         self.couleur_2players, self.couleur_4players = self.__DARK_BLUE, self.__DARK_BLUE
-        self.__color_5x5,self.__color_7x7,self.__color_9x9,self.__color_11x11 = self.__DARK_BLUE, self.__DARK_BLUE,self.__DARK_BLUE, self.__DARK_BLUE
+        self.__color_5x5, self.__color_7x7, self.__color_9x9, self.__color_11x11 = self.__DARK_BLUE, self.__DARK_BLUE, self.__DARK_BLUE, self.__DARK_BLUE
         self.__nbr_joueur = None
         self.__size = None
         self.__nbr_barr = 20
@@ -98,23 +98,24 @@ class View:
                     pygame.quit()
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     self.__cursor_pos = pygame.mouse.get_pos()
-                    #choix nombre de joueur
+                    # choix nombre de joueur
                     if self.__get_back.collidepoint(self.__cursor_pos):
                         self.boucle_home_page()
-                    elif self.__get_nbr_player2.collidepoint(self.__cursor_pos):
-                        self.couleur_2players = self.__GREEN
-                        self.couleur_4players = self.__DARK_BLUE
-                        self.__nbr_joueur = 2
-                    elif self.__get_nbr_player4.collidepoint(self.__cursor_pos):
-                        self.couleur_4players = self.__GREEN
-                        self.couleur_2players = self.__DARK_BLUE
-                        self.__nbr_joueur = 4
-                    #choice size
-                    elif self.__get_size_5x5.collidepoint(self.__cursor_pos):
+                    if mode != "multiplayer":
+                        if self.__get_nbr_player2.collidepoint(self.__cursor_pos):
+                            self.couleur_2players = self.__GREEN
+                            self.couleur_4players = self.__DARK_BLUE
+                            self.__nbr_joueur = 2
+                        elif self.__get_nbr_player4.collidepoint(self.__cursor_pos):
+                            self.couleur_4players = self.__GREEN
+                            self.couleur_2players = self.__DARK_BLUE
+                            self.__nbr_joueur = 4
+                    # choice size
+                    if self.__get_size_5x5.collidepoint(self.__cursor_pos):
                         self.__color_5x5, self.__color_7x7, self.__color_9x9, self.__color_11x11 = self.__GREEN, self.__DARK_BLUE, self.__DARK_BLUE, self.__DARK_BLUE
                         self.__size = 5
                     elif self.__get_size_7x7.collidepoint(self.__cursor_pos):
-                        self.__color_5x5, self.__color_7x7, self.__color_9x9, self.__color_11x11 = self.__DARK_BLUE,self.__GREEN, self.__DARK_BLUE, self.__DARK_BLUE
+                        self.__color_5x5, self.__color_7x7, self.__color_9x9, self.__color_11x11 = self.__DARK_BLUE, self.__GREEN, self.__DARK_BLUE, self.__DARK_BLUE
                         self.__size = 7
                     elif self.__get_size_9x9.collidepoint(self.__cursor_pos):
                         self.__color_5x5, self.__color_7x7, self.__color_9x9, self.__color_11x11 = self.__DARK_BLUE, self.__DARK_BLUE, self.__GREEN, self.__DARK_BLUE
@@ -123,23 +124,22 @@ class View:
                         self.__color_5x5, self.__color_7x7, self.__color_9x9, self.__color_11x11 = self.__DARK_BLUE, self.__DARK_BLUE, self.__DARK_BLUE, self.__GREEN
                         self.__size = 11
                     elif self.__get_less_barr.collidepoint(self.__cursor_pos):
-                        if self.__nbr_barr > 4 :
+                        if self.__nbr_barr > 4:
                             self.__nbr_barr -= 4
                     elif self.__get_more_barr.collidepoint(self.__cursor_pos):
-                        if self.__nbr_barr < 40 :
+                        if self.__nbr_barr < 40:
                             self.__nbr_barr += 4
 
                     self.param_game(mode)
 
-
-    def param_game(self,mode):
+    def param_game(self, mode):
         self.nbr_joueur = 2
         pygame.init()
 
         self.__size = (1500, 850)
         self.__blue_image2 = pygame.Surface(self.__size, pygame.SRCALPHA)
 
-        #carré pricipale
+        # carré pricipale
         pygame.draw.rect(self.__blue_image2, self.__BLUE, (250, 200, 1000, 500))
 
         pygame.draw.rect(self.__blue_image2, self.__DARK_BLUE, (100, 100, 100, 100))
@@ -147,9 +147,9 @@ class View:
         self.__get_back = self.__back.get_rect()
         self.__get_back.topleft = (100, 100)
 
-        #choix nombre de joueur
+        # choix nombre de joueur
         if mode != "multiplayer":
-            pygame.draw.rect(self.__blue_image2, self.couleur_2players, (450,250, 150, 100))
+            pygame.draw.rect(self.__blue_image2, self.couleur_2players, (450, 250, 150, 100))
             pygame.draw.rect(self.__blue_image2, self.couleur_4players, (900, 250, 150, 100))
 
             self.__nbr_player2 = self.__font.render('2 joueurs', False, (self.__WHITE))
@@ -160,11 +160,11 @@ class View:
             self.__get_nbr_player4 = self.__nbr_player4.get_rect()
             self.__get_nbr_player4.topleft = (900, 250)
 
-        #choix taille tableau
+        # choix taille tableau
 
         pygame.draw.rect(self.__blue_image2, self.__color_5x5, (300, 400, 100, 50))
         pygame.draw.rect(self.__blue_image2, self.__color_7x7, (500, 400, 100, 50))
-        pygame.draw.rect(self.__blue_image2, self.__color_9x9, (700,400, 100, 50))
+        pygame.draw.rect(self.__blue_image2, self.__color_9x9, (700, 400, 100, 50))
         pygame.draw.rect(self.__blue_image2, self.__color_11x11, (900, 400, 100, 50))
 
         self.__size_5x5 = self.__font.render('5x5', False, (self.__WHITE))
@@ -183,35 +183,33 @@ class View:
         self.__get_size_11x11 = self.__size_11x11.get_rect()
         self.__get_size_11x11.topleft = (900, 400)
 
-        #choix nombre barrière
+        # choix nombre barrière
         pygame.draw.rect(self.__blue_image2, self.__DARK_BLUE, (700, 500, 200, 50))
 
         self.__less_barr = self.__font.render('-', False, (self.__WHITE))
         self.__get_less_barr = self.__less_barr.get_rect()
         self.__get_less_barr.topleft = (700, 500)
 
-        #nbr_barr = str(self.__nbr_barr)
+        # nbr_barr = str(self.__nbr_barr)
         self.__show_nbr_barr = self.__font.render(str(self.__nbr_barr), False, (self.__WHITE))
 
         self.__more_barr = self.__font.render('+', False, (self.__WHITE))
         self.__get_more_barr = self.__more_barr.get_rect()
         self.__get_more_barr.topleft = (900, 500)
 
-
-        #ordre d'affichage
+        # ordre d'affichage
         self.__screen.blit(self.__background, (0, 0))
         self.__screen.blit(self.__blue_image2, (0, 0))
 
-        #back
+        # back
         self.__screen.blit(self.__back, (100, 100))
 
-
-        #choice player
+        # choice player
         if mode != "multiplayer":
             self.__screen.blit(self.__nbr_player2, (450, 250))
             self.__screen.blit(self.__nbr_player4, (900, 250))
 
-        #choice size
+        # choice size
         self.__screen.blit(self.__size_5x5, (300, 400))
         self.__screen.blit(self.__size_7x7, (500, 400))
         self.__screen.blit(self.__size_9x9, (700, 400))
@@ -221,7 +219,6 @@ class View:
         self.__screen.blit(self.__less_barr, (700, 500))
         self.__screen.blit(self.__show_nbr_barr, (800, 500))
         self.__screen.blit(self.__more_barr, (900, 500))
-
 
         pygame.display.flip()  # Mettre a jour l'affichage
 
@@ -237,31 +234,37 @@ class View:
                     self.__cursor_pos = pygame.mouse.get_pos()
                     if self.__get_server.collidepoint(self.__cursor_pos):
                         self.boucle_param("multiplayer")
+                    elif self.__get_back.collidepoint(self.__cursor_pos):
+                        self.boucle_home_page()
 
     def choice_server_client(self):
         pygame.init()
-        self.__blue_image3 = pygame.Surface(self.__size, pygame.SRCALPHA)
+        self.__blue_image3 = pygame.Surface((1500, 850), pygame.SRCALPHA)
 
-        pygame.draw.rect(self.__blue_image3, self.__DARK_BLUE, (100, 100, 500, 100))
-        pygame.draw.rect(self.__blue_image3, self.__DARK_BLUE, (100, 300, 500, 100))
+        pygame.draw.rect(self.__blue_image3, self.__BLUE, (50, 50, 1400, 750))
+        pygame.draw.rect(self.__blue_image3, self.__DARK_BLUE, (200, 200, 1100, 150))
+        pygame.draw.rect(self.__blue_image3, self.__DARK_BLUE, (200, 400, 1100, 150))
+        pygame.draw.rect(self.__blue_image3, self.__DARK_BLUE, (100, 100, 200, 75))
 
-        self.__server = self.__font.render("Crée", False, (self.__WHITE))
+        self.__server = self.__font.render("Créer", False, (self.__WHITE))
         self.__get_server = self.__server.get_rect()
-        self.__get_server.topleft = (100, 100)
+        self.__get_server.topleft = (700, 250)
 
         self.__client = self.__font.render("Rejoindre", False, (self.__WHITE))
         self.__get_client = self.__client.get_rect()
-        self.__get_client.topleft = (100, 300)
+        self.__get_client.topleft = (650, 450)
 
         self.__screen.blit(self.__background, (0, 0))
-        self.__screen.blit(self.__blue_image3,(0,0))
-        self.__screen.blit(self.__server, (100, 100))
-        self.__screen.blit(self.__client, (100, 300))
+        self.__screen.blit(self.__blue_image3, (0, 0))
+        self.__screen.blit(self.__server, (700, 250))
+        self.__screen.blit(self.__client, (650, 450))
+
+        self.__back = pygame.image.load("./assets/fleche-retour.png")
+        self.__back = self.__back.convert()
+        self.__screen.blit(self.__back, (25, 25))
+
 
         pygame.display.flip()
-
-
-
 
 
 View()
