@@ -39,6 +39,7 @@ class View:
                         self.__running = False
                         self.__mode = "solo"
                     elif self.__get_multiplayer.collidepoint(self.__cursor_pos):
+                        print("multiplayer")
                         self.__running = False
                         self.__mode = "multiplayer"
                     elif self.__get_leave.collidepoint(self.__cursor_pos):
@@ -49,7 +50,7 @@ class View:
         if self.__mode == "solo":
             self.boucle_param("solo")
         if self.__mode == "multiplayer":
-            self.boucle_param("multiplayer")
+            self.boucle_choice_server_client()
 
 
     def home_page(self):
@@ -223,6 +224,41 @@ class View:
 
 
         pygame.display.flip()  # Mettre a jour l'affichage
+
+    def boucle_choice_server_client(self):
+        self.choice_server_client()
+        self.__running = True
+        while self.__running:
+            for event in pygame.event.get():  # récupérer un event
+                if event.type == pygame.QUIT:  # Si l'event est du type fermer la fenetre
+                    self.__running = False
+                    pygame.quit()
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    self.__cursor_pos = pygame.mouse.get_pos()
+                    if self.__get_server.collidepoint(self.__cursor_pos):
+                        self.boucle_param("multiplayer")
+
+    def choice_server_client(self):
+        pygame.init()
+        self.__blue_image3 = pygame.Surface(self.__size, pygame.SRCALPHA)
+
+        pygame.draw.rect(self.__blue_image3, self.__DARK_BLUE, (100, 100, 500, 100))
+        pygame.draw.rect(self.__blue_image3, self.__DARK_BLUE, (100, 300, 500, 100))
+
+        self.__server = self.__font.render("Crée", False, (self.__WHITE))
+        self.__get_server = self.__server.get_rect()
+        self.__get_server.topleft = (100, 100)
+
+        self.__client = self.__font.render("Rejoindre", False, (self.__WHITE))
+        self.__get_client = self.__client.get_rect()
+        self.__get_client.topleft = (100, 300)
+
+        self.__screen.blit(self.__background, (0, 0))
+        self.__screen.blit(self.__blue_image3,(0,0))
+        self.__screen.blit(self.__server, (100, 100))
+        self.__screen.blit(self.__client, (100, 300))
+
+        pygame.display.flip()
 
 
 
