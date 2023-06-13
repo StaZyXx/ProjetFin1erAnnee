@@ -244,7 +244,6 @@ class View:
         pygame.draw.rect(self.__blue_image3, self.__BLUE, (50, 50, 1400, 750))
         pygame.draw.rect(self.__blue_image3, self.__DARK_BLUE, (200, 200, 1100, 150))
         pygame.draw.rect(self.__blue_image3, self.__DARK_BLUE, (200, 400, 1100, 150))
-        pygame.draw.rect(self.__blue_image3, self.__DARK_BLUE, (100, 100, 200, 75))
 
         self.__server = self.__font.render("Créer", False, (self.__WHITE))
         self.__get_server = self.__server.get_rect()
@@ -254,14 +253,15 @@ class View:
         self.__get_client = self.__client.get_rect()
         self.__get_client.topleft = (650, 450)
 
+        self.__back = pygame.image.load("./assets/fleche-retour.png").convert_alpha()
+        self.__back = pygame.transform.scale(self.__back, (100, 100))
+        self.__get_back = self.__back.get_rect()
+
         self.__screen.blit(self.__background, (0, 0))
         self.__screen.blit(self.__blue_image3, (0, 0))
+        self.__screen.blit(self.__back, (50, 50))
         self.__screen.blit(self.__server, (700, 250))
         self.__screen.blit(self.__client, (650, 450))
-
-        self.__back = pygame.image.load("./assets/fleche-retour.png")
-        self.__back = self.__back.convert()
-        self.__screen.blit(self.__back, (25, 25))
 
 
         pygame.display.flip()
