@@ -1,5 +1,11 @@
 import pygame
+from pip._internal import self_outdated_check
 from pygame.locals import *
+
+import utils
+from case import CaseType, BarrierType
+from game import Game
+
 
 class View:
     def __init__(self):
@@ -8,6 +14,7 @@ class View:
         self.__BLACK = (0, 0, 0)
         self.__BLUE = (171, 242, 255, 50)
         self.__DARK_BLUE = (57, 73, 116, 200)
+        self.__RED = (255, 0, 0)
         self.__GREEN = (0, 255, 0)
 
         pygame.init()
@@ -15,13 +22,15 @@ class View:
         self.__screen = pygame.display.set_mode((1500, 850))  # Définit la taille de la fenetre
         self.__background = pygame.image.load("./assets/background.jpg").convert()  # Charge l'image
 
-        #Création des tailles de polices
+        # Création des tailles de polices
         self.__96_font = pygame.font.SysFont('./fonts/Carme.ttf', 96, bold=False)
         self.__64_font = pygame.font.SysFont('./fonts/Carme.ttf', 64, bold=False)
         self.__48_font = pygame.font.SysFont('./fonts/Carme.ttf', 48, bold=False)
         self.__32_font = pygame.font.SysFont('./fonts/Carme.ttf', 32, bold=False)
 
         self.__blue_image = pygame.Surface((1500, 850), pygame.SRCALPHA)
+
+        self.__game = None
 
         self.boucle_home_page()
 
@@ -52,6 +61,8 @@ class View:
             self.boucle_param("solo")
         if self.__mode == "multiplayer":
             self.boucle_choice_server_client()
+        if self.__mode == "game":
+            self.boucle_game()
 
     def home_page(self):
         self.__screen.blit(self.__background, (0, 0))
@@ -87,7 +98,7 @@ class View:
         self.couleur_2players, self.couleur_4players = self.__DARK_BLUE, self.__DARK_BLUE
         self.__color_5x5, self.__color_7x7, self.__color_9x9, self.__color_11x11 = self.__DARK_BLUE, self.__DARK_BLUE, self.__DARK_BLUE, self.__DARK_BLUE
         self.__nbr_joueur = None
-        self.__size = None
+        self.__board_size = None
         self.__nbr_barr = 20
         self.param_game(mode)
         self.__running = True
@@ -113,22 +124,29 @@ class View:
                     # choice size
                     if self.__get_size_5x5.collidepoint(self.__cursor_pos):
                         self.__color_5x5, self.__color_7x7, self.__color_9x9, self.__color_11x11 = self.__GREEN, self.__DARK_BLUE, self.__DARK_BLUE, self.__DARK_BLUE
-                        self.__size = 5
+                        self.__board_size = 5
                     elif self.__get_size_7x7.collidepoint(self.__cursor_pos):
                         self.__color_5x5, self.__color_7x7, self.__color_9x9, self.__color_11x11 = self.__DARK_BLUE, self.__GREEN, self.__DARK_BLUE, self.__DARK_BLUE
-                        self.__size = 7
+                        self.__board_size = 7
                     elif self.__get_size_9x9.collidepoint(self.__cursor_pos):
                         self.__color_5x5, self.__color_7x7, self.__color_9x9, self.__color_11x11 = self.__DARK_BLUE, self.__DARK_BLUE, self.__GREEN, self.__DARK_BLUE
-                        self.__size = 9
+                        self.__board_size = 9
                     elif self.__get_size_11x11.collidepoint(self.__cursor_pos):
                         self.__color_5x5, self.__color_7x7, self.__color_9x9, self.__color_11x11 = self.__DARK_BLUE, self.__DARK_BLUE, self.__DARK_BLUE, self.__GREEN
-                        self.__size = 11
+                        self.__board_size = 11
                     elif self.__get_less_barr.collidepoint(self.__cursor_pos):
                         if self.__nbr_barr > 4:
                             self.__nbr_barr -= 4
                     elif self.__get_more_barr.collidepoint(self.__cursor_pos):
                         if self.__nbr_barr < 40:
                             self.__nbr_barr += 4
+                    elif self.__get_start_game.collidepoint(event.pos):
+                        if mode == "solo":
+                            self.__game = Game()
+                            self.__game.start(self.__board_size, self.__nbr_joueur)
+                        self.game_page()
+                        self.__running = False
+                        self.__mode = "game"
 
                     self.param_game(mode)
 
@@ -202,7 +220,7 @@ class View:
         self.__start_game = self.__48_font.render('Lancer la partie', False, (self.__WHITE))
 
         self.__get_start_game = self.__start_game.get_rect()
-        self.__get_start_game.topleft = (900, 600)
+        self.__get_start_game.topleft = (650, 600)
 
         # ordre d'affichage
         self.__screen.blit(self.__background, (0, 0))
@@ -227,7 +245,6 @@ class View:
         self.__screen.blit(self.__show_nbr_barr, (800, 500))
         self.__screen.blit(self.__more_barr, (900, 500))
         self.__screen.blit(self.__start_game, (650, 600))
-
         pygame.display.flip()  # Mettre a jour l'affichage
 
     def boucle_choice_server_client(self):
@@ -274,7 +291,6 @@ class View:
         self.__screen.blit(self.__server, (700, 250))
         self.__screen.blit(self.__client, (650, 450))
 
-
         pygame.display.flip()
 
     def boucle_join_page(self):
@@ -309,7 +325,7 @@ class View:
                         self.__adress = self.__adress + "0"
                     elif event.key == K_KP_PERIOD or event.key == K_PERIOD:
                         self.__adress = self.__adress + "."
-                    elif event.key == K_DELETE :
+                    elif event.key == K_DELETE:
                         self.__adress = self.__adress[:1]
                         print(self.__adress)
 
@@ -340,12 +356,11 @@ class View:
 
                 self.join_page()
 
-
     def join_page(self):
         pygame.init()
         self.__blue_image4 = pygame.Surface((1500, 850), pygame.SRCALPHA)
 
-        #carré
+        # carré
         pygame.draw.rect(self.__blue_image4, self.__BLUE, (50, 50, 1400, 750))
 
         pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (100, 200, 50, 50))
@@ -361,7 +376,7 @@ class View:
         pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (700, 300, 50, 50))
         pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (700, 400, 50, 50))
 
-        #lettre
+        # lettre
         self.__1 = self.__96_font.render("1", False, (self.__WHITE))
         self.__get_1 = self.__1.get_rect()
         self.__get_1.topleft = (100, 200)
@@ -423,6 +438,66 @@ class View:
 
         pygame.display.flip()
 
+    def game_page(self):
+        pygame.init()
+        cases_items = {}
+        self.__blue_image4 = pygame.Surface((1500, 850), pygame.SRCALPHA)
+
+        # use self.get_cases()
+        cases = self.__game.get_cases()
+        for i in range(len(cases)):
+            for j in range(len(cases[i])):
+                case = cases[j][i]
+                rect = None
+
+                if case.has_player():
+                    rect = utils.HashableRect(
+                        pygame.draw.rect(self.__blue_image4, self.__RED, (i * 50 + 1, j * 50 + 1, 38, 38)))
+                elif case.get_case_type() == CaseType.DEFAULT:
+                    rect = utils.HashableRect(
+                        pygame.draw.rect(self.__blue_image4, self.__BLUE, (i * 50 + 1, j * 50 + 1, 38, 38)))
+                elif case.get_case_type() == CaseType.SLOT_BARRIER_HORIZONTAL:
+                    rect = utils.HashableRect(
+                        pygame.draw.line(self.__blue_image4, self.__DARK_BLUE, (i * 50, j * 50 + 20),
+                                         (i * 50 + 40, j * 50 + 20), 10))
+                elif case.get_case_type() == CaseType.SLOT_BARRIER_VERTICAL:
+                    rect = utils.HashableRect(
+                        pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (i * 50 + 20, j * 50, 10, 40)))
+                elif case.get_case_type() == CaseType.BARRIER:
+                    if case.get_barrier_type() == BarrierType.HORIZONTAL:
+                        rect = utils.HashableRect(
+                            pygame.draw.rect(self.__blue_image4, self.__RED, (i * 50, j * 50, 40, 10)))
+                    elif case.get_barrier_type() == BarrierType.VERTICAL:
+                        rect = utils.HashableRect(
+                            pygame.draw.rect(self.__blue_image4, self.__RED, (i * 50, j * 50, 10, 40)))
+
+                cases_items.update({rect: (j, i)})
+
+        for event in pygame.event.get():
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                for rect, (i, j) in cases_items.items():
+                    if rect is not None and rect.collidepoint(event.pos):
+                        case = self.__game.get_case(i, j)
+                        print(i, j)
+
+                        if case.get_case_type() == CaseType.BLANK:
+                            pass
+
+                        elif case.get_case_type() == CaseType.SLOT_BARRIER_HORIZONTAL:
+                            self.__game.place_barrier(i, j, BarrierType.HORIZONTAL)
+                        elif case.get_case_type() == CaseType.SLOT_BARRIER_VERTICAL:
+                            self.__game.place_barrier(i, j, BarrierType.VERTICAL)
+                        else:
+                            self.__game.move_player(i, j)
+        self.__screen.blit(self.__background, (0, 0))
+        self.__screen.blit(self.__blue_image4, (0, 0))
+        pygame.display.flip()
+
+    def boucle_game(self):
+        self.__running = True
+        pygame.display.update()
+        while self.__running:
+            self.game_page()
 
 
 View()
