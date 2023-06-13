@@ -11,7 +11,6 @@ class View:
         self.__GREEN = (0, 255, 0)
 
         pygame.init()
-        self.__font = pygame.font.SysFont('./fonts/Carme.ttf', 80, bold=False)
         pygame.display.set_caption("Quorridor")  # Nom de la fenêtre
         self.__screen = pygame.display.set_mode((1500, 850))  # Définit la taille de la fenetre
         self.__background = pygame.image.load("./assets/background.jpg").convert()  # Charge l'image
@@ -57,26 +56,26 @@ class View:
     def home_page(self):
         self.__screen.blit(self.__background, (0, 0))
 
-        pygame.draw.rect(self.__blue_image, self.__WHITE, (525, 100, 520, 100))
-        self.__quorridor = self.__font.render('QUORRIDOR', False, (self.__BLACK))
+        pygame.draw.rect(self.__blue_image, self.__WHITE, (530, 100, 520, 100))
+        self.__quorridor = self.__96_font.render('QUORRIDOR', False, (self.__BLACK))
 
         self.__rect_solo = pygame.draw.rect(self.__blue_image, self.__BLUE, (460, 300, 650, 75))
-        self.__solo = self.__font.render('Solo', False, (self.__WHITE))
+        self.__solo = self.__64_font.render('Solo', False, (self.__WHITE))
         self.__get_solo = self.__solo.get_rect()
         self.__get_solo.topleft = (700, 300)
 
         pygame.draw.rect(self.__blue_image, self.__BLUE, (460, 450, 650, 75))
-        self.__multiplayer = self.__font.render('Multijoueur', False, (self.__WHITE))
+        self.__multiplayer = self.__64_font.render('Multijoueur', False, (self.__WHITE))
         self.__get_multiplayer = self.__multiplayer.get_rect()
         self.__get_multiplayer.topleft = (700, 450)
 
         pygame.draw.rect(self.__blue_image, self.__BLUE, (460, 600, 650, 75))
-        self.__leave = self.__font.render('Quitter', False, (self.__WHITE))
+        self.__leave = self.__64_font.render('Quitter', False, (self.__WHITE))
         self.__get_leave = self.__leave.get_rect()
         self.__get_leave.topleft = (700, 610)
 
         self.__screen.blit(self.__blue_image, (0, 0))
-        self.__screen.blit(self.__quorridor, (620, 125))
+        self.__screen.blit(self.__quorridor, (590, 125))
         self.__screen.blit(self.__solo, (730, 315))
         self.__screen.blit(self.__multiplayer, (660, 460))
         self.__screen.blit(self.__leave, (700, 610))
@@ -84,6 +83,7 @@ class View:
         pygame.display.flip()  # Mettre a jour l'affichage
 
     def boucle_param(self, mode):
+        self.__GREEN = pygame.Color(57, 116, 70, 255)
         self.couleur_2players, self.couleur_4players = self.__DARK_BLUE, self.__DARK_BLUE
         self.__color_5x5, self.__color_7x7, self.__color_9x9, self.__color_11x11 = self.__DARK_BLUE, self.__DARK_BLUE, self.__DARK_BLUE, self.__DARK_BLUE
         self.__nbr_joueur = None
@@ -140,62 +140,69 @@ class View:
         self.__blue_image2 = pygame.Surface(self.__size, pygame.SRCALPHA)
 
         # carré pricipale
-        pygame.draw.rect(self.__blue_image2, self.__BLUE, (250, 200, 1000, 500))
+        pygame.draw.rect(self.__blue_image2, pygame.Color(64, 91, 67, 50), (250, 200, 1000, 500))
 
         pygame.draw.rect(self.__blue_image2, self.__DARK_BLUE, (100, 100, 100, 100))
-        self.__back = self.__font.render('Retour', False, (self.__WHITE))
+        self.__back = self.__96_font.render('Retour', False, (self.__WHITE))
         self.__get_back = self.__back.get_rect()
         self.__get_back.topleft = (100, 100)
 
         # choix nombre de joueur
         if mode != "multiplayer":
-            pygame.draw.rect(self.__blue_image2, self.couleur_2players, (450, 250, 150, 100))
-            pygame.draw.rect(self.__blue_image2, self.couleur_4players, (900, 250, 150, 100))
+            pygame.draw.rect(self.__blue_image2, self.couleur_2players, (425, 240, 209, 58))
+            pygame.draw.rect(self.__blue_image2, self.couleur_4players, (875, 240, 209, 58))
 
-            self.__nbr_player2 = self.__font.render('2 joueurs', False, (self.__WHITE))
+            self.__nbr_player2 = self.__48_font.render('2 joueurs', False, (self.__WHITE))
             self.__get_nbr_player2 = self.__nbr_player2.get_rect()
             self.__get_nbr_player2.topleft = (450, 250)
 
-            self.__nbr_player4 = self.__font.render('4 joueurs', False, (self.__WHITE))
+            self.__nbr_player4 = self.__48_font.render('4 joueurs', False, (self.__WHITE))
             self.__get_nbr_player4 = self.__nbr_player4.get_rect()
             self.__get_nbr_player4.topleft = (900, 250)
 
         # choix taille tableau
 
-        pygame.draw.rect(self.__blue_image2, self.__color_5x5, (300, 400, 100, 50))
-        pygame.draw.rect(self.__blue_image2, self.__color_7x7, (500, 400, 100, 50))
-        pygame.draw.rect(self.__blue_image2, self.__color_9x9, (700, 400, 100, 50))
-        pygame.draw.rect(self.__blue_image2, self.__color_11x11, (900, 400, 100, 50))
+        pygame.draw.rect(self.__blue_image2, self.__color_5x5, (365, 390, 120, 50))
+        pygame.draw.rect(self.__blue_image2, self.__color_7x7, (565, 390, 120, 50))
+        pygame.draw.rect(self.__blue_image2, self.__color_9x9, (820, 390, 120, 50))
+        pygame.draw.rect(self.__blue_image2, self.__color_11x11, (1020, 390, 150, 50))
 
-        self.__size_5x5 = self.__font.render('5x5', False, (self.__WHITE))
+        self.__size_5x5 = self.__48_font.render('5x5', False, (self.__WHITE))
         self.__get_size_5x5 = self.__size_5x5.get_rect()
-        self.__get_size_5x5.topleft = (300, 400)
+        self.__get_size_5x5.topleft = (365, 390)
 
-        self.__size_7x7 = self.__font.render('7x7', False, (self.__WHITE))
+        self.__size_7x7 = self.__48_font.render('7x7', False, (self.__WHITE))
         self.__get_size_7x7 = self.__size_7x7.get_rect()
-        self.__get_size_7x7.topleft = (500, 400)
+        self.__get_size_7x7.topleft = (565, 390)
 
-        self.__size_9x9 = self.__font.render('9x9', False, (self.__WHITE))
+        self.__size_9x9 = self.__48_font.render('9x9', False, (self.__WHITE))
         self.__get_size_9x9 = self.__size_9x9.get_rect()
-        self.__get_size_9x9.topleft = (700, 400)
+        self.__get_size_9x9.topleft = (820, 390)
 
-        self.__size_11x11 = self.__font.render('11x11', False, (self.__WHITE))
+        self.__size_11x11 = self.__48_font.render('11x11', False, (self.__WHITE))
         self.__get_size_11x11 = self.__size_11x11.get_rect()
-        self.__get_size_11x11.topleft = (900, 400)
+        self.__get_size_11x11.topleft = (1020, 390)
 
         # choix nombre barrière
         pygame.draw.rect(self.__blue_image2, self.__DARK_BLUE, (700, 500, 200, 50))
 
-        self.__less_barr = self.__font.render('-', False, (self.__WHITE))
+        self.__less_barr = self.__48_font.render('-', False, (self.__WHITE))
         self.__get_less_barr = self.__less_barr.get_rect()
         self.__get_less_barr.topleft = (700, 500)
 
         # nbr_barr = str(self.__nbr_barr)
-        self.__show_nbr_barr = self.__font.render(str(self.__nbr_barr), False, (self.__WHITE))
+        self.__show_nbr_barr = self.__48_font.render(str(self.__nbr_barr), False, (self.__WHITE))
 
-        self.__more_barr = self.__font.render('+', False, (self.__WHITE))
+        self.__more_barr = self.__48_font.render('+', False, (self.__WHITE))
         self.__get_more_barr = self.__more_barr.get_rect()
         self.__get_more_barr.topleft = (900, 500)
+
+        pygame.draw.rect(self.__blue_image2, self.__DARK_BLUE, (600, 590, 350, 60))
+
+        self.__start_game = self.__48_font.render('Lancer la partie', False, (self.__WHITE))
+
+        self.__get_start_game = self.__start_game.get_rect()
+        self.__get_start_game.topleft = (900, 600)
 
         # ordre d'affichage
         self.__screen.blit(self.__background, (0, 0))
@@ -210,15 +217,16 @@ class View:
             self.__screen.blit(self.__nbr_player4, (900, 250))
 
         # choice size
-        self.__screen.blit(self.__size_5x5, (300, 400))
-        self.__screen.blit(self.__size_7x7, (500, 400))
-        self.__screen.blit(self.__size_9x9, (700, 400))
-        self.__screen.blit(self.__size_11x11, (900, 400))
+        self.__screen.blit(self.__size_5x5, (400, 400))
+        self.__screen.blit(self.__size_7x7, (600, 400))
+        self.__screen.blit(self.__size_9x9, (850, 400))
+        self.__screen.blit(self.__size_11x11, (1050, 400))
 
         # choice barr
         self.__screen.blit(self.__less_barr, (700, 500))
         self.__screen.blit(self.__show_nbr_barr, (800, 500))
         self.__screen.blit(self.__more_barr, (900, 500))
+        self.__screen.blit(self.__start_game, (650, 600))
 
         pygame.display.flip()  # Mettre a jour l'affichage
 
@@ -245,11 +253,11 @@ class View:
         pygame.draw.rect(self.__blue_image3, self.__DARK_BLUE, (200, 200, 1100, 150))
         pygame.draw.rect(self.__blue_image3, self.__DARK_BLUE, (200, 400, 1100, 150))
 
-        self.__server = self.__font.render("Créer", False, (self.__WHITE))
+        self.__server = self.__96_font.render("Créer", False, (self.__WHITE))
         self.__get_server = self.__server.get_rect()
         self.__get_server.topleft = (700, 250)
 
-        self.__client = self.__font.render("Rejoindre", False, (self.__WHITE))
+        self.__client = self.__96_font.render("Rejoindre", False, (self.__WHITE))
         self.__get_client = self.__client.get_rect()
         self.__get_client.topleft = (650, 450)
 
