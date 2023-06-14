@@ -1,16 +1,15 @@
+import threading
+import time
+
 import pygame
 from pygame import mixer
 from pygame.locals import *
 
-import game
 import utils
 from case import CaseType, BarrierType
 from game import Game
 from multiplayer import Multiplayer
 from network import Client
-import network
-import threading
-import time
 
 
 class View:
@@ -154,22 +153,23 @@ class View:
                     elif self.__get_more_barr.collidepoint(self.__cursor_pos):
                         if self.__board_size == 5:
                             max_barr = 8
-                        elif self.__board_size == 7 :
+                        elif self.__board_size == 7:
                             max_barr = 16
-                        elif self.__board_size == 9 :
+                        elif self.__board_size == 9:
                             max_barr = 32
-                        elif self.__board_size == 11 :
+                        elif self.__board_size == 11:
                             max_barr = 40
                         if self.__nbr_barr < max_barr:
                             self.__nbr_barr += 4
                     elif self.__get_start_game.collidepoint(event.pos):
-                        if self.__nbr_joueur != None and self.__board_size != None :
+                        if self.__nbr_joueur != None and self.__board_size != None:
                             if mode == "solo":
                                 self.__game = Game()
                                 self.__game.start(self.__board_size, self.__nbr_joueur)
-                            elif mode == "multiplayer" :
+                            elif mode == "multiplayer":
                                 self.__game.start(self.__board_size, self.__nbr_joueur)
-                                info_game = {"type": "parameter", "size": self.__board_size, "nbr_joueur":self.__nbr_joueur}
+                                info_game = {"type": "parameter", "size": self.__board_size,
+                                             "nbr_joueur": self.__nbr_joueur}
                                 self.__game.get_server().send_message_server_all_client(info_game, None)
                             self.game_page()
                             self.__running = False
@@ -200,19 +200,19 @@ class View:
             self.__get_nbr_player4 = self.__nbr_player4.get_rect()
             self.__get_nbr_player4.topleft = (900, 250)
 
-        if mode == "multiplayer" :
+        if mode == "multiplayer":
             address = self.__game.get_server().get_address_ip()
             self.__show_adress = self.__48_font.render(f"Adresse de connexion : {address}", False, (self.__WHITE))
 
             self.__nbr_player_co = 1
-            if self.__game.get_server().get_client1() != None :
+            if self.__game.get_server().get_client1() != None:
                 self.__nbr_player_co = 2
-            if self.__game.get_server().get_client2() != None :
+            if self.__game.get_server().get_client2() != None:
                 self.__nbr_player_co = 3
-            if self.__game.get_server().get_client3() != None :
+            if self.__game.get_server().get_client3() != None:
                 self.__nbr_player_co = 4
-            self.__show_nbr_player = self.__48_font.render(f"{self.__nbr_player_co} joueur(s) sont présents sur {self.players_requis}", False, (self.__WHITE))
-
+            self.__show_nbr_player = self.__48_font.render(
+                f"{self.__nbr_player_co} joueur(s) sont présents sur {self.players_requis}", False, (self.__WHITE))
 
         # choix taille tableau
 
@@ -274,7 +274,7 @@ class View:
             self.__screen.blit(self.__nbr_player2, (450, 250))
             self.__screen.blit(self.__nbr_player4, (900, 250))
 
-        if mode == "multiplayer" :
+        if mode == "multiplayer":
             self.__screen.blit(self.__show_adress, (450, 250))
             self.__screen.blit(self.__show_nbr_player, (450, 300))
 
@@ -290,6 +290,7 @@ class View:
         self.__screen.blit(self.__more_barr, (820, 505))
         self.__screen.blit(self.__start_game, (650, 600))
         pygame.display.flip()  # Mettre a jour l'affichage
+
     def boucle_choice_server_client(self):
         self.choice_server_client()
         self.__running = True
@@ -426,50 +427,35 @@ class View:
                             self.__adress = self.__adress + "9"
                         elif event.key == K_0 or event.key == K_KP0:
                             self.__adress = self.__adress + "0"
-                        elif event.key == K_KP_PERIOD or event.key == K_PERIOD :
+                        elif event.key == K_KP_PERIOD or event.key == K_PERIOD:
                             self.__adress = self.__adress + "."
 
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     self.__cursor_pos = pygame.mouse.get_pos()
-                    if len(self.__adress) < 15 :
-                        if self.__get_1.collidepoint(self.__cursor_pos):
-                            self.__adress = self.__adress + "1"
-                        elif self.__get_2.collidepoint(self.__cursor_pos):
-                            self.__adress = self.__adress + "2"
-                        elif self.__get_3.collidepoint(self.__cursor_pos):
-                            self.__adress = self.__adress + "3"
-                        elif self.__get_4.collidepoint(self.__cursor_pos):
-                            self.__adress = self.__adress + "4"
-                        elif self.__get_5.collidepoint(self.__cursor_pos):
-                            self.__adress = self.__adress + "5"
-                        elif self.__get_6.collidepoint(self.__cursor_pos):
-                            self.__adress = self.__adress + "6"
-                        elif self.__get_7.collidepoint(self.__cursor_pos):
-                            self.__adress = self.__adress + "7"
-                        elif self.__get_8.collidepoint(self.__cursor_pos):
-                            self.__adress = self.__adress + "8"
-                        elif self.__get_9.collidepoint(self.__cursor_pos):
-                            self.__adress = self.__adress + "9"
-                        elif self.__get_0.collidepoint(self.__cursor_pos):
+                    if len(self.__adress) < 15:
+                        for i, j in self.__numbers.items():
+                            if i.collidepoint(self.__cursor_pos):
+                                self.__adress = self.__adress + str(j)
+                        if self.__get_0.collidepoint(self.__cursor_pos):
                             self.__adress = self.__adress + "0"
                         elif self.__get_point.collidepoint(self.__cursor_pos):
                             self.__adress = self.__adress + "."
-                    if self.__get_supprimer .collidepoint(self.__cursor_pos):
+                    if self.__get_supprimer.collidepoint(self.__cursor_pos):
                         self.__adress = ""
                     elif self.__get_join.collidepoint(self.__cursor_pos):
                         client = Client(self.__adress)
                         response = client.connect()
                         if response == 0:
                             self.__erreur_connect = True
-                        else :
+                        else:
                             self.__game = Multiplayer(False, 2, client)
                             self.boucle_lobby(client, response)
                 self.join_page()
 
-    def boucle_lobby(self,client,num_client):
+    def boucle_lobby(self, client, num_client):
         self.__point = "."
         self.__running = True
-        self.player_acctu = num_client +1
+        self.player_acctu = num_client + 1
         self.lobby()
         self.__thread_listen_player = threading.Thread(target=self.listen_new_player)  # création du thread
         self.__thread_listen_player.start()
@@ -485,7 +471,7 @@ class View:
 
     def point_loading_change(self):
         self.if_play = True
-        while self.if_play :
+        while self.if_play:
             time.sleep(1)
             if self.__point == ".":
                 self.__point = ".."
@@ -494,7 +480,6 @@ class View:
             elif self.__point == "...":
                 self.__point = "."
             self.lobby()
-
 
     def listen_new_player(self):
         dico = {"type": "None"}
@@ -516,7 +501,8 @@ class View:
         self.__blue_image5 = pygame.Surface((1500, 850), pygame.SRCALPHA)
 
         self.__loading_word = self.__64_font.render(f"En attente des joueurs {self.__point}", False, (self.__WHITE))
-        self.__affichage_nbr_player = self.__64_font.render(f"{self.player_acctu} joueur(s) sont présents", False, (self.__WHITE))
+        self.__affichage_nbr_player = self.__64_font.render(f"{self.player_acctu} joueur(s) sont présents", False,
+                                                            (self.__WHITE))
 
         self.__screen.blit(self.__background, (0, 0))
         self.__screen.blit(self.__blue_image5, (0, 0))
@@ -532,7 +518,7 @@ class View:
         self.__consigne = self.__48_font.render(f"Entrez l'adresse pour vous connectez !", False, (self.__WHITE))
 
         # carré
-        #pygame.draw.rect(self.__blue_image4, self.__BLUE, (50, 50, 1400, 750))
+        # pygame.draw.rect(self.__blue_image4, self.__BLUE, (50, 50, 1400, 750))
 
         pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (100, 200, 65, 65))
         pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (100, 300, 65, 65))
@@ -550,6 +536,15 @@ class View:
 
         pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (1000, 500, 350, 75))
         pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (1000, 600, 350, 75))
+
+        self.__numbers = {}
+        for i in range(1, 3):
+            for j in range(3):
+                self.__number = self.__96_font.render(str(i+j), False, (self.__WHITE))
+                self.__get_number = self.__number.get_rect()
+                self.__get_number.topleft = (115 + (j * 300), 200 + (i * 100))
+                self.__numbers.update({self.__get_number: i + j})
+                self.__screen.blit(self.__number, (115 + (j * 300), 200 + (i * 100)))
 
         # lettre
         self.__1 = self.__96_font.render("1", False, (self.__WHITE))
@@ -590,7 +585,7 @@ class View:
 
         self.__adress_final = self.__48_font.render(f"Adresse de connexion : {self.__adress}", False, (self.__WHITE))
 
-        if self.__erreur_connect :
+        if self.__erreur_connect:
             self.__erreur = self.__48_font.render("Connexion au serveur échoué !", False, (self.__RED))
 
         self.__supprimer = self.__96_font.render("Supprimer", False, (self.__RED))
@@ -610,8 +605,6 @@ class View:
         self.__screen.blit(self.__back, (50, 50))
 
         self.__screen.blit(self.__consigne, (115, 100))
-
-
 
         self.__screen.blit(self.__1, (115, 200))
         self.__screen.blit(self.__4, (115, 300))
@@ -652,19 +645,19 @@ class View:
                     if case.get_player().get_id() == 1:
                         img_red_player = pygame.image.load("./assets/red_player.png").convert_alpha()
                         img_red_player = pygame.transform.scale(img_red_player, (48, 48))
-                        self.__blue_image4.blit(img_red_player, (i*28, j*28))
+                        self.__blue_image4.blit(img_red_player, (i * 28, j * 28))
                     elif case.get_player().get_id() == 2:
                         img_blue_player = pygame.image.load("./assets/blue_player.png").convert_alpha()
                         img_blue_player = pygame.transform.scale(img_blue_player, (48, 48))
-                        self.__blue_image4.blit(img_blue_player, (i*28, j*28))
+                        self.__blue_image4.blit(img_blue_player, (i * 28, j * 28))
                     elif case.get_player().get_id() == 3:
                         img_yellow_player = pygame.image.load("./assets/yellow_player.png").convert_alpha()
                         img_yellow_player = pygame.transform.scale(img_yellow_player, (48, 48))
-                        self.__blue_image4.blit(img_yellow_player, (i*28, j*28))
+                        self.__blue_image4.blit(img_yellow_player, (i * 28, j * 28))
                     elif case.get_player().get_id() == 4:
                         img_green_player = pygame.image.load("./assets/green_player.png").convert_alpha()
                         img_green_player = pygame.transform.scale(img_green_player, (48, 48))
-                        self.__blue_image4.blit(img_green_player, (i*28, j*28))
+                        self.__blue_image4.blit(img_green_player, (i * 28, j * 28))
 
                 elif case.get_case_type() == CaseType.DEFAULT:
                     rect = utils.HashableRect(
@@ -689,9 +682,9 @@ class View:
 
                 cases_items.update({rect: (j, i)})
 
-
         pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (700, 75, 600, 75))
 
+        # REMOVE THIS AND USE self.__game.get_current_player().get_id()
         self.__current_player = self.__game.get_current_player()
         if self.__current_player == self.__game.get_player(1):
             self.__player_play = 1
@@ -707,7 +700,6 @@ class View:
             color = self.__GREEN
         self.__turn_player = self.__48_font.render(
             f"Au tour du joueur " + str(self.__player_play), False, (color))
-
 
         for event in pygame.event.get():
             if event.type == pygame.MOUSEBUTTONDOWN:
@@ -729,11 +721,11 @@ class View:
                             self.boucle_sounds("place")
 
                         else:
-                            self.__game.move_player(i, j)
-                            self.boucle_sounds("move")
-                            self.__current_player = game.get_current_player()
-                            self.__turn_player = self.__48_font.render(
-                                f"Au tour du joueur " + str(self.__current_player), False, (self.__WHITE))
+                            if self.__game.move_player(i, j):
+                                self.boucle_sounds("move")
+                                self.__current_player = self.__game.get_current_player()
+                                self.__turn_player = self.__48_font.render(
+                                    f"Au tour du joueur " + str(self.__current_player), False, (self.__WHITE))
 
         pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (700, 200, 600, 75))
         pygame.draw.rect(self.__blue_image4, self.__BLUE, (700, 300, 500, 250))
@@ -747,48 +739,33 @@ class View:
         self.__yellow_barrier = pygame.image.load("./assets/Yellow_Fence.png")
         self.__blue_barrier = pygame.image.load("./assets/Blue_Fence.png")
 
+        if type(self.__game) == Multiplayer:
+            multiplayer: Multiplayer = self.__game
 
-
-        if self.__game.get_player(1):
-            self.__player1 = self.__48_font.render("Vous êtes le joueur 1:            X", False, (self.__RED))
-            self.__player2 = self.__48_font.render("Joueur 2:         X", False, (self.__BLUE))
-            self.__player3 = self.__48_font.render("Joueur 3:         X", False, (self.__YELLOW))
-            self.__player4 = self.__48_font.render("Joueur 4:         X", False, (self.__GREEN))
+            if multiplayer.get_client().get_me_player() == 1:
+                self.__player1 = self.__48_font.render("Vous êtes le joueur 1:            X", False, self.__RED)
+                self.__player2 = self.__48_font.render("Joueur 2:         X", False, self.__BLUE)
+                self.__player3 = self.__48_font.render("Joueur 3:         X", False, self.__YELLOW)
+                self.__player4 = self.__48_font.render("Joueur 4:         X", False, self.__GREEN)
+            elif multiplayer.get_client().get_me_player() == 2:
+                self.__player2 = self.__48_font.render("Vous êtes le joueur 2:            X", False, (self.__BLUE))
+                self.__player3 = self.__48_font.render("Joueur 4:         X", False, (self.__GREEN))
+                self.__player4 = self.__48_font.render("Joueur 3:         X", False, (self.__YELLOW))
+                self.__player1 = self.__48_font.render("Joueur 1:         X", False, (self.__RED))
+            elif multiplayer.get_client().get_me_player() == 3:
+                self.__player3 = self.__48_font.render("Vous êtes le joueur 3:            X", False, (self.__YELLOW))
+                self.__player4 = self.__48_font.render("Joueur 4:         X", False, (self.__GREEN))
+                self.__player2 = self.__48_font.render("Joueur 2:         X", False, (self.__BLUE))
+                self.__player1 = self.__48_font.render("Joueur 1:         X", False, (self.__RED))
+            elif multiplayer.get_client().get_me_player() == 4:
+                self.__player4 = self.__48_font.render("Vous êtes le joueur 4:            X", False, (self.__GREEN))
+                self.__player3 = self.__48_font.render("Joueur 3:         X", False, (self.__YELLOW))
+                self.__player2 = self.__48_font.render("Joueur 2:         X", False, (self.__BLUE))
+                self.__player1 = self.__48_font.render("Joueur 1:         X", False, (self.__RED))
             self.__screen.blit(self.__player1, (710, 220))
             self.__screen.blit(self.__player2, (710, 320))
             self.__screen.blit(self.__player3, (710, 400))
             self.__screen.blit(self.__player4, (710, 480))
-
-        elif self.__game.get_player() == 2:
-            self.__player2 = self.__48_font.render("Vous êtes le joueur 2:            X", False, (self.__BLUE))
-            self.__player3 = self.__48_font.render("Joueur 4:         X", False, (self.__GREEN))
-            self.__player4 = self.__48_font.render("Joueur 3:         X", False, (self.__YELLOW))
-            self.__player1 = self.__48_font.render("Joueur 1:         X", False, (self.__RED))
-            self.__screen.blit(self.__player2, (700, 200))
-            self.__screen.blit(self.__player4, (700, 200))
-            self.__screen.blit(self.__player3, (700, 200))
-            self.__screen.blit(self.__player1, (700, 200))
-
-        elif self.__game.get_player() == 3:
-            self.__player3 = self.__48_font.render("Vous êtes le joueur 3:            X", False, (self.__YELLOW))
-            self.__player4 = self.__48_font.render("Joueur 4:         X", False, (self.__GREEN))
-            self.__player2 = self.__48_font.render("Joueur 2:         X", False, (self.__BLUE))
-            self.__player1 = self.__48_font.render("Joueur 1:         X", False, (self.__RED))
-            self.__screen.blit(self.__player3, (700, 200))
-            self.__screen.blit(self.__player4, (700, 200))
-            self.__screen.blit(self.__player2, (700, 200))
-            self.__screen.blit(self.__player1, (700, 200))
-
-        elif self.__game.get_player() == 4:
-            self.__player4 = self.__48_font.render("Vous êtes le joueur 4:            X", False, (self.__GREEN))
-            self.__player3 = self.__48_font.render("Joueur 3:         X", False, (self.__YELLOW))
-            self.__player2 = self.__48_font.render("Joueur 2:         X", False, (self.__BLUE))
-            self.__player1 = self.__48_font.render("Joueur 1:         X", False, (self.__RED))
-            self.__screen.blit(self.__player4, (700, 200))
-            self.__screen.blit(self.__player3, (700, 200))
-            self.__screen.blit(self.__player2, (700, 200))
-            self.__screen.blit(self.__player1, (700, 200))
-
 
         pygame.display.flip()
 
@@ -810,5 +787,5 @@ class View:
                     pygame.quit()
             self.game_page()
 
-View()
 
+View()

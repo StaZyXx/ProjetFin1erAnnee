@@ -144,7 +144,7 @@ class Game:
 
     def move_player(self, x, y):
         direction = self.determine_direction(x, y)
-        self.move_player_with_direction(direction)
+        return self.move_player_with_direction(direction)
 
 
     def move_player_with_direction(self, direction):
@@ -333,3 +333,5 @@ class Game:
 
     def get_cases(self) -> [[Case]]:
         return self.__cases
+
+

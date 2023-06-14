@@ -1,7 +1,7 @@
 import threading
 
 from game import Game
-from network import Server, receipt_message_client
+from network import Server, receipt_message_client, Client
 
 
 class Multiplayer(Game):
@@ -22,7 +22,7 @@ class Multiplayer(Game):
 
     def get_server(self):
         return self.__server
-    def get_client(self):
+    def get_client(self) -> Client:
         return self.__client
 
     def get_server(self):
