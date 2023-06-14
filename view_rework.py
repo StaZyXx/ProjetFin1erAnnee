@@ -1,5 +1,4 @@
 import pygame
-from pip._internal import self_outdated_check
 from pygame.locals import *
 
 import utils
@@ -12,7 +11,9 @@ class View:
         # Création des couleurs
         self.__WHITE = (255, 255, 255, 50)
         self.__BLACK = (0, 0, 0)
+        self.__YELLOW = (246, 255, 51)
         self.__BLUE = (171, 242, 255, 50)
+        self.__BLUE_PLAYER = (51, 110, 255)
         self.__DARK_BLUE = (57, 73, 116, 200)
         self.__RED = (255, 0, 0)
         self.__GREEN = (0, 255, 0)
@@ -160,7 +161,6 @@ class View:
         # carré pricipale
         pygame.draw.rect(self.__blue_image2, pygame.Color(64, 91, 67, 50), (250, 200, 1000, 500))
         pygame.draw.rect(self.__blue_image2, self.__DARK_BLUE, (75, 75, 50, 50))
-
 
         # choix nombre de joueur
         if mode != "multiplayer":
@@ -446,15 +446,32 @@ class View:
 
         # use self.get_cases()
         cases = self.__game.get_cases()
-        c = 0
         for i in range(len(cases)):
             for j in range(len(cases[i])):
                 case = cases[j][i]
                 rect = None
 
                 if case.has_player():
-                    rect = utils.HashableRect(
-                        pygame.draw.rect(self.__blue_image4, self.__RED, (i * 28, j * 28, 48, 48)))
+                    if case.get_player().get_id() == 1:
+                        print("coucouille1")
+                        img_red_player = pygame.image.load("./assets/red_player.png").convert_alpha()
+                        img_red_player = pygame.transform.scale(img_red_player, (48, 48))
+                        self.__blue_image4.blit(img_red_player, (i*28, j*28))
+                    elif case.get_player().get_id() == 2:
+                        print("coucouille2")
+                        img_blue_player = pygame.image.load("./assets/blue_player.png").convert_alpha()
+                        img_blue_player = pygame.transform.scale(img_blue_player, (48, 48))
+                        self.__blue_image4.blit(img_blue_player, (i*28, j*28))
+                    elif case.get_player().get_id() == 3:
+                        print("coucouille3")
+                        img_yellow_player = pygame.image.load("./assets/yellow_player.png").convert_alpha()
+                        img_yellow_player = pygame.transform.scale(img_yellow_player, (48, 48))
+                        self.__blue_image4.blit(img_yellow_player, (i*28, j*28))
+                    elif case.get_player().get_id() == 4:
+                        print("coucouille4")
+                        img_green_player = pygame.image.load("./assets/green_player.png").convert_alpha()
+                        img_green_player = pygame.transform.scale(img_green_player, (48, 48))
+                        self.__blue_image4.blit(img_green_player, (i*28, j*28))
 
                 elif case.get_case_type() == CaseType.DEFAULT:
                     rect = utils.HashableRect(
@@ -495,6 +512,7 @@ class View:
                             self.__game.place_barrier(i, j, BarrierType.VERTICAL)
                         else:
                             self.__game.move_player(i, j)
+
         self.__screen.blit(self.__background, (0, 0))
         self.__screen.blit(self.__blue_image4, (0, 0))
         pygame.display.flip()
