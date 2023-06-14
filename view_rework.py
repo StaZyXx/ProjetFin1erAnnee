@@ -453,22 +453,18 @@ class View:
 
                 if case.has_player():
                     if case.get_player().get_id() == 1:
-                        print("coucouille1")
                         img_red_player = pygame.image.load("./assets/red_player.png").convert_alpha()
                         img_red_player = pygame.transform.scale(img_red_player, (48, 48))
                         self.__blue_image4.blit(img_red_player, (i*28, j*28))
                     elif case.get_player().get_id() == 2:
-                        print("coucouille2")
                         img_blue_player = pygame.image.load("./assets/blue_player.png").convert_alpha()
                         img_blue_player = pygame.transform.scale(img_blue_player, (48, 48))
                         self.__blue_image4.blit(img_blue_player, (i*28, j*28))
                     elif case.get_player().get_id() == 3:
-                        print("coucouille3")
                         img_yellow_player = pygame.image.load("./assets/yellow_player.png").convert_alpha()
                         img_yellow_player = pygame.transform.scale(img_yellow_player, (48, 48))
                         self.__blue_image4.blit(img_yellow_player, (i*28, j*28))
                     elif case.get_player().get_id() == 4:
-                        print("coucouille4")
                         img_green_player = pygame.image.load("./assets/green_player.png").convert_alpha()
                         img_green_player = pygame.transform.scale(img_green_player, (48, 48))
                         self.__blue_image4.blit(img_green_player, (i*28, j*28))
