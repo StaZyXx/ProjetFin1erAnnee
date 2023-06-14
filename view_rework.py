@@ -563,47 +563,27 @@ class View:
         pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (1000, 600, 350, 75))
 
         self.__numbers = {}
-        for i in range(1, 3):
+        x = 115
+        for i in range(1,3):
+            y = 200
             for j in range(3):
                 self.__number = self.__96_font.render(str(i+j), False, (self.__WHITE))
                 self.__get_number = self.__number.get_rect()
-                self.__get_number.topleft = (115 + (j * 300), 200 + (i * 100))
+                self.__get_number.topleft = (115, 200)
                 self.__numbers.update({utils.HashableRect(self.__get_number): i + j})
-                self.__screen.blit(self.__number, (115 + (j * 300), 200 + (i * 100)))
+                self.__screen.blit(self.__number, (115,200))
+                y += 100
+            x += 200
 
         # lettre
-        self.__1 = self.__96_font.render("1", False, (self.__WHITE))
-        self.__get_1 = self.__1.get_rect()
-        self.__get_1.topleft = (115, 200)
-        self.__4 = self.__96_font.render("4", False, (self.__WHITE))
-        self.__get_4 = self.__4.get_rect()
-        self.__get_4.topleft = (115, 300)
-        self.__7 = self.__96_font.render("7", False, (self.__WHITE))
-        self.__get_7 = self.__7.get_rect()
-        self.__get_7.topleft = (115, 400)
 
-        self.__2 = self.__96_font.render("2", False, (self.__WHITE))
-        self.__get_2 = self.__2.get_rect()
-        self.__get_2.topleft = (415, 200)
-        self.__5 = self.__96_font.render("5", False, (self.__WHITE))
-        self.__get_5 = self.__5.get_rect()
-        self.__get_5.topleft = (415, 300)
-        self.__8 = self.__96_font.render("8", False, (self.__WHITE))
-        self.__get_8 = self.__8.get_rect()
-        self.__get_8.topleft = (415, 400)
+
         self.__0 = self.__96_font.render("0", False, (self.__WHITE))
         self.__get_0 = self.__0.get_rect()
         self.__get_0.topleft = (415, 500)
 
-        self.__3 = self.__96_font.render("3", False, (self.__WHITE))
-        self.__get_3 = self.__3.get_rect()
-        self.__get_3.topleft = (715, 200)
-        self.__6 = self.__96_font.render("6", False, (self.__WHITE))
-        self.__get_6 = self.__6.get_rect()
-        self.__get_6.topleft = (715, 300)
-        self.__9 = self.__96_font.render("9", False, (self.__WHITE))
-        self.__get_9 = self.__9.get_rect()
-        self.__get_9.topleft = (715, 400)
+
+
         self.__point = self.__96_font.render(".", False, (self.__WHITE))
         self.__get_point = self.__point.get_rect()
         self.__get_point.topleft = (715, 500)
@@ -631,18 +611,9 @@ class View:
 
         self.__screen.blit(self.__consigne, (115, 100))
 
-        self.__screen.blit(self.__1, (115, 200))
-        self.__screen.blit(self.__4, (115, 300))
-        self.__screen.blit(self.__7, (115, 400))
 
-        self.__screen.blit(self.__2, (415, 200))
-        self.__screen.blit(self.__5, (415, 300))
-        self.__screen.blit(self.__8, (415, 400))
         self.__screen.blit(self.__0, (415, 500))
 
-        self.__screen.blit(self.__3, (715, 200))
-        self.__screen.blit(self.__6, (715, 300))
-        self.__screen.blit(self.__9, (715, 400))
         self.__screen.blit(self.__point, (715, 500))
 
         self.__screen.blit(self.__supprimer, (1000, 500))
