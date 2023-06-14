@@ -40,7 +40,32 @@ class View:
 
         self.__game = None
 
+        self.gestion_loading_page()
+
+    def gestion_loading_page(self):
+        self.loading_page()
+        time.sleep(3)
         self.boucle_home_page()
+
+
+    def loading_page(self):
+        self.__screen.blit(self.__background, (0, 0))
+        self.__blue_image0 = pygame.Surface((1500, 850), pygame.SRCALPHA)
+
+        self.__logo = pygame.image.load("./assets/Brain_Games.png").convert_alpha()
+
+        pygame.draw.rect(self.__blue_image0, self.__WHITE, (530, 310, 520, 90))
+        self.__quorridor = self.__96_font.render('QUORRIDOR', False, (self.__BLACK))
+
+        self.__plateau_de_jeu = pygame.image.load("./assets/plateau_de_jeu.png").convert_alpha()
+
+        self.__screen.blit(self.__blue_image0, (0, 0))
+        self.__screen.blit(self.__logo, (450, 10))
+        self.__screen.blit(self.__quorridor, (590, 325))
+        self.__screen.blit(self.__plateau_de_jeu, (575, 420))
+
+        pygame.display.flip()  # Mettre a jour l'affichage
+
 
     def boucle_home_page(self):
         self.home_page()
@@ -683,21 +708,15 @@ class View:
                 cases_items.update({rect: (j, i)})
 
         pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (800, 100, 600, 100))
-        self.__current_player = self.__game.get_current_player()
-        if self.__current_player == self.__game.get_player(1):
-            self.__player_play = 1
-            color = self.__RED
-        elif self.__current_player == self.__game.get_player(2):
-            self.__player_play = 2
-            color = self.__BLUE
-        elif self.__current_player == self.__game.get_player(3):
-            self.__player_play = 3
-            color = self.__YELLOW
-        elif self.__current_player == self.__game.get_player(4):
-            self.__player_play = 4
-            color = self.__GREEN
+        self.__current_player = self.__game.get_current_player().get_id()
+        colors = {
+            1: self.__RED,
+            2: self.__BLUE,
+            3: self.__YELLOW,
+            4: self.__GREEN
+        }
         self.__turn_player = self.__48_font.render(
-            f"Au tour du joueur " + str(self.__player_play), False, (color))
+            f"Au tour du joueur " + str(self.__current_player), False, (colors[self.__current_player]))
 
         for event in pygame.event.get():
             if event.type == pygame.MOUSEBUTTONDOWN:
