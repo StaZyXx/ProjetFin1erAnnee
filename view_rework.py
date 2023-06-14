@@ -543,7 +543,7 @@ class View:
                 self.__number = self.__96_font.render(str(i+j), False, (self.__WHITE))
                 self.__get_number = self.__number.get_rect()
                 self.__get_number.topleft = (115 + (j * 300), 200 + (i * 100))
-                self.__numbers.update({self.__get_number: i + j})
+                self.__numbers.update({utils.HashableRect(self.__get_number): i + j})
                 self.__screen.blit(self.__number, (115 + (j * 300), 200 + (i * 100)))
 
         # lettre
@@ -742,30 +742,42 @@ class View:
         if type(self.__game) == Multiplayer:
             multiplayer: Multiplayer = self.__game
 
-            if multiplayer.get_client().get_me_player() == 1:
+            if multiplayer.is_server():
                 self.__player1 = self.__48_font.render("Vous êtes le joueur 1:            X", False, self.__RED)
                 self.__player2 = self.__48_font.render("Joueur 2:         X", False, self.__BLUE)
                 self.__player3 = self.__48_font.render("Joueur 3:         X", False, self.__YELLOW)
                 self.__player4 = self.__48_font.render("Joueur 4:         X", False, self.__GREEN)
-            elif multiplayer.get_client().get_me_player() == 2:
+                self.__screen.blit(self.__player1, (710, 220))
+                self.__screen.blit(self.__player2, (710, 320))
+                self.__screen.blit(self.__player3, (710, 400))
+                self.__screen.blit(self.__player4, (710, 480))
+            elif multiplayer.get_client().get_me_player() == 1:
                 self.__player2 = self.__48_font.render("Vous êtes le joueur 2:            X", False, (self.__BLUE))
-                self.__player3 = self.__48_font.render("Joueur 4:         X", False, (self.__GREEN))
-                self.__player4 = self.__48_font.render("Joueur 3:         X", False, (self.__YELLOW))
+                self.__player4 = self.__48_font.render("Joueur 4:         X", False, (self.__GREEN))
+                self.__player3 = self.__48_font.render("Joueur 3:         X", False, (self.__YELLOW))
                 self.__player1 = self.__48_font.render("Joueur 1:         X", False, (self.__RED))
-            elif multiplayer.get_client().get_me_player() == 3:
+                self.__screen.blit(self.__player2, (710, 220))
+                self.__screen.blit(self.__player1, (710, 320))
+                self.__screen.blit(self.__player3, (710, 400))
+                self.__screen.blit(self.__player4, (710, 480))
+            elif multiplayer.get_client().get_me_player() == 2:
                 self.__player3 = self.__48_font.render("Vous êtes le joueur 3:            X", False, (self.__YELLOW))
                 self.__player4 = self.__48_font.render("Joueur 4:         X", False, (self.__GREEN))
                 self.__player2 = self.__48_font.render("Joueur 2:         X", False, (self.__BLUE))
                 self.__player1 = self.__48_font.render("Joueur 1:         X", False, (self.__RED))
-            elif multiplayer.get_client().get_me_player() == 4:
+                self.__screen.blit(self.__player3, (710, 220))
+                self.__screen.blit(self.__player1, (710, 320))
+                self.__screen.blit(self.__player2, (710, 400))
+                self.__screen.blit(self.__player4, (710, 480))
+            elif multiplayer.get_client().get_me_player() == 3:
                 self.__player4 = self.__48_font.render("Vous êtes le joueur 4:            X", False, (self.__GREEN))
                 self.__player3 = self.__48_font.render("Joueur 3:         X", False, (self.__YELLOW))
                 self.__player2 = self.__48_font.render("Joueur 2:         X", False, (self.__BLUE))
                 self.__player1 = self.__48_font.render("Joueur 1:         X", False, (self.__RED))
-            self.__screen.blit(self.__player1, (710, 220))
-            self.__screen.blit(self.__player2, (710, 320))
-            self.__screen.blit(self.__player3, (710, 400))
-            self.__screen.blit(self.__player4, (710, 480))
+                self.__screen.blit(self.__player4, (710, 220))
+                self.__screen.blit(self.__player1, (710, 320))
+                self.__screen.blit(self.__player2, (710, 400))
+                self.__screen.blit(self.__player3, (710, 480))
 
         pygame.display.flip()
 

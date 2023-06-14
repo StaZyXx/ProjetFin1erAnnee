@@ -22,11 +22,12 @@ class Multiplayer(Game):
 
     def get_server(self):
         return self.__server
+
+    def is_server(self):
+        return self.__is_server
+
     def get_client(self) -> Client:
         return self.__client
-
-    def get_server(self):
-        return self.__server
 
     def get_have_play(self):
         return self.__if_had_play
