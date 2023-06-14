@@ -165,13 +165,13 @@ class View:
         thread_join.start()
 
     def start_lobby(self):
+        self.__etat = 1
         dico = {"type": "None"}
         while dico["type"] != "parameter":
             dico = self.game.get_client().receipt_message_client()
             if dico["type"] == "player":
                 print(f"Le player {dico['num_player']} à rejoins la partie")
                 self.__players_list.insert(END, f"Player {dico['num_player']}")
-        self.__lobby_frame.destroy()
         self.can_start(self.game, "client", dico)
 
     def can_start(self, game, gamer="base", info_game=None):
