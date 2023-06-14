@@ -21,7 +21,7 @@ class Client:
             print(f"je suis palyer {self.__me_player}")
         except socket.error:
             return 0
-        return 1
+        return self.__me_player
 
     def receipt_message_client(self):
         data = b''
@@ -65,10 +65,13 @@ class Server:
         self.__socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.__socket.bind((self.__host, self.__post))
         self.__me_player = 0
+        self.__player_had_join = None
         self.__client1, self.address1 = None, None
         self.__client2, self.address2 = None, None
         self.__client3, self.address3 = None, None
 
+    def get_player_had_join(self):
+        return self.__player_had_join
     def get_client1(self):
         return self.__client1
 
@@ -79,15 +82,15 @@ class Server:
         return self.__client3
 
     def add_all_player(self, nbr_player):
-        player = 1
-        self.listen(player)
-        player += 1
+        self.__player_had_join = 1
+        self.listen(self.__player_had_join)
+        self.__player_had_join += 1
         print("le client 1 est la")
         if nbr_player == 4:
-            self.listen(player)
+            self.listen(self.__player_had_join)
             print("le client 2 est la")
-            player += 1
-            self.listen(player)
+            self.__player_had_join += 1
+            self.listen(self.__player_had_join)
             print("le client 3 est la")
         print("le jeu est pret")
         return "ok"

@@ -20,6 +20,8 @@ class Multiplayer(Game):
             self.__client = client
         super().__init__()
 
+    def get_server(self):
+        return self.__server
     def get_client(self):
         return self.__client
 

@@ -5,6 +5,11 @@ from pygame.locals import *
 import utils
 from case import CaseType, BarrierType
 from game import Game
+from multiplayer import Multiplayer
+from network import Client
+import network
+import threading
+import time
 
 
 class View:
@@ -144,6 +149,10 @@ class View:
                         if mode == "solo":
                             self.__game = Game()
                             self.__game.start(self.__board_size, self.__nbr_joueur)
+                        elif mode == "multiplayer" :
+                            self.__game.start(self.__board_size, self.__nbr_joueur)
+                            info_game = {"type": "parameter", "size": self.__board_size, "nbr_joueur":self.__nbr_joueur}
+                            self.__game.get_server().send_message_server_all_client(info_game, None)
                         self.game_page()
                         self.__running = False
                         self.__mode = "game"
@@ -174,6 +183,20 @@ class View:
             self.__nbr_player4 = self.__48_font.render('4 joueurs', False, (self.__WHITE))
             self.__get_nbr_player4 = self.__nbr_player4.get_rect()
             self.__get_nbr_player4.topleft = (900, 250)
+
+        if mode == "multiplayer" :
+            address = network.get_address_ip()
+            self.__show_adress = self.__48_font.render(f"Adresse de connexion : {address}", False, (self.__WHITE))
+
+            self.__nbr_player_co = 1
+            if self.__game.get_server().get_client1() != None :
+                self.__nbr_player_co = 2
+            if self.__game.get_server().get_client2() != None :
+                self.__nbr_player_co = 3
+            if self.__game.get_server().get_client3() != None :
+                self.__nbr_player_co = 4
+            self.__show_nbr_player = self.__48_font.render(f"{self.__nbr_player_co} sont présents", False, (self.__WHITE))
+
 
         # choix taille tableau
 
@@ -235,6 +258,10 @@ class View:
             self.__screen.blit(self.__nbr_player2, (450, 250))
             self.__screen.blit(self.__nbr_player4, (900, 250))
 
+        if mode == "multiplayer" :
+            self.__screen.blit(self.__show_adress, (450, 250))
+            self.__screen.blit(self.__show_nbr_player, (450, 300))
+
         # choice size
         self.__screen.blit(self.__size_5x5, (400, 400))
         self.__screen.blit(self.__size_7x7, (600, 400))
@@ -259,11 +286,13 @@ class View:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     self.__cursor_pos = pygame.mouse.get_pos()
                     if self.__get_server.collidepoint(self.__cursor_pos):
+                        self.__game = Multiplayer(True,2)
+                        self.__thread_add_player = threading.Thread(target=self.__game.wait_for_all_players)  # création du thread
+                        self.__thread_add_player.start()  # lancement du thread
                         self.boucle_param("multiplayer")
                     elif self.__get_back.collidepoint(self.__cursor_pos):
                         self.boucle_home_page()
                     elif self.__get_client.collidepoint(self.__cursor_pos):
-                        print("je suis con")
                         self.boucle_join_page()
 
     def choice_server_client(self):
@@ -296,6 +325,7 @@ class View:
 
     def boucle_join_page(self):
         self.__adress = ""
+        self.__erreur_connect = False
         self.join_page()
         self.__running = True
         while self.__running:
@@ -304,58 +334,124 @@ class View:
                     self.__running = False
                     pygame.quit()
                 elif event.type == KEYDOWN:
-                    if event.key == K_1 or event.key == K_KP1:
-                        self.__adress = self.__adress + "1"
-                    elif event.key == K_2 or event.key == K_KP2:
-                        self.__adress = self.__adress + "2"
-                    elif event.key == K_3 or event.key == K_KP3:
-                        self.__adress = self.__adress + "3"
-                    elif event.key == K_4 or event.key == K_KP4:
-                        self.__adress = self.__adress + "4"
-                    elif event.key == K_5 or event.key == K_KP5:
-                        self.__adress = self.__adress + "5"
-                    elif event.key == K_6 or event.key == K_KP6:
-                        self.__adress = self.__adress + "6"
-                    elif event.key == K_7 or event.key == K_KP7:
-                        self.__adress = self.__adress + "7"
-                    elif event.key == K_8 or event.key == K_KP8:
-                        self.__adress = self.__adress + "8"
-                    elif event.key == K_9 or event.key == K_KP9:
-                        self.__adress = self.__adress + "9"
-                    elif event.key == K_0 or event.key == K_KP0:
-                        self.__adress = self.__adress + "0"
-                    elif event.key == K_KP_PERIOD or event.key == K_PERIOD:
-                        self.__adress = self.__adress + "."
-                    elif event.key == K_DELETE:
-                        self.__adress = self.__adress[:1]
-                        print(self.__adress)
+                    if len(self.__adress) < 15:
+                        if event.key == K_1 or event.key == K_KP1:
+                            self.__adress = self.__adress + "1"
+                        elif event.key == K_2 or event.key == K_KP2:
+                            self.__adress = self.__adress + "2"
+                        elif event.key == K_3 or event.key == K_KP3:
+                            self.__adress = self.__adress + "3"
+                        elif event.key == K_4 or event.key == K_KP4:
+                            self.__adress = self.__adress + "4"
+                        elif event.key == K_5 or event.key == K_KP5:
+                            self.__adress = self.__adress + "5"
+                        elif event.key == K_6 or event.key == K_KP6:
+                            self.__adress = self.__adress + "6"
+                        elif event.key == K_7 or event.key == K_KP7:
+                            self.__adress = self.__adress + "7"
+                        elif event.key == K_8 or event.key == K_KP8:
+                            self.__adress = self.__adress + "8"
+                        elif event.key == K_9 or event.key == K_KP9:
+                            self.__adress = self.__adress + "9"
+                        elif event.key == K_0 or event.key == K_KP0:
+                            self.__adress = self.__adress + "0"
+                        elif event.key == K_KP_PERIOD or event.key == K_PERIOD :
+                            self.__adress = self.__adress + "."
 
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     self.__cursor_pos = pygame.mouse.get_pos()
-                    if self.__get_1.collidepoint(self.__cursor_pos):
-                        self.__adress = self.__adress + "1"
-                    elif self.__get_2.collidepoint(self.__cursor_pos):
-                        self.__adress = self.__adress + "2"
-                    elif self.__get_3.collidepoint(self.__cursor_pos):
-                        self.__adress = self.__adress + "3"
-                    elif self.__get_4.collidepoint(self.__cursor_pos):
-                        self.__adress = self.__adress + "4"
-                    elif self.__get_5.collidepoint(self.__cursor_pos):
-                        self.__adress = self.__adress + "5"
-                    elif self.__get_6.collidepoint(self.__cursor_pos):
-                        self.__adress = self.__adress + "6"
-                    elif self.__get_7.collidepoint(self.__cursor_pos):
-                        self.__adress = self.__adress + "7"
-                    elif self.__get_8.collidepoint(self.__cursor_pos):
-                        self.__adress = self.__adress + "8"
-                    elif self.__get_9.collidepoint(self.__cursor_pos):
-                        self.__adress = self.__adress + "9"
-                    elif self.__get_0.collidepoint(self.__cursor_pos):
-                        self.__adress = self.__adress + "0"
-                    elif self.__get_point.collidepoint(self.__cursor_pos):
-                        self.__adress = self.__adress + "."
-
+                    if len(self.__adress) < 15 :
+                        if self.__get_1.collidepoint(self.__cursor_pos):
+                            self.__adress = self.__adress + "1"
+                        elif self.__get_2.collidepoint(self.__cursor_pos):
+                            self.__adress = self.__adress + "2"
+                        elif self.__get_3.collidepoint(self.__cursor_pos):
+                            self.__adress = self.__adress + "3"
+                        elif self.__get_4.collidepoint(self.__cursor_pos):
+                            self.__adress = self.__adress + "4"
+                        elif self.__get_5.collidepoint(self.__cursor_pos):
+                            self.__adress = self.__adress + "5"
+                        elif self.__get_6.collidepoint(self.__cursor_pos):
+                            self.__adress = self.__adress + "6"
+                        elif self.__get_7.collidepoint(self.__cursor_pos):
+                            self.__adress = self.__adress + "7"
+                        elif self.__get_8.collidepoint(self.__cursor_pos):
+                            self.__adress = self.__adress + "8"
+                        elif self.__get_9.collidepoint(self.__cursor_pos):
+                            self.__adress = self.__adress + "9"
+                        elif self.__get_0.collidepoint(self.__cursor_pos):
+                            self.__adress = self.__adress + "0"
+                        elif self.__get_point.collidepoint(self.__cursor_pos):
+                            self.__adress = self.__adress + "."
+                    if self.__get_supprimer .collidepoint(self.__cursor_pos):
+                        self.__adress = ""
+                    elif self.__get_join.collidepoint(self.__cursor_pos):
+                        client = Client(self.__adress)
+                        response = client.connect()
+                        if response == 0:
+                            self.__erreur_connect = True
+                        else :
+                            self.__game = Multiplayer(False, 2, client)
+                            self.boucle_lobby(client,response)
                 self.join_page()
+
+    def boucle_lobby(self,client,num_client):
+        self.__point = "."
+        self.__running = True
+        self.player_acctu = num_client +1
+        self.lobby()
+        self.__thread_listen_player = threading.Thread(target=self.listen_new_player)  # création du thread
+        self.__thread_listen_player.start()
+
+        self.__thread_loading = threading.Thread(target=self.point_loading_change)  # création du thread
+        self.__thread_loading.start()
+
+        while self.__running:
+            for event in pygame.event.get():  # récupérer un event
+                if event.type == pygame.QUIT:  # Si l'event est du type fermer la fenetre
+                    self.__running = False
+                    pygame.quit()
+
+    def point_loading_change(self):
+        self.if_play = True
+        while self.if_play :
+            time.sleep(1)
+            if self.__point == ".":
+                self.__point = ".."
+            elif self.__point == "..":
+                self.__point = "..."
+            elif self.__point == "...":
+                self.__point = "."
+            self.lobby()
+
+
+    def listen_new_player(self):
+        dico = {"type": "None"}
+        while dico["type"] != "parameter":
+            dico = self.__game.get_client().receipt_message_client()
+            if dico["type"] == "player":
+                print(f"Le player {dico['num_player']} à rejoins la partie")
+                self.player_acctu += 1
+                self.lobby()
+        self.__game.start(dico["size"], dico["nbr_joueur"])
+        self.if_play = False
+        self.__running = False
+        self.__mode = "game"
+        self.game_page()
+        self.__game.managements_sends()
+
+    def lobby(self):
+        pygame.init()
+        self.__blue_image5 = pygame.Surface((1500, 850), pygame.SRCALPHA)
+
+        self.__loading_word = self.__64_font.render(f"En attente des joueurs {self.__point}", False, (self.__WHITE))
+        self.__affichage_nbr_player = self.__64_font.render(f"{self.player_acctu} sont présents", False, (self.__WHITE))
+
+        self.__screen.blit(self.__background, (0, 0))
+        self.__screen.blit(self.__blue_image5, (0, 0))
+        self.__screen.blit(self.__loading_word, (500, 450))
+        self.__screen.blit(self.__affichage_nbr_player, (500, 500))
+        pygame.display.flip()
 
     def join_page(self):
         pygame.init()
@@ -376,6 +472,10 @@ class View:
         pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (700, 200, 50, 50))
         pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (700, 300, 50, 50))
         pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (700, 400, 50, 50))
+        pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (700, 500, 50, 50))
+
+        pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (1000, 500, 350, 75))
+        pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (1000, 600, 350, 75))
 
         # lettre
         self.__1 = self.__96_font.render("1", False, (self.__WHITE))
@@ -414,8 +514,18 @@ class View:
         self.__get_point = self.__point.get_rect()
         self.__get_point.topleft = (700, 500)
 
-        self.__adress_final1 = self.__96_font.render("Adresse de connexion :", False, (self.__WHITE))
-        self.__adress_final2 = self.__96_font.render(self.__adress, False, (self.__WHITE))
+        self.__adress_final = self.__48_font.render(f"Adresse de connexion : {self.__adress}", False, (self.__WHITE))
+
+        if self.__erreur_connect :
+            self.__erreur = self.__48_font.render("Connexion au serveur échoué !", False, (self.__RED))
+
+        self.__supprimer = self.__96_font.render("Supprimer", False, (self.__WHITE))
+        self.__get_supprimer = self.__supprimer.get_rect()
+        self.__get_supprimer.topleft = (1000, 500)
+
+        self.__join = self.__96_font.render("Rejoindre", False, (self.__WHITE))
+        self.__get_join = self.__join.get_rect()
+        self.__get_join.topleft = (1000, 600)
 
         self.__screen.blit(self.__background, (0, 0))
         self.__screen.blit(self.__blue_image4, (0, 0))
@@ -434,8 +544,12 @@ class View:
         self.__screen.blit(self.__9, (700, 400))
         self.__screen.blit(self.__point, (700, 500))
 
-        self.__screen.blit(self.__adress_final1, (100, 700))
-        self.__screen.blit(self.__adress_final2, (875, 700))
+        self.__screen.blit(self.__supprimer, (1000, 500))
+        self.__screen.blit(self.__join, (1000, 600))
+
+        self.__screen.blit(self.__adress_final, (100, 700))
+        if self.__erreur_connect:
+            self.__screen.blit(self.__erreur, (100, 750))
 
         pygame.display.flip()
 
@@ -499,6 +613,5 @@ class View:
         pygame.display.update()
         while self.__running:
             self.game_page()
-
 
 View()
