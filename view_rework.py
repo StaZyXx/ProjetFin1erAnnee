@@ -707,7 +707,6 @@ class View:
 
                 cases_items.update({rect: (j, i)})
 
-<<<<<<< HEAD
         pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (800, 100, 600, 100))
         self.__current_player = self.__game.get_current_player().get_id()
         colors = {
@@ -716,24 +715,7 @@ class View:
             3: self.__YELLOW,
             4: self.__GREEN
         }
-=======
-        pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (700, 75, 600, 75))
 
-        # REMOVE THIS AND USE self.__game.get_current_player().get_id()
-        self.__current_player = self.__game.get_current_player()
-        if self.__current_player == self.__game.get_player(1):
-            self.__player_play = 1
-            color = self.__RED
-        elif self.__current_player == self.__game.get_player(2):
-            self.__player_play = 2
-            color = self.__BLUE
-        elif self.__current_player == self.__game.get_player(3):
-            self.__player_play = 3
-            color = self.__YELLOW
-        elif self.__current_player == self.__game.get_player(4):
-            self.__player_play = 4
-            color = self.__GREEN
->>>>>>> bd01139d35a26b366f6169edd9f78580ebc40c11
         self.__turn_player = self.__48_font.render(
             f"Au tour du joueur " + str(self.__current_player), False, (colors[self.__current_player]))
 
