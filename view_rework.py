@@ -197,7 +197,7 @@ class View:
                 self.__nbr_player_co = 3
             if self.__game.get_server().get_client3() != None :
                 self.__nbr_player_co = 4
-            self.__show_nbr_player = self.__48_font.render(f"{self.__nbr_player_co} sont présents", False, (self.__WHITE))
+            self.__show_nbr_player = self.__48_font.render(f"{self.__nbr_player_co} joueur(s) sont présents sur {self.players_requis}", False, (self.__WHITE))
 
 
         # choix taille tableau
@@ -276,7 +276,6 @@ class View:
         self.__screen.blit(self.__more_barr, (820, 505))
         self.__screen.blit(self.__start_game, (650, 600))
         pygame.display.flip()  # Mettre a jour l'affichage
-
     def boucle_choice_server_client(self):
         self.choice_server_client()
         self.__running = True
@@ -288,20 +287,20 @@ class View:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     self.__cursor_pos = pygame.mouse.get_pos()
                     if self.__get_server.collidepoint(self.__cursor_pos):
-                        self.__game = Multiplayer(True,2)
-                        self.__thread_add_player = threading.Thread(target=self.__game.wait_for_all_players)  # création du thread
-                        self.__thread_add_player.start()  # lancement du thread
-                        self.boucle_param("multiplayer")
+                        self.__running = False
+                        self.boucle_choice_nbr_player()
                     elif self.__get_back.collidepoint(self.__cursor_pos):
+                        self.__running = False
                         self.boucle_home_page()
                     elif self.__get_client.collidepoint(self.__cursor_pos):
+                        self.__running = False
                         self.boucle_join_page()
 
     def choice_server_client(self):
         pygame.init()
         self.__blue_image3 = pygame.Surface((1500, 850), pygame.SRCALPHA)
 
-        pygame.draw.rect(self.__blue_image3, self.__BLUE, (50, 50, 1400, 750))
+        pygame.draw.rect(self.__blue_image3, self.__DARK_BLUE, (75, 75, 50, 50))
         pygame.draw.rect(self.__blue_image3, self.__DARK_BLUE, (200, 200, 1100, 150))
         pygame.draw.rect(self.__blue_image3, self.__DARK_BLUE, (200, 400, 1100, 150))
 
@@ -322,6 +321,61 @@ class View:
         self.__screen.blit(self.__back, (50, 50))
         self.__screen.blit(self.__server, (700, 250))
         self.__screen.blit(self.__client, (650, 450))
+
+        pygame.display.flip()
+
+    def boucle_choice_nbr_player(self):
+        self.choice_nbr_player()
+        self.__running = True
+        while self.__running:
+            for event in pygame.event.get():  # récupérer un event
+                if event.type == pygame.QUIT:  # Si l'event est du type fermer la fenetre
+                    self.__running = False
+                    pygame.quit()
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    self.__cursor_pos = pygame.mouse.get_pos()
+                    if self.__get_2players.collidepoint(self.__cursor_pos):
+                        self.players_requis = 2
+                        self.__game = Multiplayer(True, 2)
+                        self.__thread_add_player = threading.Thread(
+                            target=self.__game.wait_for_all_players)  # création du thread
+                        self.__thread_add_player.start()  # lancement du thread
+                        self.boucle_param("multiplayer")
+                    elif self.__get_back.collidepoint(self.__cursor_pos):
+                        self.boucle_home_page()
+                    elif self.__get_4players.collidepoint(self.__cursor_pos):
+                        self.players_requis = 4
+                        self.__game = Multiplayer(True, 4)
+                        self.__thread_add_player = threading.Thread(
+                            target=self.__game.wait_for_all_players)  # création du thread
+                        self.__thread_add_player.start()  # lancement du thread
+                        self.boucle_param("multiplayer")
+
+    def choice_nbr_player(self):
+        pygame.init()
+        self.__blue_image3 = pygame.Surface((1500, 850), pygame.SRCALPHA)
+
+        pygame.draw.rect(self.__blue_image3, self.__BLUE, (50, 50, 1400, 750))
+        pygame.draw.rect(self.__blue_image3, self.__DARK_BLUE, (200, 200, 1100, 150))
+        pygame.draw.rect(self.__blue_image3, self.__DARK_BLUE, (200, 400, 1100, 150))
+
+        self.__2players = self.__96_font.render("2 joueurs", False, (self.__WHITE))
+        self.__get_2players = self.__2players.get_rect()
+        self.__get_2players.topleft = (700, 250)
+
+        self.__4players = self.__96_font.render("4 joueurs", False, (self.__WHITE))
+        self.__get_4players = self.__4players.get_rect()
+        self.__get_4players.topleft = (650, 450)
+
+        self.__back = pygame.image.load("./assets/fleche-retour.png").convert_alpha()
+        self.__back = pygame.transform.scale(self.__back, (100, 100))
+        self.__get_back = self.__back.get_rect()
+
+        self.__screen.blit(self.__background, (0, 0))
+        self.__screen.blit(self.__blue_image3, (0, 0))
+        self.__screen.blit(self.__back, (50, 50))
+        self.__screen.blit(self.__2players, (650, 250))
+        self.__screen.blit(self.__4players, (650, 450))
 
         pygame.display.flip()
 
@@ -447,7 +501,7 @@ class View:
         self.__blue_image5 = pygame.Surface((1500, 850), pygame.SRCALPHA)
 
         self.__loading_word = self.__64_font.render(f"En attente des joueurs {self.__point}", False, (self.__WHITE))
-        self.__affichage_nbr_player = self.__64_font.render(f"{self.player_acctu} sont présents", False, (self.__WHITE))
+        self.__affichage_nbr_player = self.__64_font.render(f"{self.player_acctu} joueur(s) sont présents", False, (self.__WHITE))
 
         self.__screen.blit(self.__background, (0, 0))
         self.__screen.blit(self.__blue_image5, (0, 0))
@@ -610,9 +664,21 @@ class View:
 
         pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (800, 100, 600, 100))
         game = Game()
-        self.__current_player = game.get_current_player()
+        self.__current_player = self.__game.get_current_player()
+        if self.__current_player == self.__game.get_player(1):
+            self.__player_play = 1
+            color = self.__RED
+        elif self.__current_player == self.__game.get_player(2):
+            self.__player_play = 2
+            color = self.__BLUE
+        elif self.__current_player == self.__game.get_player(3):
+            self.__player_play = 3
+            color = self.__YELLOW
+        elif self.__current_player == self.__game.get_player(4):
+            self.__player_play = 4
+            color = self.__GREEN
         self.__turn_player = self.__48_font.render(
-            f"Au tour du joueur " + str(self.__current_player), False, (self.__WHITE))
+            f"Au tour du joueur " + str(self.__player_play), False, (color))
 
         for event in pygame.event.get():
             if event.type == pygame.MOUSEBUTTONDOWN:
@@ -634,6 +700,7 @@ class View:
                             self.__game.move_player(i, j)
                             self.boucle_sounds("move")
                             self.__current_player = game.get_current_player()
+                            print(self.__current_player)
                             self.__turn_player = self.__48_font.render(
                                 f"Au tour du joueur " + str(self.__current_player), False, (self.__WHITE))
 
