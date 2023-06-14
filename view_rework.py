@@ -446,6 +446,7 @@ class View:
 
         # use self.get_cases()
         cases = self.__game.get_cases()
+        c = 0
         for i in range(len(cases)):
             for j in range(len(cases[i])):
                 case = cases[j][i]
@@ -453,24 +454,28 @@ class View:
 
                 if case.has_player():
                     rect = utils.HashableRect(
-                        pygame.draw.rect(self.__blue_image4, self.__RED, (i * 50 + 1, j * 50 + 1, 38, 38)))
+                        pygame.draw.rect(self.__blue_image4, self.__RED, (i * 28, j * 28, 48, 48)))
+
                 elif case.get_case_type() == CaseType.DEFAULT:
                     rect = utils.HashableRect(
-                        pygame.draw.rect(self.__blue_image4, self.__BLUE, (i * 50 + 1, j * 50 + 1, 38, 38)))
+                        pygame.draw.rect(self.__blue_image4, self.__BLUE, (i * 28, j * 28, 48, 48)))
+
                 elif case.get_case_type() == CaseType.SLOT_BARRIER_HORIZONTAL:
                     rect = utils.HashableRect(
-                        pygame.draw.line(self.__blue_image4, self.__DARK_BLUE, (i * 50, j * 50 + 20),
-                                         (i * 50 + 40, j * 50 + 20), 10))
+                        pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (i * 28, j * 28 + 20, 48, 10)))
+
                 elif case.get_case_type() == CaseType.SLOT_BARRIER_VERTICAL:
                     rect = utils.HashableRect(
-                        pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (i * 50 + 20, j * 50, 10, 40)))
+                        pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (i * 28 + 20, j * 28, 10, 48)))
+
                 elif case.get_case_type() == CaseType.BARRIER:
                     if case.get_barrier_type() == BarrierType.HORIZONTAL:
                         rect = utils.HashableRect(
-                            pygame.draw.rect(self.__blue_image4, self.__RED, (i * 50, j * 50, 40, 10)))
+                            pygame.draw.rect(self.__blue_image4, self.__RED, (i * 28, j * 28 + 20, 48, 10)))
+
                     elif case.get_barrier_type() == BarrierType.VERTICAL:
                         rect = utils.HashableRect(
-                            pygame.draw.rect(self.__blue_image4, self.__RED, (i * 50, j * 50, 10, 40)))
+                            pygame.draw.rect(self.__blue_image4, self.__RED, (i * 28 + 20, j * 28, 10, 48)))
 
                 cases_items.update({rect: (j, i)})
 
@@ -498,6 +503,10 @@ class View:
         self.__running = True
         pygame.display.update()
         while self.__running:
+            for event in pygame.event.get():  # récupérer un event
+                if event.type == pygame.QUIT:  # Si l'event est du type fermer la fenetre
+                    self.__running = False
+                    pygame.quit()
             self.game_page()
 
 
