@@ -141,11 +141,8 @@ class View:
 
         # carré pricipale
         pygame.draw.rect(self.__blue_image2, pygame.Color(64, 91, 67, 50), (250, 200, 1000, 500))
+        pygame.draw.rect(self.__blue_image2, self.__DARK_BLUE, (75, 75, 50, 50))
 
-        pygame.draw.rect(self.__blue_image2, self.__DARK_BLUE, (100, 100, 100, 100))
-        self.__back = self.__96_font.render('Retour', False, (self.__WHITE))
-        self.__get_back = self.__back.get_rect()
-        self.__get_back.topleft = (100, 100)
 
         # choix nombre de joueur
         if mode != "multiplayer":
@@ -184,7 +181,7 @@ class View:
         self.__get_size_11x11.topleft = (1020, 390)
 
         # choix nombre barrière
-        pygame.draw.rect(self.__blue_image2, self.__DARK_BLUE, (700, 500, 200, 50))
+        pygame.draw.rect(self.__blue_image2, self.__DARK_BLUE, (690, 500, 160, 50))
 
         self.__less_barr = self.__48_font.render('-', False, (self.__WHITE))
         self.__get_less_barr = self.__less_barr.get_rect()
@@ -195,7 +192,7 @@ class View:
 
         self.__more_barr = self.__48_font.render('+', False, (self.__WHITE))
         self.__get_more_barr = self.__more_barr.get_rect()
-        self.__get_more_barr.topleft = (900, 500)
+        self.__get_more_barr.topleft = (820, 500)
 
         pygame.draw.rect(self.__blue_image2, self.__DARK_BLUE, (600, 590, 350, 60))
 
@@ -209,7 +206,11 @@ class View:
         self.__screen.blit(self.__blue_image2, (0, 0))
 
         # back
-        self.__screen.blit(self.__back, (100, 100))
+        self.__back = pygame.image.load("./assets/fleche-retour.png").convert_alpha()
+        self.__back = pygame.transform.scale(self.__back, (100, 100))
+        self.__get_back = self.__back.get_rect()
+
+        self.__screen.blit(self.__back, (50, 50))
 
         # choice player
         if mode != "multiplayer":
@@ -223,9 +224,9 @@ class View:
         self.__screen.blit(self.__size_11x11, (1050, 400))
 
         # choice barr
-        self.__screen.blit(self.__less_barr, (700, 500))
-        self.__screen.blit(self.__show_nbr_barr, (800, 500))
-        self.__screen.blit(self.__more_barr, (900, 500))
+        self.__screen.blit(self.__less_barr, (700, 505))
+        self.__screen.blit(self.__show_nbr_barr, (750, 505))
+        self.__screen.blit(self.__more_barr, (820, 505))
         self.__screen.blit(self.__start_game, (650, 600))
 
         pygame.display.flip()  # Mettre a jour l'affichage
@@ -271,8 +272,6 @@ class View:
         self.__screen.blit(self.__server, (700, 250))
         self.__screen.blit(self.__client, (650, 450))
 
-
         pygame.display.flip()
-
 
 View()
