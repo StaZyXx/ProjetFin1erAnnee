@@ -47,8 +47,8 @@ class View:
         self.__running = True
         # Boucle du jeu
         while self.__running:
-            for event in pygame.event.get():  # récupérer un event
-                if event.type == pygame.QUIT:  # Si l'event est du type fermer la fenetre
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
                     self.__running = False
                     pygame.quit()
                 if event.type == pygame.MOUSEBUTTONDOWN:
@@ -389,6 +389,8 @@ class View:
                 if event.type == pygame.QUIT:  # Si l'event est du type fermer la fenetre
                     self.__running = False
                     pygame.quit()
+                if self.__get_back.collidepoint(self.__cursor_pos):
+                    self.boucle_home_page()
                 elif event.type == KEYDOWN:
                     if len(self.__adress) < 15:
                         if event.key == K_1 or event.key == K_KP1:
@@ -448,7 +450,7 @@ class View:
                             self.__erreur_connect = True
                         else :
                             self.__game = Multiplayer(False, 2, client)
-                            self.boucle_lobby(client,response)
+                            self.boucle_lobby(client, response)
                 self.join_page()
 
     def boucle_lobby(self,client,num_client):
@@ -583,8 +585,13 @@ class View:
         self.__get_join = self.__join.get_rect()
         self.__get_join.topleft = (1000, 600)
 
+        self.__back = pygame.image.load("./assets/fleche-retour.png").convert_alpha()
+        self.__back = pygame.transform.scale(self.__back, (100, 100))
+        self.__get_back = self.__back.get_rect()
+
         self.__screen.blit(self.__background, (0, 0))
         self.__screen.blit(self.__blue_image4, (0, 0))
+        self.__screen.blit(self.__back, (50, 50))
 
         self.__screen.blit(self.__1, (100, 200))
         self.__screen.blit(self.__4, (100, 300))
@@ -662,7 +669,7 @@ class View:
 
                 cases_items.update({rect: (j, i)})
 
-        pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (800, 100, 600, 100))
+        pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (700, 75, 600, 75))
         game = Game()
         self.__current_player = self.__game.get_current_player()
         if self.__current_player == self.__game.get_player(1):
@@ -680,6 +687,7 @@ class View:
         self.__turn_player = self.__48_font.render(
             f"Au tour du joueur " + str(self.__player_play), False, (color))
 
+
         for event in pygame.event.get():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 for rect, (i, j) in cases_items.items():
@@ -687,29 +695,80 @@ class View:
                         case = self.__game.get_case(i, j)
                         print(i, j)
 
-
                         if case.get_case_type() == CaseType.BLANK:
                             pass
                         elif case.get_case_type() == CaseType.SLOT_BARRIER_HORIZONTAL:
                             self.__game.place_barrier(i, j, BarrierType.HORIZONTAL)
+                            self.__game.switch_player()
                             self.boucle_sounds("place")
+
                         elif case.get_case_type() == CaseType.SLOT_BARRIER_VERTICAL:
                             self.__game.place_barrier(i, j, BarrierType.VERTICAL)
+                            self.__game.switch_player()
                             self.boucle_sounds("place")
+
                         else:
                             self.__game.move_player(i, j)
                             self.boucle_sounds("move")
                             self.__current_player = game.get_current_player()
-                            print(self.__current_player)
                             self.__turn_player = self.__48_font.render(
                                 f"Au tour du joueur " + str(self.__current_player), False, (self.__WHITE))
 
-
-
+        pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (700, 200, 600, 75))
+        pygame.draw.rect(self.__blue_image4, self.__BLUE, (700, 300, 500, 250))
 
         self.__screen.blit(self.__background, (0, 0))
         self.__screen.blit(self.__blue_image4, (0, 0))
-        self.__screen.blit(self.__turn_player, (800, 100))
+        self.__screen.blit(self.__turn_player, (730, 100))
+
+        self.__green_barrier = pygame.image.load("./assets/Green_Fence.png")
+        self.__red_barrier = pygame.image.load("./assets/Red_fence.png")
+        self.__yellow_barrier = pygame.image.load("./assets/Yellow_Fence.png")
+        self.__blue_barrier = pygame.image.load("./assets/Blue_Fence.png")
+
+
+
+        if self.__game.get_player(1):
+            self.__player1 = self.__48_font.render("Vous êtes le joueur 1:            X", False, (self.__RED))
+            self.__player2 = self.__48_font.render("Joueur 2:         X", False, (self.__BLUE))
+            self.__player3 = self.__48_font.render("Joueur 3:         X", False, (self.__YELLOW))
+            self.__player4 = self.__48_font.render("Joueur 4:         X", False, (self.__GREEN))
+            self.__screen.blit(self.__player1, (710, 220))
+            self.__screen.blit(self.__player2, (710, 320))
+            self.__screen.blit(self.__player3, (710, 400))
+            self.__screen.blit(self.__player4, (710, 480))
+
+        elif self.__game.get_player() == 2:
+            self.__player2 = self.__48_font.render("Vous êtes le joueur 2:            X", False, (self.__BLUE))
+            self.__player3 = self.__48_font.render("Joueur 4:         X", False, (self.__GREEN))
+            self.__player4 = self.__48_font.render("Joueur 3:         X", False, (self.__YELLOW))
+            self.__player1 = self.__48_font.render("Joueur 1:         X", False, (self.__RED))
+            self.__screen.blit(self.__player2, (700, 200))
+            self.__screen.blit(self.__player4, (700, 200))
+            self.__screen.blit(self.__player3, (700, 200))
+            self.__screen.blit(self.__player1, (700, 200))
+
+        elif self.__game.get_player() == 3:
+            self.__player3 = self.__48_font.render("Vous êtes le joueur 3:            X", False, (self.__YELLOW))
+            self.__player4 = self.__48_font.render("Joueur 4:         X", False, (self.__GREEN))
+            self.__player2 = self.__48_font.render("Joueur 2:         X", False, (self.__BLUE))
+            self.__player1 = self.__48_font.render("Joueur 1:         X", False, (self.__RED))
+            self.__screen.blit(self.__player3, (700, 200))
+            self.__screen.blit(self.__player4, (700, 200))
+            self.__screen.blit(self.__player2, (700, 200))
+            self.__screen.blit(self.__player1, (700, 200))
+
+        elif self.__game.get_player() == 4:
+            self.__player4 = self.__48_font.render("Vous êtes le joueur 4:            X", False, (self.__GREEN))
+            self.__player3 = self.__48_font.render("Joueur 3:         X", False, (self.__YELLOW))
+            self.__player2 = self.__48_font.render("Joueur 2:         X", False, (self.__BLUE))
+            self.__player1 = self.__48_font.render("Joueur 1:         X", False, (self.__RED))
+            self.__screen.blit(self.__player4, (700, 200))
+            self.__screen.blit(self.__player3, (700, 200))
+            self.__screen.blit(self.__player2, (700, 200))
+            self.__screen.blit(self.__player1, (700, 200))
+
+
         pygame.display.flip()
 
     def boucle_sounds(self, arg):
@@ -717,8 +776,9 @@ class View:
         if arg == "move":
             mixer.music.load("./songs/move_player.wav")
         elif arg == "place":
-            mixer.music.load("./songs/move_player.wav")
+            mixer.music.load("./songs/place_barrier.wav")
         mixer.music.play()
+
     def boucle_game(self):
         self.__running = True
         pygame.display.update()
