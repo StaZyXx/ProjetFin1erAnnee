@@ -1,5 +1,4 @@
 import pygame
-from pip._internal import self_outdated_check
 from pygame.locals import *
 
 import utils
@@ -17,7 +16,9 @@ class View:
         # Création des couleurs
         self.__WHITE = (255, 255, 255, 50)
         self.__BLACK = (0, 0, 0)
+        self.__YELLOW = (246, 255, 51)
         self.__BLUE = (171, 242, 255, 50)
+        self.__BLUE_PLAYER = (51, 110, 255)
         self.__DARK_BLUE = (57, 73, 116, 200)
         self.__RED = (255, 0, 0)
         self.__GREEN = (0, 255, 0)
@@ -169,7 +170,6 @@ class View:
         # carré pricipale
         pygame.draw.rect(self.__blue_image2, pygame.Color(64, 91, 67, 50), (250, 200, 1000, 500))
         pygame.draw.rect(self.__blue_image2, self.__DARK_BLUE, (75, 75, 50, 50))
-
 
         # choix nombre de joueur
         if mode != "multiplayer":
@@ -566,25 +566,43 @@ class View:
                 rect = None
 
                 if case.has_player():
-                    rect = utils.HashableRect(
-                        pygame.draw.rect(self.__blue_image4, self.__RED, (i * 50 + 1, j * 50 + 1, 38, 38)))
+                    if case.get_player().get_id() == 1:
+                        img_red_player = pygame.image.load("./assets/red_player.png").convert_alpha()
+                        img_red_player = pygame.transform.scale(img_red_player, (48, 48))
+                        self.__blue_image4.blit(img_red_player, (i*28, j*28))
+                    elif case.get_player().get_id() == 2:
+                        img_blue_player = pygame.image.load("./assets/blue_player.png").convert_alpha()
+                        img_blue_player = pygame.transform.scale(img_blue_player, (48, 48))
+                        self.__blue_image4.blit(img_blue_player, (i*28, j*28))
+                    elif case.get_player().get_id() == 3:
+                        img_yellow_player = pygame.image.load("./assets/yellow_player.png").convert_alpha()
+                        img_yellow_player = pygame.transform.scale(img_yellow_player, (48, 48))
+                        self.__blue_image4.blit(img_yellow_player, (i*28, j*28))
+                    elif case.get_player().get_id() == 4:
+                        img_green_player = pygame.image.load("./assets/green_player.png").convert_alpha()
+                        img_green_player = pygame.transform.scale(img_green_player, (48, 48))
+                        self.__blue_image4.blit(img_green_player, (i*28, j*28))
+
                 elif case.get_case_type() == CaseType.DEFAULT:
                     rect = utils.HashableRect(
-                        pygame.draw.rect(self.__blue_image4, self.__BLUE, (i * 50 + 1, j * 50 + 1, 38, 38)))
+                        pygame.draw.rect(self.__blue_image4, self.__BLUE, (i * 28, j * 28, 48, 48)))
+
                 elif case.get_case_type() == CaseType.SLOT_BARRIER_HORIZONTAL:
                     rect = utils.HashableRect(
-                        pygame.draw.line(self.__blue_image4, self.__DARK_BLUE, (i * 50, j * 50 + 20),
-                                         (i * 50 + 40, j * 50 + 20), 10))
+                        pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (i * 28, j * 28 + 20, 48, 10)))
+
                 elif case.get_case_type() == CaseType.SLOT_BARRIER_VERTICAL:
                     rect = utils.HashableRect(
-                        pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (i * 50 + 20, j * 50, 10, 40)))
+                        pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (i * 28 + 20, j * 28, 10, 48)))
+
                 elif case.get_case_type() == CaseType.BARRIER:
                     if case.get_barrier_type() == BarrierType.HORIZONTAL:
                         rect = utils.HashableRect(
-                            pygame.draw.rect(self.__blue_image4, self.__RED, (i * 50, j * 50, 40, 10)))
+                            pygame.draw.rect(self.__blue_image4, self.__RED, (i * 28, j * 28 + 20, 48, 10)))
+
                     elif case.get_barrier_type() == BarrierType.VERTICAL:
                         rect = utils.HashableRect(
-                            pygame.draw.rect(self.__blue_image4, self.__RED, (i * 50, j * 50, 10, 40)))
+                            pygame.draw.rect(self.__blue_image4, self.__RED, (i * 28 + 20, j * 28, 10, 48)))
 
                 cases_items.update({rect: (j, i)})
 
@@ -604,6 +622,7 @@ class View:
                             self.__game.place_barrier(i, j, BarrierType.VERTICAL)
                         else:
                             self.__game.move_player(i, j)
+
         self.__screen.blit(self.__background, (0, 0))
         self.__screen.blit(self.__blue_image4, (0, 0))
         pygame.display.flip()
@@ -612,6 +631,11 @@ class View:
         self.__running = True
         pygame.display.update()
         while self.__running:
+            for event in pygame.event.get():  # récupérer un event
+                if event.type == pygame.QUIT:  # Si l'event est du type fermer la fenetre
+                    self.__running = False
+                    pygame.quit()
             self.game_page()
 
 View()
+
