@@ -104,9 +104,9 @@ class View:
     def boucle_param(self, mode):
         self.__GREEN = pygame.Color(57, 116, 70, 255)
         self.couleur_2players, self.couleur_4players = self.__DARK_BLUE, self.__DARK_BLUE
-        self.__color_5x5, self.__color_7x7, self.__color_9x9, self.__color_11x11 = self.__DARK_BLUE, self.__DARK_BLUE, self.__DARK_BLUE, self.__DARK_BLUE
-        self.__nbr_joueur = None
-        self.__board_size = None
+        self.__color_5x5, self.__color_7x7, self.__color_9x9, self.__color_11x11 = self.__DARK_BLUE, self.__DARK_BLUE, self.__GREEN, self.__DARK_BLUE
+        self.__nbr_joueur = 0
+        self.__board_size = 9
         self.__nbr_barr = 20
         self.param_game(mode)
         self.__running = True
@@ -119,6 +119,8 @@ class View:
                     self.__cursor_pos = pygame.mouse.get_pos()
                     # choix nombre de joueur
                     if self.__get_back.collidepoint(self.__cursor_pos):
+                        if mode == "multiplayer":
+                            self.__game.get_server().close_socket()
                         self.boucle_home_page()
                     if mode != "multiplayer":
                         if self.__get_nbr_player2.collidepoint(self.__cursor_pos):
@@ -133,37 +135,49 @@ class View:
                     if self.__get_size_5x5.collidepoint(self.__cursor_pos):
                         self.__color_5x5, self.__color_7x7, self.__color_9x9, self.__color_11x11 = self.__GREEN, self.__DARK_BLUE, self.__DARK_BLUE, self.__DARK_BLUE
                         self.__board_size = 5
+                        self.__nbr_barr = 4
                     elif self.__get_size_7x7.collidepoint(self.__cursor_pos):
                         self.__color_5x5, self.__color_7x7, self.__color_9x9, self.__color_11x11 = self.__DARK_BLUE, self.__GREEN, self.__DARK_BLUE, self.__DARK_BLUE
                         self.__board_size = 7
+                        self.__nbr_barr = 12
                     elif self.__get_size_9x9.collidepoint(self.__cursor_pos):
                         self.__color_5x5, self.__color_7x7, self.__color_9x9, self.__color_11x11 = self.__DARK_BLUE, self.__DARK_BLUE, self.__GREEN, self.__DARK_BLUE
                         self.__board_size = 9
+                        self.__nbr_barr = 20
                     elif self.__get_size_11x11.collidepoint(self.__cursor_pos):
                         self.__color_5x5, self.__color_7x7, self.__color_9x9, self.__color_11x11 = self.__DARK_BLUE, self.__DARK_BLUE, self.__DARK_BLUE, self.__GREEN
                         self.__board_size = 11
+                        self.__nbr_barr = 32
                     elif self.__get_less_barr.collidepoint(self.__cursor_pos):
                         if self.__nbr_barr > 4:
                             self.__nbr_barr -= 4
                     elif self.__get_more_barr.collidepoint(self.__cursor_pos):
-                        if self.__nbr_barr < 40:
+                        if self.__board_size == 5:
+                            max_barr = 8
+                        elif self.__board_size == 7 :
+                            max_barr = 16
+                        elif self.__board_size == 9 :
+                            max_barr = 32
+                        elif self.__board_size == 11 :
+                            max_barr = 40
+                        if self.__nbr_barr < max_barr:
                             self.__nbr_barr += 4
                     elif self.__get_start_game.collidepoint(event.pos):
-                        if mode == "solo":
-                            self.__game = Game()
-                            self.__game.start(self.__board_size, self.__nbr_joueur)
-                        elif mode == "multiplayer" :
-                            self.__game.start(self.__board_size, self.__nbr_joueur)
-                            info_game = {"type": "parameter", "size": self.__board_size, "nbr_joueur":self.__nbr_joueur}
-                            self.__game.get_server().send_message_server_all_client(info_game, None)
-                        self.game_page()
-                        self.__running = False
-                        self.__mode = "game"
+                        if self.__nbr_joueur != None and self.__board_size != None :
+                            if mode == "solo":
+                                self.__game = Game()
+                                self.__game.start(self.__board_size, self.__nbr_joueur)
+                            elif mode == "multiplayer" :
+                                self.__game.start(self.__board_size, self.__nbr_joueur)
+                                info_game = {"type": "parameter", "size": self.__board_size, "nbr_joueur":self.__nbr_joueur}
+                                self.__game.get_server().send_message_server_all_client(info_game, None)
+                            self.game_page()
+                            self.__running = False
+                            self.__mode = "game"
 
                     self.param_game(mode)
 
     def param_game(self, mode):
-        self.nbr_joueur = 2
         pygame.init()
 
         self.__size = (1500, 850)
@@ -187,7 +201,7 @@ class View:
             self.__get_nbr_player4.topleft = (900, 250)
 
         if mode == "multiplayer" :
-            address = network.get_address_ip()
+            address = self.__game.get_server().get_address_ip()
             self.__show_adress = self.__48_font.render(f"Adresse de connexion : {address}", False, (self.__WHITE))
 
             self.__nbr_player_co = 1
@@ -355,7 +369,6 @@ class View:
         pygame.init()
         self.__blue_image3 = pygame.Surface((1500, 850), pygame.SRCALPHA)
 
-        pygame.draw.rect(self.__blue_image3, self.__BLUE, (50, 50, 1400, 750))
         pygame.draw.rect(self.__blue_image3, self.__DARK_BLUE, (200, 200, 1100, 150))
         pygame.draw.rect(self.__blue_image3, self.__DARK_BLUE, (200, 400, 1100, 150))
 
@@ -515,22 +528,25 @@ class View:
         pygame.init()
         self.__blue_image4 = pygame.Surface((1500, 850), pygame.SRCALPHA)
 
+        pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (115, 100, 650, 35))
+        self.__consigne = self.__48_font.render(f"Entrez l'adresse pour vous connectez !", False, (self.__WHITE))
+
         # carré
-        pygame.draw.rect(self.__blue_image4, self.__BLUE, (50, 50, 1400, 750))
+        #pygame.draw.rect(self.__blue_image4, self.__BLUE, (50, 50, 1400, 750))
 
-        pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (100, 200, 50, 50))
-        pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (100, 300, 50, 50))
-        pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (100, 400, 50, 50))
+        pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (100, 200, 65, 65))
+        pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (100, 300, 65, 65))
+        pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (100, 400, 65, 65))
 
-        pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (400, 200, 50, 50))
-        pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (400, 300, 50, 50))
-        pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (400, 400, 50, 50))
-        pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (400, 500, 50, 50))
+        pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (400, 200, 65, 65))
+        pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (400, 300, 65, 65))
+        pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (400, 400, 65, 65))
+        pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (400, 500, 65, 65))
 
-        pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (700, 200, 50, 50))
-        pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (700, 300, 50, 50))
-        pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (700, 400, 50, 50))
-        pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (700, 500, 50, 50))
+        pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (700, 200, 65, 65))
+        pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (700, 300, 65, 65))
+        pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (700, 400, 65, 65))
+        pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (700, 500, 65, 65))
 
         pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (1000, 500, 350, 75))
         pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (1000, 600, 350, 75))
@@ -538,50 +554,50 @@ class View:
         # lettre
         self.__1 = self.__96_font.render("1", False, (self.__WHITE))
         self.__get_1 = self.__1.get_rect()
-        self.__get_1.topleft = (100, 200)
+        self.__get_1.topleft = (115, 200)
         self.__4 = self.__96_font.render("4", False, (self.__WHITE))
         self.__get_4 = self.__4.get_rect()
-        self.__get_4.topleft = (100, 300)
+        self.__get_4.topleft = (115, 300)
         self.__7 = self.__96_font.render("7", False, (self.__WHITE))
         self.__get_7 = self.__7.get_rect()
-        self.__get_7.topleft = (100, 400)
+        self.__get_7.topleft = (115, 400)
 
         self.__2 = self.__96_font.render("2", False, (self.__WHITE))
         self.__get_2 = self.__2.get_rect()
-        self.__get_2.topleft = (400, 200)
+        self.__get_2.topleft = (415, 200)
         self.__5 = self.__96_font.render("5", False, (self.__WHITE))
         self.__get_5 = self.__5.get_rect()
-        self.__get_5.topleft = (400, 300)
+        self.__get_5.topleft = (415, 300)
         self.__8 = self.__96_font.render("8", False, (self.__WHITE))
         self.__get_8 = self.__8.get_rect()
-        self.__get_8.topleft = (400, 400)
+        self.__get_8.topleft = (415, 400)
         self.__0 = self.__96_font.render("0", False, (self.__WHITE))
         self.__get_0 = self.__0.get_rect()
-        self.__get_0.topleft = (400, 500)
+        self.__get_0.topleft = (415, 500)
 
         self.__3 = self.__96_font.render("3", False, (self.__WHITE))
         self.__get_3 = self.__3.get_rect()
-        self.__get_3.topleft = (700, 200)
+        self.__get_3.topleft = (715, 200)
         self.__6 = self.__96_font.render("6", False, (self.__WHITE))
         self.__get_6 = self.__6.get_rect()
-        self.__get_6.topleft = (700, 300)
+        self.__get_6.topleft = (715, 300)
         self.__9 = self.__96_font.render("9", False, (self.__WHITE))
         self.__get_9 = self.__9.get_rect()
-        self.__get_9.topleft = (700, 400)
+        self.__get_9.topleft = (715, 400)
         self.__point = self.__96_font.render(".", False, (self.__WHITE))
         self.__get_point = self.__point.get_rect()
-        self.__get_point.topleft = (700, 500)
+        self.__get_point.topleft = (715, 500)
 
         self.__adress_final = self.__48_font.render(f"Adresse de connexion : {self.__adress}", False, (self.__WHITE))
 
         if self.__erreur_connect :
             self.__erreur = self.__48_font.render("Connexion au serveur échoué !", False, (self.__RED))
 
-        self.__supprimer = self.__96_font.render("Supprimer", False, (self.__WHITE))
+        self.__supprimer = self.__96_font.render("Supprimer", False, (self.__RED))
         self.__get_supprimer = self.__supprimer.get_rect()
         self.__get_supprimer.topleft = (1000, 500)
 
-        self.__join = self.__96_font.render("Rejoindre", False, (self.__WHITE))
+        self.__join = self.__96_font.render("Rejoindre", False, (self.__GREEN))
         self.__get_join = self.__join.get_rect()
         self.__get_join.topleft = (1000, 600)
 
@@ -593,19 +609,23 @@ class View:
         self.__screen.blit(self.__blue_image4, (0, 0))
         self.__screen.blit(self.__back, (50, 50))
 
-        self.__screen.blit(self.__1, (100, 200))
-        self.__screen.blit(self.__4, (100, 300))
-        self.__screen.blit(self.__7, (100, 400))
+        self.__screen.blit(self.__consigne, (115, 100))
 
-        self.__screen.blit(self.__2, (400, 200))
-        self.__screen.blit(self.__5, (400, 300))
-        self.__screen.blit(self.__8, (400, 400))
-        self.__screen.blit(self.__0, (400, 500))
 
-        self.__screen.blit(self.__3, (700, 200))
-        self.__screen.blit(self.__6, (700, 300))
-        self.__screen.blit(self.__9, (700, 400))
-        self.__screen.blit(self.__point, (700, 500))
+
+        self.__screen.blit(self.__1, (115, 200))
+        self.__screen.blit(self.__4, (115, 300))
+        self.__screen.blit(self.__7, (115, 400))
+
+        self.__screen.blit(self.__2, (415, 200))
+        self.__screen.blit(self.__5, (415, 300))
+        self.__screen.blit(self.__8, (415, 400))
+        self.__screen.blit(self.__0, (415, 500))
+
+        self.__screen.blit(self.__3, (715, 200))
+        self.__screen.blit(self.__6, (715, 300))
+        self.__screen.blit(self.__9, (715, 400))
+        self.__screen.blit(self.__point, (715, 500))
 
         self.__screen.blit(self.__supprimer, (1000, 500))
         self.__screen.blit(self.__join, (1000, 600))
@@ -669,8 +689,9 @@ class View:
 
                 cases_items.update({rect: (j, i)})
 
+
         pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (700, 75, 600, 75))
-        game = Game()
+
         self.__current_player = self.__game.get_current_player()
         if self.__current_player == self.__game.get_player(1):
             self.__player_play = 1

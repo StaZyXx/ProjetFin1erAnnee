@@ -53,10 +53,7 @@ def send_message_server(recipient, message):
     recipient.sendall(serialized_list)
 
 
-def get_address_ip():
-    hostname = socket.gethostname()
-    ip_address = socket.gethostbyname(hostname)
-    return ip_address
+
 
 
 class Server:
@@ -70,6 +67,8 @@ class Server:
         self.__client2, self.address2 = None, None
         self.__client3, self.address3 = None, None
 
+    def close_socket(self):
+        self.__socket.close()
     def get_player_had_join(self):
         return self.__player_had_join
     def get_client1(self):
@@ -80,6 +79,10 @@ class Server:
 
     def get_client3(self):
         return self.__client3
+    def get_address_ip(self):
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        return (s.getsockname()[0])
 
     def add_all_player(self, nbr_player):
         self.__player_had_join = 1
