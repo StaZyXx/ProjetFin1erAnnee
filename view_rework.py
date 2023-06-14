@@ -1,6 +1,8 @@
 import pygame
+from pygame import mixer
 from pygame.locals import *
 
+import game
 import utils
 from case import CaseType, BarrierType
 from game import Game
@@ -492,6 +494,12 @@ class View:
 
                 cases_items.update({rect: (j, i)})
 
+        pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (800, 100, 600, 100))
+        game = Game()
+        self.__current_player = game.get_current_player()
+        self.__turn_player = self.__48_font.render(
+            f"Au tour du joueur " + str(self.__current_player), False, (self.__WHITE))
+
         for event in pygame.event.get():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 for rect, (i, j) in cases_items.items():
@@ -499,20 +507,37 @@ class View:
                         case = self.__game.get_case(i, j)
                         print(i, j)
 
+
                         if case.get_case_type() == CaseType.BLANK:
                             pass
-
                         elif case.get_case_type() == CaseType.SLOT_BARRIER_HORIZONTAL:
                             self.__game.place_barrier(i, j, BarrierType.HORIZONTAL)
+                            self.boucle_sounds("place")
                         elif case.get_case_type() == CaseType.SLOT_BARRIER_VERTICAL:
                             self.__game.place_barrier(i, j, BarrierType.VERTICAL)
+                            self.boucle_sounds("place")
                         else:
                             self.__game.move_player(i, j)
+                            self.boucle_sounds("move")
+                            self.__current_player = game.get_current_player()
+                            self.__turn_player = self.__48_font.render(
+                                f"Au tour du joueur " + str(self.__current_player), False, (self.__WHITE))
+
+
+
 
         self.__screen.blit(self.__background, (0, 0))
         self.__screen.blit(self.__blue_image4, (0, 0))
+        self.__screen.blit(self.__turn_player, (800, 100))
         pygame.display.flip()
 
+    def boucle_sounds(self, arg):
+        mixer.init()
+        if arg == "move":
+            mixer.music.load("./songs/move_player.wav")
+        elif arg == "place":
+            mixer.music.load("./songs/move_player.wav")
+        mixer.music.play()
     def boucle_game(self):
         self.__running = True
         pygame.display.update()

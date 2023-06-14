@@ -64,6 +64,8 @@ class Game:
 
     def get_player(self, index: int) -> Player:
         return self.__player[index - 1]
+    def get_current_player(self):
+        return self.__current_player
 
     def create_board(self):
         size = self.__board_size * 2 - 1
@@ -163,6 +165,7 @@ class Game:
             self.switch_player()
             return True
         return False
+
     def place_player(self, amount: int):  # A vérifier que les pions tombent bien au millieu du plateau
         player1 = Player(1)
         player2 = Player(2)
