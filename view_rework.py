@@ -562,21 +562,6 @@ class View:
         pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (1000, 500, 350, 75))
         pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (1000, 600, 350, 75))
 
-        self.__numbers = {}
-        x = 115
-        for i in range(1,3):
-            y = 200
-            for j in range(3):
-                self.__number = self.__96_font.render(str(i+j), False, (self.__WHITE))
-                self.__get_number = self.__number.get_rect()
-                self.__get_number.topleft = (115, 200)
-                self.__numbers.update({utils.HashableRect(self.__get_number): i + j})
-                self.__screen.blit(self.__number, (115,200))
-                y += 100
-            x += 200
-
-        # lettre
-
 
         self.__0 = self.__96_font.render("0", False, (self.__WHITE))
         self.__get_0 = self.__0.get_rect()
@@ -607,6 +592,22 @@ class View:
 
         self.__screen.blit(self.__background, (0, 0))
         self.__screen.blit(self.__blue_image4, (0, 0))
+
+        self.__numbers = {}
+        nbr = 0
+        y = 200
+        for i in range(3):
+            x = 115
+            for j in range(3):
+                nbr += 1
+                self.__number = self.__96_font.render(str(nbr), False, (self.__WHITE))
+                self.__get_number = self.__number.get_rect()
+                self.__get_number.topleft = (x, y)
+                self.__numbers.update({utils.HashableRect(self.__get_number): nbr})
+                self.__screen.blit(self.__number, (x, y))
+                x += 300
+            y += 100
+
         self.__screen.blit(self.__back, (50, 50))
 
         self.__screen.blit(self.__consigne, (115, 100))
