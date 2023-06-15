@@ -1,6 +1,5 @@
 import random
 import threading
-from concurrent.futures import ThreadPoolExecutor
 from typing import List
 
 from case import Case, CaseType, BarrierType
@@ -43,11 +42,14 @@ class Game:
             11: 24,
         }
 
-    def start(self, size: int, players: int):
+    def start(self, size: int, players: int, amount_barrier):
+        self.start(size, players, amount_barrier, False)
+
+    def start(self, size: int, players: int, amount_barrier, is_each_turn: bool):
         self.__board_size = size
 
         self.create_board()
-        self.place_player(players)
+        self.place_player(players, amount_barrier, is_each_turn)
         self.__is_started = True
 
     def is_started(self):
@@ -64,6 +66,7 @@ class Game:
 
     def get_player(self, index: int) -> Player:
         return self.__player[index - 1]
+
     def get_current_player(self):
         return self.__current_player
 
@@ -98,6 +101,8 @@ class Game:
         self.__direction_wrapper[direction].jump(player)
 
     def place_barrier(self, x, y, barrier_type):
+        if self.__current_player.get_amount_barrier() <= 0:
+            return False
         direction = self.__direction_wrapper[Direction.DEFAULT]
         if direction.can_place_barrier(x, y, barrier_type):
             print("Barrier placed at " + str(x) + " " + str(y) + " " + str(barrier_type))
@@ -111,8 +116,9 @@ class Game:
                     self.get_case(x, y).set_case_type(CaseType.SLOT_BARRIER_VERTICAL)
                     self.get_case(x + 2, y).set_case_type(CaseType.SLOT_BARRIER_VERTICAL)
                 return False
-        else :
+        else:
             return False
+        self.__current_player.decrease_amount_barrier()
         return True
 
     def determine_direction(self, y, x):
@@ -146,34 +152,59 @@ class Game:
         direction = self.determine_direction(x, y)
         return self.move_player_with_direction(direction)
 
-
     def move_player_with_direction(self, direction):
-        print("move player " + str(direction))
         if self.check_winner() is not None:
             self.stop_game()
             return False
-          
+
         dw = self.__direction_wrapper[direction]
         if dw.can_adapt_for_jump(self.__current_player.get_location()[0], self.__current_player.get_location()[1]):
             self.jump_player(self.__current_player, direction)
             self.switch_player()
             return True
 
-        print("can move " + str(dw.player_can_move(self.__current_player)))
         if dw.player_can_move(self.__current_player):
             dw.move(self.__current_player)
-            result = 1
             self.switch_player()
             return True
         return False
 
-    def place_player(self, amount: int):  # A vérifier que les pions tombent bien au millieu du plateau
+    def get_cases_by_allowed_direction(self):
+        cases = []
+        for direction in self.__direction_wrapper:
+            location = None
+            if self.__direction_wrapper[direction].player_can_move(self.__current_player):
+                location = self.__direction_wrapper[direction].adapt_for_move(self.__current_player.get_location())
+            elif self.__direction_wrapper[direction].can_adapt_for_jump(self.__current_player.get_location()[0],
+                                                                        self.__current_player.get_location()[1]):
+                location = self.__direction_wrapper[direction].adapt_for_jump(self.__current_player.get_location()[0],
+                                                                              self.__current_player.get_location()[1])
+            if location is not None:
+                cases.append(self.get_case(location[0], location[1]))
+        return cases
+
+    def is_case_allowed_by_location(self, x, y):
+        for case in self.get_cases_by_allowed_direction():
+            if case == self.get_case(x, y):
+                return True
+        return False
+
+    def is_case_allowed(self, case_target):
+        for case in self.get_cases_by_allowed_direction():
+            if case == case_target:
+                return True
+        return False
+
+    def place_player(self, amount: int, amount_barrier, is_each_turn):  # A vérifier que les pions tombent bien au millieu du plateau
         player1 = Player(1)
+        player1.set_amount_barrier(amount_barrier / amount)
         player2 = Player(2)
+        player2.set_amount_barrier(amount_barrier / amount)
+        if not is_each_turn:
+            player2.set_bot()
         self.__player.append(player1)
         self.__player.append(player2)
         self.__current_player = player1
-        #player2.set_bot()
 
         player1.set_location(self.__board_size * 2 - 2, self.__board_size - 1)  # Ce pion est en bas au millieu
         player2.set_location(0, self.__board_size - 1)  # Ce joueur est en haut au millieu
@@ -182,7 +213,13 @@ class Game:
 
         if amount == 4:
             player3 = Player(3)
+            player3.set_amount_barrier(amount_barrier / amount)
+            if not is_each_turn:
+                player3.set_bot()
             player4 = Player(4)
+            player4.set_amount_barrier(amount_barrier / amount)
+            if not is_each_turn:
+                player4.set_bot()
             self.__player.append(player3)
             self.__player.append(player4)
             player3.set_location(self.__board_size - 1, 0)  # Ce joueur est a gauche au millieu
@@ -192,30 +229,18 @@ class Game:
             self.get_case(self.__board_size - 1, self.__board_size * 2 - 2).set_player(player4)
 
     def check_all_path(self):
-        print(self.__player)
-
-        lock = threading.Lock()
 
         has_win = [False] * len(self.__player)
 
-        with ThreadPoolExecutor(max_workers=4) as executor:
-            futures = []
-            for index, player in enumerate(self.__player):
-                future = executor.submit(self.check_path, player, has_win, index, lock)
-                futures.append(future)
+        for index, player in enumerate(self.__player):
+            self.check_path(player, has_win, index)
 
-            # Attente de la fin de toutes les tâches
-            for future in futures:
-                future.result()
-
-        # Vérification des drapeaux
-        for flag in has_win:
-            if not flag:
+        for win in has_win:
+            if not win:
                 return False
-
         return True
 
-    def check_path(self, player: Player, has_win, index, lock):
+    def check_path(self, player: Player, has_win, index):
         currentLocation = player.get_location()
         locations_to_explore = [currentLocation]  # Liste des positions à explorer
         explored_locations = set()  # Ensemble des positions explorées
@@ -225,14 +250,15 @@ class Game:
             for location in locations_to_explore:
                 for direction in Direction:
                     x, y = self.get_relative_location(location, direction)
+
                     if x == -1 or y == -1:
                         continue
-                    print("x " + str(x) + " y " + str(y))
 
+                    print("check", index, player.get_id(), [x, y])
                     if self.check_win_with_location(player, [x, y]):
                         # Un chemin a été trouvé pour ce joueur
-                        with lock:
-                            has_win[index] = True
+
+                        has_win[index] = True
                         return
 
                     new_location = (x, y)
@@ -245,8 +271,6 @@ class Game:
     def get_relative_location(self, location: [int, int], direction: Direction):
         if self.__direction_wrapper[direction].can_move(location):
             return self.__direction_wrapper[direction].adapt_for_move(location)
-        elif self.__direction_wrapper[direction].can_adapt_for_jump(location[0], location[1]):
-            return self.__direction_wrapper[direction].adapt_for_jump(location[0], location[1])
         else:
             return -1, -1
 
@@ -254,15 +278,12 @@ class Game:
         return self.check_win_with_location(player, player.get_location())
 
     def check_win_with_location(self, player: Player, location: [int, int]):
-        print("Check win " + str(player.get_id()) + " " + str(location))
         match (player.get_id()):
             case 1:
                 if location[0] == 0:
-                    print("Win 1")
                     return True
             case 2:
                 if location[0] == self.__board_size * 2 - 2:
-                    print("Win 2")
                     return True
             case 3:
                 if location[1] == self.__board_size * 2 - 2:
@@ -315,14 +336,12 @@ class Game:
 
             barrier_index = random.randint(0, len(list_slot_barrier) - 1)
             x, y, case_type = list_slot_barrier[barrier_index]
-            print(x, y, case_type)
-            print(list_slot_barrier[barrier_index])
-            self.place_barrier(y, x, case_type)
+            if self.place_barrier(y, x, case_type):
+                self.switch_player()
         else:
             is_moving = False
             while not is_moving:
-                direction = random.randint(0, len(self.__direction_wrapper)-1)
-                print(list(self.__direction_wrapper.values())[0])
+                direction = random.randint(0, len(self.__direction_wrapper) - 1)
                 is_moving = self.move_player_with_direction(list(self.__direction_wrapper.keys())[direction])
 
     def stop_game(self):
@@ -333,5 +352,3 @@ class Game:
 
     def get_cases(self) -> [[Case]]:
         return self.__cases
-
-

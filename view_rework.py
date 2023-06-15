@@ -1,3 +1,4 @@
+import asyncio
 import threading
 import time
 
@@ -41,9 +42,10 @@ class View:
 
         self.gestion_loading_page()
 
+
     def gestion_loading_page(self):
         self.loading_page()
-        time.sleep(3)
+        time.sleep(0.5)
         self.boucle_home_page()
 
 
@@ -90,7 +92,7 @@ class View:
                         pygame.quit()
 
         if self.__mode == "solo":
-            self.boucle_param("solo")
+            self.loop_game_type()
         if self.__mode == "multiplayer":
             self.boucle_choice_server_client()
         if self.__mode == "game":
@@ -125,7 +127,7 @@ class View:
 
         pygame.display.flip()  # Mettre a jour l'affichage
 
-    def boucle_param(self, mode):
+    def boucle_param(self, mode, is_each_turn):
         self.__GREEN = pygame.Color(57, 116, 70, 255)
         self.couleur_2players, self.couleur_4players = self.__DARK_BLUE, self.__DARK_BLUE
         self.__color_5x5, self.__color_7x7, self.__color_9x9, self.__color_11x11 = self.__DARK_BLUE, self.__DARK_BLUE, self.__GREEN, self.__DARK_BLUE
@@ -190,11 +192,11 @@ class View:
                         if self.__nbr_joueur != None and self.__board_size != None:
                             if mode == "solo":
                                 self.__game = Game()
-                                self.__game.start(self.__board_size, self.__nbr_joueur)
+                                self.__game.start(self.__board_size, self.__nbr_joueur, self.__nbr_barr, is_each_turn)
                             elif mode == "multiplayer":
-                                self.__game.start(self.__board_size, self.__nbr_joueur)
+                                self.__game.start(self.__board_size, self.__nbr_joueur, self.__nbr_barr)
                                 info_game = {"type": "parameter", "size": self.__board_size,
-                                             "nbr_joueur": self.__nbr_joueur}
+                                             "nbr_joueur": self.__nbr_joueurn, "nbr_barrier": self.__nbr_barr}
                                 self.__game.get_server().send_message_server_all_client(info_game, None)
                             self.game_page()
                             self.__running = False
@@ -380,7 +382,7 @@ class View:
                         self.__thread_add_player = threading.Thread(
                             target=self.__game.wait_for_all_players)  # création du thread
                         self.__thread_add_player.start()  # lancement du thread
-                        self.boucle_param("multiplayer")
+                        self.boucle_param("multiplayer", False)
                     elif self.__get_back.collidepoint(self.__cursor_pos):
                         self.boucle_home_page()
                     elif self.__get_4players.collidepoint(self.__cursor_pos):
@@ -389,8 +391,55 @@ class View:
                         self.__thread_add_player = threading.Thread(
                             target=self.__game.wait_for_all_players)  # création du thread
                         self.__thread_add_player.start()  # lancement du thread
-                        self.boucle_param("multiplayer")
+                        self.boucle_param("multiplayer", False)
 
+    def loop_game_type(self):
+        self.choice_game_type()
+        self.__running = True
+        while self.__running:
+            for event in pygame.event.get():  # récupérer un event
+                if event.type == pygame.QUIT:  # Si l'event est du type fermer la fenetre
+                    self.__running = False
+                    pygame.quit()
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    self.__cursor_pos = pygame.mouse.get_pos()
+                    if self.__get_versus_ia.collidepoint(self.__cursor_pos):
+                        print("versus ia")
+                        self.boucle_param("solo", False)
+                    elif self.__get_back.collidepoint(self.__cursor_pos):
+                        print("back")
+                        self.boucle_home_page()
+                    elif self.__get_each_turn.collidepoint(self.__cursor_pos):
+                        print("each turn")
+                        self.boucle_param("solo", True)
+
+    def choice_game_type(self):
+
+        pygame.init()
+        self.__blue_image3 = pygame.Surface((1500, 850), pygame.SRCALPHA)
+
+        pygame.draw.rect(self.__blue_image3, self.__DARK_BLUE, (200, 200, 1100, 150))
+        pygame.draw.rect(self.__blue_image3, self.__DARK_BLUE, (200, 400, 1100, 150))
+
+        self.__versus_ia = self.__96_font.render("Contre une IA", False, (self.__WHITE))
+        self.__get_versus_ia = self.__versus_ia.get_rect()
+        self.__get_versus_ia.topleft = (700, 250)
+
+        self.__each_turn = self.__96_font.render("Chacun son tour", False, (self.__WHITE))
+        self.__get_each_turn = self.__each_turn.get_rect()
+        self.__get_each_turn.topleft = (650, 450)
+
+        self.__back = pygame.image.load("./assets/fleche-retour.png").convert_alpha()
+        self.__back = pygame.transform.scale(self.__back, (100, 100))
+        self.__get_back = self.__back.get_rect()
+
+        self.__screen.blit(self.__background, (0, 0))
+        self.__screen.blit(self.__blue_image3, (0, 0))
+        self.__screen.blit(self.__back, (50, 50))
+        self.__screen.blit(self.__versus_ia, (650, 250))
+        self.__screen.blit(self.__each_turn, (650, 450))
+
+        pygame.display.flip()
     def choice_nbr_player(self):
         pygame.init()
         self.__blue_image3 = pygame.Surface((1500, 850), pygame.SRCALPHA)
@@ -398,12 +447,12 @@ class View:
         pygame.draw.rect(self.__blue_image3, self.__DARK_BLUE, (200, 200, 1100, 150))
         pygame.draw.rect(self.__blue_image3, self.__DARK_BLUE, (200, 400, 1100, 150))
 
-        self.__2players = self.__96_font.render("2 joueurs", False, (self.__WHITE))
-        self.__get_2players = self.__2players.get_rect()
+        self.__versus_ia = self.__96_font.render("2 joueurs", False, (self.__WHITE))
+        self.__get_2players = self.__versus_ia.get_rect()
         self.__get_2players.topleft = (700, 250)
 
-        self.__4players = self.__96_font.render("4 joueurs", False, (self.__WHITE))
-        self.__get_4players = self.__4players.get_rect()
+        self.__each_turn = self.__96_font.render("4 joueurs", False, (self.__WHITE))
+        self.__get_4players = self.__each_turn.get_rect()
         self.__get_4players.topleft = (650, 450)
 
         self.__back = pygame.image.load("./assets/fleche-retour.png").convert_alpha()
@@ -413,8 +462,8 @@ class View:
         self.__screen.blit(self.__background, (0, 0))
         self.__screen.blit(self.__blue_image3, (0, 0))
         self.__screen.blit(self.__back, (50, 50))
-        self.__screen.blit(self.__2players, (650, 250))
-        self.__screen.blit(self.__4players, (650, 450))
+        self.__screen.blit(self.__versus_ia, (650, 250))
+        self.__screen.blit(self.__each_turn, (650, 450))
 
         pygame.display.flip()
 
@@ -514,7 +563,7 @@ class View:
                 print(f"Le player {dico['num_player']} à rejoins la partie")
                 self.player_acctu += 1
                 self.lobby()
-        self.__game.start(dico["size"], dico["nbr_joueur"])
+        self.__game.start(dico["size"], dico["nbr_joueur"], dico["num_player"], dico["num_barrier"])
         self.if_play = False
         self.__running = False
         self.__mode = "game"
@@ -656,8 +705,12 @@ class View:
                         self.__blue_image4.blit(img_green_player, (i * 28, j * 28))
 
                 elif case.get_case_type() == CaseType.DEFAULT:
-                    rect = utils.HashableRect(
-                        pygame.draw.rect(self.__blue_image4, self.__BLUE, (i * 28, j * 28, 48, 48)))
+                    if self.__game.is_case_allowed(case):
+                        rect = utils.HashableRect(
+                            pygame.draw.rect(self.__blue_image4, self.__WHITE, (i * 28, j * 28, 48, 48)))
+                    else:
+                        rect = utils.HashableRect(
+                            pygame.draw.rect(self.__blue_image4, self.__BLUE, (i * 28, j * 28, 48, 48)))
 
                 elif case.get_case_type() == CaseType.SLOT_BARRIER_HORIZONTAL:
                     rect = utils.HashableRect(
@@ -700,14 +753,16 @@ class View:
                         if case.get_case_type() == CaseType.BLANK:
                             pass
                         elif case.get_case_type() == CaseType.SLOT_BARRIER_HORIZONTAL:
-                            self.__game.place_barrier(i, j, BarrierType.HORIZONTAL)
-                            self.__game.switch_player()
-                            self.boucle_sounds("place")
+                            if self.__game.place_barrier(i, j, BarrierType.HORIZONTAL):
+                                self.__game.switch_player()
+                                self.boucle_sounds("place")
+
 
                         elif case.get_case_type() == CaseType.SLOT_BARRIER_VERTICAL:
-                            self.__game.place_barrier(i, j, BarrierType.VERTICAL)
-                            self.__game.switch_player()
-                            self.boucle_sounds("place")
+                            if self.__game.place_barrier(i, j, BarrierType.VERTICAL):
+                                self.__game.switch_player()
+                                self.boucle_sounds("place")
+
 
                         else:
                             if self.__game.move_player(i, j):

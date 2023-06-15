@@ -8,7 +8,7 @@ class SouthWest(DirectionWrapper):
         super().__init__(game)
 
     def adapt_for_jump(self, x, y) -> (int, int):
-        return x, y - 4
+        return 0, 0
 
     def can_move(self, location: [int, int]) -> bool:
         if not self.get_game().has_case(location[0] + 2, location[1] - 2) or \
