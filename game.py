@@ -43,11 +43,14 @@ class Game:
         }
 
     def start(self, size: int, players: int, amount_barrier, is_each_turn: bool):
+        self.__is_each_turn = is_each_turn
         self.__board_size = size
 
         self.create_board()
         self.place_player(players, amount_barrier, is_each_turn)
         self.__is_started = True
+    def get_is_each_turn(self):
+        return self.__is_each_turn
 
     def is_started(self):
         return self.__is_started
@@ -332,10 +335,20 @@ class Game:
                     elif self.get_case(j, i).get_case_type() == CaseType.SLOT_BARRIER_VERTICAL:
                         list_slot_barrier.append((i, j, BarrierType.VERTICAL))
 
-            barrier_index = random.randint(0, len(list_slot_barrier) - 1)
-            x, y, case_type = list_slot_barrier[barrier_index]
-            if self.place_barrier(y, x, case_type):
-                self.switch_player()
+            has_place = False
+            amount_try = 50
+            while not has_place and amount_try > 0:
+                amount_try -= 1
+                barrier_index = random.randint(0, len(list_slot_barrier) - 1)
+                x, y, case_type = list_slot_barrier[barrier_index]
+                if self.place_barrier(y, x, case_type):
+                    has_place = True
+                    self.switch_player()
+            if amount_try == 0:
+                is_moving = False
+                while not is_moving:
+                    direction = random.randint(0, len(self.__direction_wrapper) - 1)
+                    is_moving = self.move_player_with_direction(list(self.__direction_wrapper.keys())[direction])
         else:
             is_moving = False
             while not is_moving:

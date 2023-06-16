@@ -1,4 +1,3 @@
-import asyncio
 import threading
 import time
 
@@ -42,12 +41,10 @@ class View:
 
         self.gestion_loading_page()
 
-
     def gestion_loading_page(self):
         self.loading_page()
         time.sleep(0.5)
         self.boucle_home_page()
-
 
     def loading_page(self):
         self.__screen.blit(self.__background, (0, 0))
@@ -66,7 +63,6 @@ class View:
         self.__screen.blit(self.__plateau_de_jeu, (575, 420))
 
         pygame.display.flip()  # Mettre a jour l'affichage
-
 
     def boucle_home_page(self):
         self.home_page()
@@ -441,6 +437,7 @@ class View:
         self.__screen.blit(self.__each_turn, (650, 450))
 
         pygame.display.flip()
+
     def choice_nbr_player(self):
         pygame.init()
         self.__blue_image3 = pygame.Surface((1500, 850), pygame.SRCALPHA)
@@ -612,12 +609,9 @@ class View:
         pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (1000, 500, 350, 75))
         pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (1000, 600, 350, 75))
 
-
         self.__0 = self.__96_font.render("0", False, (self.__WHITE))
         self.__get_0 = self.__0.get_rect()
         self.__get_0.topleft = (415, 500)
-
-
 
         self.__point = self.__96_font.render(".", False, (self.__WHITE))
         self.__get_point = self.__point.get_rect()
@@ -662,7 +656,6 @@ class View:
 
         self.__screen.blit(self.__consigne, (115, 100))
 
-
         self.__screen.blit(self.__0, (415, 500))
 
         self.__screen.blit(self.__point, (715, 500))
@@ -680,6 +673,13 @@ class View:
         pygame.init()
         cases_items = {}
         self.__blue_image4 = pygame.Surface((1500, 850), pygame.SRCALPHA)
+        self.__current_player = self.__game.get_current_player().get_id()
+        colors = {
+            1: self.__RED,
+            2: self.__BLUE,
+            3: self.__YELLOW,
+            4: self.__GREEN
+        }
 
         # use self.get_cases()
         cases = self.__game.get_cases()
@@ -705,6 +705,7 @@ class View:
                         img_green_player = pygame.image.load("./assets/green_player.png").convert_alpha()
                         img_green_player = pygame.transform.scale(img_green_player, (48, 48))
                         self.__blue_image4.blit(img_green_player, (i * 28, j * 28))
+
 
                 elif case.get_case_type() == CaseType.DEFAULT:
                     if self.__game.is_case_allowed(case):
@@ -733,17 +734,10 @@ class View:
 
                 cases_items.update({rect: (j, i)})
 
-        pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (800, 100, 600, 100))
-        self.__current_player = self.__game.get_current_player().get_id()
-        colors = {
-            1: self.__RED,
-            2: self.__BLUE,
-            3: self.__YELLOW,
-            4: self.__GREEN
-        }
+        pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (700, 75, 600, 100))
 
         self.__turn_player = self.__48_font.render(
-            f"Au tour du joueur " + str(self.__current_player), False, (colors[self.__current_player]))
+            "Au tour du joueur " + str(self.__current_player), False, (colors[self.__current_player]))
 
         for event in pygame.event.get():
             if event.type == pygame.MOUSEBUTTONDOWN:
@@ -780,7 +774,6 @@ class View:
         self.__screen.blit(self.__blue_image4, (0, 0))
         self.__screen.blit(self.__turn_player, (730, 100))
 
-
         self.__red_barrier = pygame.image.load("./assets/Red_fence.png").convert_alpha()
         self.__blue_barrier = pygame.image.load("./assets/Blue_Fence.png").convert_alpha()
         self.__yellow_barrier = pygame.image.load("./assets/Yellow_Fence.png").convert_alpha()
@@ -794,8 +787,11 @@ class View:
         if type(self.__game) == Multiplayer:
             multiplayer: Multiplayer = self.__game
             if multiplayer.is_server():
-                self.__player1 = self.__48_font.render(f"Vous êtes le joueur 1:       X{int(self.__game.get_player(1).get_amount_barrier())}", False, self.__RED)
-                self.__player2 = self.__48_font.render(f"Joueur 2:       X{int(self.__game.get_player(2).get_amount_barrier())}", False, self.__BLUE)
+                self.__player1 = self.__48_font.render(
+                    f"Vous êtes le joueur 1:       X{int(self.__game.get_player(1).get_amount_barrier())}", False,
+                    self.__RED)
+                self.__player2 = self.__48_font.render(
+                    f"Joueur 2:       X{int(self.__game.get_player(2).get_amount_barrier())}", False, self.__BLUE)
                 self.__screen.blit(self.__player1, (710, 220))
                 self.__screen.blit(self.__player2, (710, 320))
                 self.__screen.blit(self.__red_barrier, (1200, 200))
@@ -811,27 +807,39 @@ class View:
                     self.__screen.blit(self.__green_barrier, (1100, 460))
 
             elif multiplayer.get_client().get_me_player() == 1:
-                self.__player2 = self.__48_font.render(f"Vous êtes le joueur 2:       X{int(self.__game.get_player(2).get_amount_barrier())}", False, (self.__BLUE))
-                self.__player1 = self.__48_font.render(f"Joueur 1:       X{int(self.__game.get_player(1).get_amount_barrier())}", False, (self.__RED))
+                self.__player2 = self.__48_font.render(
+                    f"Vous êtes le joueur 2:       X{int(self.__game.get_player(2).get_amount_barrier())}", False,
+                    (self.__BLUE))
+                self.__player1 = self.__48_font.render(
+                    f"Joueur 1:       X{int(self.__game.get_player(1).get_amount_barrier())}", False, (self.__RED))
                 self.__screen.blit(self.__player2, (710, 220))
                 self.__screen.blit(self.__player1, (710, 320))
                 self.__screen.blit(self.__blue_barrier, (1200, 200))
                 self.__screen.blit(self.__red_barrier, (1100, 300))
                 if len(self.__game.get_players()) == 4:
                     self.__player4 = self.__48_font.render(
-                        f"Joueur 4:       X{int(self.__game.get_player(4).get_amount_barrier())}", False, (self.__GREEN))
+                        f"Joueur 4:       X{int(self.__game.get_player(4).get_amount_barrier())}", False,
+                        (self.__GREEN))
                     self.__player3 = self.__48_font.render(
-                        f"Joueur 3:       X{int(self.__game.get_player(3).get_amount_barrier())}", False, (self.__YELLOW))
+                        f"Joueur 3:       X{int(self.__game.get_player(3).get_amount_barrier())}", False,
+                        (self.__YELLOW))
                     self.__screen.blit(self.__player3, (710, 400))
                     self.__screen.blit(self.__player4, (710, 480))
                     self.__screen.blit(self.__yellow_barrier, (1100, 400))
                     self.__screen.blit(self.__red_barrier, (1100, 480))
+
             if len(self.__game.get_players()) == 4:
                 if multiplayer.get_client().get_me_player() == 2:
-                    self.__player3 = self.__48_font.render(f"Vous êtes le joueur 3:       X{int(self.__game.get_player(3).get_amount_barrier())}", False, (self.__YELLOW))
-                    self.__player4 = self.__48_font.render(f"Joueur 4:       X{int(self.__game.get_player(4).get_amount_barrier())}", False, (self.__GREEN))
-                    self.__player2 = self.__48_font.render(f"Joueur 2:       X{int(self.__game.get_player(2).get_amount_barrier())}", False, (self.__BLUE))
-                    self.__player1 = self.__48_font.render(f"Joueur 1:       X{int(self.__game.get_player(1).get_amount_barrier())}", False, (self.__RED))
+                    self.__player3 = self.__48_font.render(
+                        f"Vous êtes le joueur 3:       X{int(self.__game.get_player(3).get_amount_barrier())}", False,
+                        (self.__YELLOW))
+                    self.__player4 = self.__48_font.render(
+                        f"Joueur 4:       X{int(self.__game.get_player(4).get_amount_barrier())}", False,
+                        (self.__GREEN))
+                    self.__player2 = self.__48_font.render(
+                        f"Joueur 2:       X{int(self.__game.get_player(2).get_amount_barrier())}", False, (self.__BLUE))
+                    self.__player1 = self.__48_font.render(
+                        f"Joueur 1:       X{int(self.__game.get_player(1).get_amount_barrier())}", False, (self.__RED))
                     self.__screen.blit(self.__player3, (710, 220))
                     self.__screen.blit(self.__player1, (710, 320))
                     self.__screen.blit(self.__player2, (710, 400))
@@ -841,10 +849,16 @@ class View:
                     self.__screen.blit(self.__blue_barrier, (1100, 400))
                     self.__screen.blit(self.__red_barrier, (1100, 480))
                 elif multiplayer.get_client().get_me_player() == 3:
-                    self.__player4 = self.__48_font.render(f"Vous êtes le joueur 4:       X{int(self.__game.get_player(4).get_amount_barrier())}", False, (self.__GREEN))
-                    self.__player3 = self.__48_font.render(f"Joueur 3:       X{int(self.__game.get_player(3).get_amount_barrier())}", False, (self.__YELLOW))
-                    self.__player2 = self.__48_font.render(f"Joueur 2:       X{int(self.__game.get_player(2).get_amount_barrier())}", False, (self.__BLUE))
-                    self.__player1 = self.__48_font.render(f"Joueur 1:       X{int(self.__game.get_player(1).get_amount_barrier())}", False, (self.__RED))
+                    self.__player4 = self.__48_font.render(
+                        f"Vous êtes le joueur 4:       X{int(self.__game.get_player(4).get_amount_barrier())}", False,
+                        (self.__GREEN))
+                    self.__player3 = self.__48_font.render(
+                        f"Joueur 3:       X{int(self.__game.get_player(3).get_amount_barrier())}", False,
+                        (self.__YELLOW))
+                    self.__player2 = self.__48_font.render(
+                        f"Joueur 2:       X{int(self.__game.get_player(2).get_amount_barrier())}", False, (self.__BLUE))
+                    self.__player1 = self.__48_font.render(
+                        f"Joueur 1:       X{int(self.__game.get_player(1).get_amount_barrier())}", False, (self.__RED))
                     self.__screen.blit(self.__player4, (710, 220))
                     self.__screen.blit(self.__player1, (710, 320))
                     self.__screen.blit(self.__player2, (710, 400))
@@ -853,6 +867,44 @@ class View:
                     self.__screen.blit(self.__yellow_barrier, (1100, 320))
                     self.__screen.blit(self.__blue_barrier, (1100, 400))
                     self.__screen.blit(self.__red_barrier, (1100, 480))
+        else:
+            if self.__game.get_is_each_turn():
+                self.__player1 = self.__48_font.render(
+                    f"Joueur 1:       X{int(self.__game.get_player(1).get_amount_barrier())}", False, self.__RED)
+                self.__player2 = self.__48_font.render(
+                    f"Joueur 2:       X{int(self.__game.get_player(2).get_amount_barrier())}", False, self.__BLUE)
+                self.__screen.blit(self.__player1, (710, 220))
+                self.__screen.blit(self.__player2, (710, 320))
+                self.__screen.blit(self.__red_barrier, (1200, 200))
+                self.__screen.blit(self.__blue_barrier, (1100, 300))
+                if len(self.__game.get_players()) == 4:
+                    self.__player3 = self.__48_font.render(
+                        f"Joueur 3:       X{int(self.__game.get_player(3).get_amount_barrier())}", False, self.__YELLOW)
+                    self.__player4 = self.__48_font.render(
+                        f"Joueur 4:       X{int(self.__game.get_player(4).get_amount_barrier())}", False, self.__GREEN)
+                    self.__screen.blit(self.__player3, (710, 400))
+                    self.__screen.blit(self.__player4, (710, 480))
+                    self.__screen.blit(self.__yellow_barrier, (1100, 380))
+                    self.__screen.blit(self.__green_barrier, (1100, 460))
+            else:
+                self.__player1 = self.__48_font.render(
+                    f"Vous êtes le joueur 1:       X{int(self.__game.get_player(1).get_amount_barrier())}", False,
+                    self.__RED)
+                self.__player2 = self.__48_font.render(
+                    f"Joueur 2:       X{int(self.__game.get_player(2).get_amount_barrier())}", False, self.__BLUE)
+                self.__screen.blit(self.__player1, (710, 220))
+                self.__screen.blit(self.__player2, (710, 320))
+                self.__screen.blit(self.__red_barrier, (1200, 200))
+                self.__screen.blit(self.__blue_barrier, (1100, 300))
+                if len(self.__game.get_players()) == 4:
+                    self.__player3 = self.__48_font.render(
+                        f"Joueur 3:       X{int(self.__game.get_player(3).get_amount_barrier())}", False, self.__YELLOW)
+                    self.__player4 = self.__48_font.render(
+                        f"Joueur 4:       X{int(self.__game.get_player(4).get_amount_barrier())}", False, self.__GREEN)
+                    self.__screen.blit(self.__player3, (710, 400))
+                    self.__screen.blit(self.__player4, (710, 480))
+                    self.__screen.blit(self.__yellow_barrier, (1100, 380))
+                    self.__screen.blit(self.__green_barrier, (1100, 460))
 
         pygame.display.flip()
 
