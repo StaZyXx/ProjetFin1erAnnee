@@ -402,12 +402,14 @@ class View:
                     self.__cursor_pos = pygame.mouse.get_pos()
                     if self.__get_versus_ia.collidepoint(self.__cursor_pos):
                         print("versus ia")
+                        self.__is_each_turn = False
                         self.boucle_param("solo", False)
                     elif self.__get_back.collidepoint(self.__cursor_pos):
                         print("back")
                         self.boucle_home_page()
                     elif self.__get_each_turn.collidepoint(self.__cursor_pos):
                         print("each turn")
+                        self.__is_each_turn = True
                         self.boucle_param("solo", True)
 
     def choice_game_type(self):
@@ -670,6 +672,7 @@ class View:
         pygame.display.flip()
 
     def game_page(self):
+
         pygame.init()
         cases_items = {}
         self.__blue_image4 = pygame.Surface((1500, 850), pygame.SRCALPHA)
@@ -740,7 +743,7 @@ class View:
             "Au tour du joueur " + str(self.__current_player), False, (colors[self.__current_player]))
 
         for event in pygame.event.get():
-            if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.type == pygame.MOUSEBUTTONDOWN or event.type == pygame.MOUSEBUTTONUP:
                 for rect, (i, j) in cases_items.items():
                     if rect is not None and rect.collidepoint(event.pos):
                         case = self.__game.get_case(i, j)
@@ -907,6 +910,9 @@ class View:
                     self.__screen.blit(self.__green_barrier, (1100, 460))
 
         pygame.display.flip()
+        if self.__game.check_winner() is not None:
+            self.__game.stop_game()
+            return
 
     def boucle_sounds(self, arg):
         mixer.init()
@@ -920,11 +926,56 @@ class View:
         self.__running = True
         pygame.display.update()
         while self.__running:
+            if self.__game.is_started() == False :
+                self.__game.change_is_started()
+                self.bucle_page_finish_game()
             for event in pygame.event.get():  # récupérer un event
                 if event.type == pygame.QUIT:  # Si l'event est du type fermer la fenetre
                     self.__running = False
                     pygame.quit()
             self.game_page()
+
+
+    def bucle_page_finish_game(self):
+        self.page_finish_game()
+        self.__running = True
+        # Boucle du jeu
+        while self.__running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.__running = False
+                    pygame.quit()
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    self.__cursor_pos = pygame.mouse.get_pos()
+                    if self.__get_menu.collidepoint(self.__cursor_pos):
+                        self.boucle_home_page()
+                        self.__running = False
+                    elif self.__get_restart.collidepoint(self.__cursor_pos):
+                        self.boucle_param(self.__mode,self.__is_each_turn)
+                        self.__running = False
+
+    def page_finish_game(self):
+        self.__screen.blit(self.__background, (0, 0))
+        self.__blue_image5 = pygame.Surface((1500, 850), pygame.SRCALPHA)
+
+        pygame.draw.rect(self.__blue_image5, self.__BLUE, (460, 100, 650, 500))
+
+        self.__restart = self.__96_font.render("Recommencer", False, (self.__WHITE))
+        self.__get_restart = self.__restart.get_rect()
+        self.__get_restart.topleft = (550, 250)
+
+        self.__menu = self.__96_font.render("Menu principal", False, (self.__WHITE))
+        self.__get_menu = self.__menu.get_rect()
+        self.__get_menu.topleft = (550, 350)
+
+
+        self.__screen.blit(self.__blue_image5, (0, 0))
+        self.__screen.blit(self.__restart, (550, 250))
+        self.__screen.blit(self.__menu, (550, 350))
+
+
+        pygame.display.flip()  # Mettre a jour l'affichage
+
 
 
 View()
