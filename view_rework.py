@@ -192,7 +192,8 @@ class View:
                         if self.__nbr_joueur != None and self.__board_size != None:
                             if mode == "solo":
                                 self.__game = Game()
-                                self.__game.start(self.__board_size, self.__nbr_joueur, self.__nbr_barr, is_each_turn)
+                                self.__game.start_with_all_args(self.__board_size, self.__nbr_joueur,
+                                                                self.__nbr_barr, is_each_turn)
                             elif mode == "multiplayer":
                                 self.__game.start(self.__board_size, self.__nbr_joueur, self.__nbr_barr)
                                 info_game = {"type": "parameter", "size": self.__board_size,
@@ -563,7 +564,7 @@ class View:
                 print(f"Le player {dico['num_player']} à rejoins la partie")
                 self.player_acctu += 1
                 self.lobby()
-        self.__game.start(dico["size"], dico["nbr_joueur"], dico["num_player"], dico["num_barrier"])
+        self.__game.start_with_all_args(dico["size"], dico["nbr_joueur"], dico["num_player"], dico["num_barrier"])
         self.if_play = False
         self.__running = False
         self.__mode = "game"
