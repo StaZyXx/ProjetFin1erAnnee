@@ -195,9 +195,9 @@ class View:
                                 self.__game.start_with_all_args(self.__board_size, self.__nbr_joueur,
                                                                 self.__nbr_barr, is_each_turn)
                             elif mode == "multiplayer":
-                                self.__game.start(self.__board_size, self.__nbr_joueur, self.__nbr_barr)
+                                self.__game.start(self.__board_size, self.players_requis, self.__nbr_barr)
                                 info_game = {"type": "parameter", "size": self.__board_size,
-                                             "nbr_joueur": self.__nbr_joueur, "nbr_barrier": self.__nbr_barr}
+                                             "nbr_joueur": self.players_requis, "nbr_barrier": self.__nbr_barr}
                                 self.__game.get_server().send_message_server_all_client(info_game, None)
                             self.game_page()
                             self.__running = False
@@ -564,7 +564,7 @@ class View:
                 print(f"Le player {dico['num_player']} à rejoins la partie")
                 self.player_acctu += 1
                 self.lobby()
-        self.__game.start_with_all_args(dico["size"], dico["nbr_joueur"], dico["num_player"], dico["num_barrier"])
+        self.__game.start(dico["size"], dico["nbr_joueur"], dico["nbr_barrier"])
         self.if_play = False
         self.__running = False
         self.__mode = "game"
