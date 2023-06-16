@@ -42,10 +42,7 @@ class Game:
             11: 24,
         }
 
-    def start(self, size: int, players: int, amount_barrier):
-        self.start_with_all_args(size, players, amount_barrier, False)
-
-    def start_with_all_args(self, size: int, players: int, amount_barrier, is_each_turn: bool):
+    def start(self, size: int, players: int, amount_barrier, is_each_turn: bool):
         self.__board_size = size
 
         self.create_board()

@@ -199,7 +199,7 @@ class View:
             self.__root.bind('s', lambda event: self.key_board(direction.Direction.SOUTH))
             self.__root.bind('d', lambda event: self.key_board(direction.Direction.EAST))
             print(size)
-            self.game.start_with_all_args(size, self.nbr_player)
+            self.game.start(size, self.nbr_player)
 
             self.show_board()
         else:
