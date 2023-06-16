@@ -63,7 +63,8 @@ class Game:
 
     def get_case(self, x, y) -> Case:
         return self.__cases[x][y]
-
+    def get_players(self):
+        return self.__player
     def get_player(self, index: int) -> Player:
         return self.__player[index - 1]
 
