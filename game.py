@@ -52,6 +52,9 @@ class Game:
     def is_started(self):
         return self.__is_started
 
+    def change_is_started(self):
+        self.__is_started = True
+
     def set_started(self, is_started: bool):
         self.__is_started = is_started
 
