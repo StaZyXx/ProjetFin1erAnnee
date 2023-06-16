@@ -197,7 +197,7 @@ class View:
                             elif mode == "multiplayer":
                                 self.__game.start(self.__board_size, self.__nbr_joueur, self.__nbr_barr)
                                 info_game = {"type": "parameter", "size": self.__board_size,
-                                             "nbr_joueur": self.__nbr_joueurn, "nbr_barrier": self.__nbr_barr}
+                                             "nbr_joueur": self.__nbr_joueur, "nbr_barrier": self.__nbr_barr}
                                 self.__game.get_server().send_message_server_all_client(info_game, None)
                             self.game_page()
                             self.__running = False
