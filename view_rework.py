@@ -23,6 +23,7 @@ class View:
         self.__DARK_BLUE = (57, 73, 116, 200)
         self.__RED = (255, 0, 0)
         self.__GREEN = (0, 255, 0)
+        self.__BLUE_BORDER = (0, 47, 213)
 
         pygame.init()
         pygame.display.set_caption("Quorridor")  # Nom de la fenêtre
@@ -685,8 +686,19 @@ class View:
             3: self.__YELLOW,
             4: self.__GREEN
         }
+        separator = 25
+        borderSize = {
+            5: 297,
+            7: 409,
+            9: 521,
+            11: 633
+        }
 
-        # use self.get_cases()
+        border_seperator = separator - 2
+        pygame.draw.line(self.__blue_image4, self.__BLUE_BORDER, (border_seperator, border_seperator), (border_seperator, borderSize[self.__board_size]), 2)
+        pygame.draw.line(self.__blue_image4, self.__BLUE_BORDER, (border_seperator, border_seperator), (borderSize[self.__board_size], border_seperator), 2)
+        pygame.draw.line(self.__blue_image4, self.__BLUE_BORDER, (borderSize[self.__board_size], borderSize[self.__board_size]), (borderSize[self.__board_size], border_seperator), 2)
+        pygame.draw.line(self.__blue_image4, self.__BLUE_BORDER, (borderSize[self.__board_size], borderSize[self.__board_size]), (border_seperator, borderSize[self.__board_size]), 2)
         cases = self.__game.get_cases()
         if self.__is_update:
             self.__is_update = False
@@ -699,45 +711,52 @@ class View:
                         if case.get_player().get_id() == 1:
                             img_red_player = pygame.image.load("./assets/red_player.png").convert_alpha()
                             img_red_player = pygame.transform.scale(img_red_player, (48, 48))
-                            self.__blue_image4.blit(img_red_player, (i * 28, j * 28))
+                            self.__blue_image4.blit(img_red_player, (separator + i * 28, separator + j * 28))
                         elif case.get_player().get_id() == 2:
                             img_blue_player = pygame.image.load("./assets/blue_player.png").convert_alpha()
                             img_blue_player = pygame.transform.scale(img_blue_player, (48, 48))
-                            self.__blue_image4.blit(img_blue_player, (i * 28, j * 28))
+                            self.__blue_image4.blit(img_blue_player, (separator + i * 28, separator + j * 28))
                         elif case.get_player().get_id() == 3:
                             img_yellow_player = pygame.image.load("./assets/yellow_player.png").convert_alpha()
                             img_yellow_player = pygame.transform.scale(img_yellow_player, (48, 48))
-                            self.__blue_image4.blit(img_yellow_player, (i * 28, j * 28))
+                            self.__blue_image4.blit(img_yellow_player, (separator + i * 28, separator + j * 28))
                         elif case.get_player().get_id() == 4:
                             img_green_player = pygame.image.load("./assets/green_player.png").convert_alpha()
                             img_green_player = pygame.transform.scale(img_green_player, (48, 48))
-                            self.__blue_image4.blit(img_green_player, (i * 28, j * 28))
+                            self.__blue_image4.blit(img_green_player, (separator + i * 28, separator + j * 28))
+
 
 
                     elif case.get_case_type() == CaseType.DEFAULT:
                         if self.__game.is_case_allowed(case):
                             rect = utils.HashableRect(
-                                pygame.draw.rect(self.__blue_image4, self.__WHITE, (i * 28, j * 28, 48, 48)))
+                                pygame.draw.rect(self.__blue_image4, self.__WHITE,
+                                                 (separator + i * 28, separator + j * 28, 48, 48)))
                         else:
                             rect = utils.HashableRect(
-                                pygame.draw.rect(self.__blue_image4, self.__BLUE, (i * 28, j * 28, 48, 48)))
+                                pygame.draw.rect(self.__blue_image4, self.__BLUE,
+                                                 (separator + i * 28, separator + j * 28, 48, 48)))
 
                     elif case.get_case_type() == CaseType.SLOT_BARRIER_HORIZONTAL:
                         rect = utils.HashableRect(
-                            pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (i * 28, j * 28 + 20, 48, 10)))
+                            pygame.draw.rect(self.__blue_image4, self.__BLACK,
+                                             (separator + i * 28, separator + j * 28 + 20, 48, 10)))
 
                     elif case.get_case_type() == CaseType.SLOT_BARRIER_VERTICAL:
                         rect = utils.HashableRect(
-                            pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (i * 28 + 20, j * 28, 10, 48)))
+                            pygame.draw.rect(self.__blue_image4, self.__BLACK,
+                                             (separator + i * 28 + 20, separator + j * 28, 10, 48)))
 
                     elif case.get_case_type() == CaseType.BARRIER:
                         if case.get_barrier_type() == BarrierType.HORIZONTAL:
                             rect = utils.HashableRect(
-                                pygame.draw.rect(self.__blue_image4, self.__RED, (i * 28, j * 28 + 20, 48, 10)))
+                                pygame.draw.rect(self.__blue_image4, self.__RED,
+                                                 (separator + i * 28, separator + j * 28 + 20, 48, 10)))
 
                         elif case.get_barrier_type() == BarrierType.VERTICAL:
                             rect = utils.HashableRect(
-                                pygame.draw.rect(self.__blue_image4, self.__RED, (i * 28 + 20, j * 28, 10, 48)))
+                                pygame.draw.rect(self.__blue_image4, self.__RED,
+                                                 (separator + i * 28 + 20, separator + j * 28, 10, 48)))
 
                     cases_items.update({rect: (j, i)})
 
@@ -980,6 +999,5 @@ class View:
         self.__screen.blit(self.__menu, (550, 350))
 
         pygame.display.flip()  # Mettre a jour l'affichage
-
 
 View()
