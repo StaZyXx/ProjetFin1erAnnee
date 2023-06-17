@@ -695,10 +695,16 @@ class View:
         }
 
         border_seperator = separator - 2
-        pygame.draw.line(self.__blue_image4, self.__BLUE_BORDER, (border_seperator, border_seperator), (border_seperator, borderSize[self.__board_size]), 2)
-        pygame.draw.line(self.__blue_image4, self.__BLUE_BORDER, (border_seperator, border_seperator), (borderSize[self.__board_size], border_seperator), 2)
-        pygame.draw.line(self.__blue_image4, self.__BLUE_BORDER, (borderSize[self.__board_size], borderSize[self.__board_size]), (borderSize[self.__board_size], border_seperator), 2)
-        pygame.draw.line(self.__blue_image4, self.__BLUE_BORDER, (borderSize[self.__board_size], borderSize[self.__board_size]), (border_seperator, borderSize[self.__board_size]), 2)
+        pygame.draw.line(self.__blue_image4, self.__BLUE_BORDER, (border_seperator, border_seperator),
+                         (border_seperator, borderSize[self.__board_size]), 2)
+        pygame.draw.line(self.__blue_image4, self.__BLUE_BORDER, (border_seperator, border_seperator),
+                         (borderSize[self.__board_size], border_seperator), 2)
+        pygame.draw.line(self.__blue_image4, self.__BLUE_BORDER,
+                         (borderSize[self.__board_size], borderSize[self.__board_size]),
+                         (borderSize[self.__board_size], border_seperator), 2)
+        pygame.draw.line(self.__blue_image4, self.__BLUE_BORDER,
+                         (borderSize[self.__board_size], borderSize[self.__board_size]),
+                         (border_seperator, borderSize[self.__board_size]), 2)
         cases = self.__game.get_cases()
         if self.__is_update:
             self.__is_update = False
@@ -765,7 +771,29 @@ class View:
         self.__turn_player = self.__48_font.render(
             "Au tour du joueur " + str(self.__current_player), False, (colors[self.__current_player]))
 
+        for rect, (j, i) in cases_items.items():
+            if rect is not None and rect.collidepoint(pygame.mouse.get_pos()):
+                case = self.__game.get_case(i, j)
+                if case.get_case_type() == CaseType.SLOT_BARRIER_HORIZONTAL:
+                    if self.__game.has_case(i, j + 2) and self.__game.get_case(i, j + 2).get_case_type() == CaseType.SLOT_BARRIER_HORIZONTAL:
+                            utils.HashableRect(
+                                pygame.draw.rect(self.__blue_image4, colors[self.__current_player],
+                                                 (separator + i * 28 + 20, separator + j * 28, 10, 48)))
+                            utils.HashableRect(
+                                pygame.draw.rect(self.__blue_image4, colors[self.__current_player],
+                                                 (separator + i * 28 + 20, separator + (j + 2) * 28, 10, 48)))
+
+                elif case.get_case_type() == CaseType.SLOT_BARRIER_VERTICAL:
+                    if self.__game.has_case(i + 2, j) and self.__game.get_case(i + 2, j).get_case_type() == CaseType.SLOT_BARRIER_VERTICAL:
+                        utils.HashableRect(
+                            pygame.draw.rect(self.__blue_image4, colors[self.__current_player],
+                                             (separator + i * 28, separator + j * 28 + 20, 48, 10)))
+                        utils.HashableRect(
+                            pygame.draw.rect(self.__blue_image4, colors[self.__current_player],
+                                             (separator + (i+2) * 28, separator + j * 28 +20, 48, 10)))
+
         for event in pygame.event.get():
+
             if event.type == pygame.MOUSEBUTTONDOWN or event.type == pygame.MOUSEBUTTONUP:
                 for rect, (i, j) in cases_items.items():
                     if rect is not None and rect.collidepoint(event.pos):
@@ -940,6 +968,7 @@ class View:
                     self.__screen.blit(self.__green_barrier, (1100, 465))
 
         pygame.display.flip()
+
     def boucle_sounds(self, arg):
         mixer.init()
         if arg == "move":
@@ -999,5 +1028,6 @@ class View:
         self.__screen.blit(self.__menu, (550, 350))
 
         pygame.display.flip()  # Mettre a jour l'affichage
+
 
 View()

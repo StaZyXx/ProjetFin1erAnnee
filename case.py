@@ -29,7 +29,14 @@ class Case:
         self.__player = player
 
     def has_player(self):
+        if self.__player is None:
+            return False
         return self.__player != 0
+
+    def check_has_player_without_same_player(self, player):
+        if self.has_player():
+            return self.__player.get_id() != player
+        return False
 
     def get_case_type(self) -> CaseType:
         return self.__case_type

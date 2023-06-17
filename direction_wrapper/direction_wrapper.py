@@ -12,14 +12,17 @@ class DirectionWrapper:
     def adapt_for_jump(self, x, y) -> (int, int):
         return 0, 0
 
-    def can_adapt_for_jump(self, x, y):
+    def can_adapt_for_jump(self, x, y, id):
         return False
 
-    def can_move(self, location: [int, int]) -> bool:
+    def can_move(self, location: [int, int], id) -> bool:
         return False
 
     def player_can_move(self, player):
-        return self.can_move(player.get_location())
+        return self.can_move(player.get_location(), player.get_id())
+
+    def player_can_jump(self, player):
+        return self.can_adapt_for_jump(player.get_location()[0], player.get_location()[1], player.get_id())
 
     def adapt_for_move(self, location: [int, int]) -> [int, int]:
         return

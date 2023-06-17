@@ -10,9 +10,6 @@ class DefaultDirection(DirectionWrapper):
     def adapt_for_jump(self, x, y) -> (int, int):
         return 0, 0
 
-    def can_adapt_for_jump(self, x, y):
-        return False
-
     def can_place_barrier(self, x, y, barrier_type: BarrierType) -> bool:
 
         if barrier_type == BarrierType.HORIZONTAL:
