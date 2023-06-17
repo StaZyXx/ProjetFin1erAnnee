@@ -160,18 +160,20 @@ class Game:
         return self.move_player_with_direction(direction)
 
     def move_player_with_direction(self, direction):
-        if self.check_winner() is not None:
-            self.stop_game()
-            return False
-
         dw = self.__direction_wrapper[direction]
         if dw.can_adapt_for_jump(self.__current_player.get_location()[0], self.__current_player.get_location()[1]):
             self.jump_player(self.__current_player, direction)
+            if self.check_winner() is not None:
+                self.stop_game()
+                return False
             self.switch_player()
             return True
 
         if dw.player_can_move(self.__current_player):
             dw.move(self.__current_player)
+            if self.check_winner() is not None:
+                self.stop_game()
+                return False
             self.switch_player()
             return True
         return False
@@ -302,6 +304,8 @@ class Game:
                 return False
 
     def check_winner(self):  # A tester
+        if not self.__is_started:
+            return None
         if self.check_win(self.get_player(1)):
             return self.get_player(1)
         if self.check_win(self.get_player(2)):
@@ -332,6 +336,8 @@ class Game:
             self.move_bot()
 
     def move_bot(self):
+        if not self.__is_started:
+            return
         list_slot_barrier = []
         if random.randint(0, 100) < 29:
             for i in range(len(self.get_cases())):
