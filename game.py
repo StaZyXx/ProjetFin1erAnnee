@@ -45,6 +45,8 @@ class Game:
     def start(self, size: int, players: int, amount_barrier, is_each_turn: bool):
         self.__is_each_turn = is_each_turn
         self.__board_size = size
+        self.__amount_players = players
+        self.__amount_barrier = amount_barrier
 
         self.create_board()
         self.place_player(players, amount_barrier, is_each_turn)
@@ -75,6 +77,7 @@ class Game:
         return self.__current_player
 
     def create_board(self):
+        self.__cases = []
         size = self.__board_size * 2 - 1
         y = 2
         z = 2
@@ -111,6 +114,12 @@ class Game:
         if direction.can_place_barrier(x, y, barrier_type):
             print("Barrier placed at " + str(x) + " " + str(y) + " " + str(barrier_type))
             direction.place_barrier(x, y, barrier_type)
+            if barrier_type == BarrierType.HORIZONTAL:
+                self.get_case(x, y).set_who_place_barrier(self.__current_player.get_id())
+                self.get_case(x, y + 2).set_who_place_barrier(self.__current_player.get_id())
+            else:
+                self.get_case(x, y).set_who_place_barrier(self.__current_player.get_id())
+                self.get_case(x + 2, y).set_who_place_barrier(self.__current_player.get_id())
             if not self.check_all_path():
                 print("Barrier removed at " + str(x) + " " + str(y) + " " + str(barrier_type))
                 if barrier_type == BarrierType.HORIZONTAL:
@@ -157,18 +166,20 @@ class Game:
         return self.move_player_with_direction(direction)
 
     def move_player_with_direction(self, direction):
-        if self.check_winner() is not None:
-            self.stop_game()
-            return False
-
         dw = self.__direction_wrapper[direction]
         if dw.can_adapt_for_jump(self.__current_player.get_location()[0], self.__current_player.get_location()[1]):
             self.jump_player(self.__current_player, direction)
+            if self.check_winner() is not None:
+                self.stop_game()
+                return False
             self.switch_player()
             return True
 
         if dw.player_can_move(self.__current_player):
             dw.move(self.__current_player)
+            if self.check_winner() is not None:
+                self.stop_game()
+                return False
             self.switch_player()
             return True
         return False
@@ -299,6 +310,8 @@ class Game:
                 return False
 
     def check_winner(self):  # A tester
+        if not self.__is_started:
+            return None
         if self.check_win(self.get_player(1)):
             return self.get_player(1)
         if self.check_win(self.get_player(2)):
@@ -329,6 +342,8 @@ class Game:
             self.move_bot()
 
     def move_bot(self):
+        if not self.__is_started:
+            return
         list_slot_barrier = []
         if random.randint(0, 100) < 29:
             for i in range(len(self.get_cases())):
@@ -360,6 +375,10 @@ class Game:
 
     def stop_game(self):
         self.__is_started = False
+        self.__player = []
+
+    def restart(self):
+        self.start(self.__board_size, self.__amount_players, self.__amount_barrier, self.__is_each_turn)
 
     def amount_barrier(self):
         return self.__amount[int(self.__board_size / 2 - 1)]

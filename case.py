@@ -20,6 +20,7 @@ class Case:
         self.__is_empty = True
         self.__player = 0
         self.__case_type: CaseType = case_type
+        self.__who_place_barrier = None
 
     def get_player(self):
         return self.__player
@@ -41,3 +42,9 @@ class Case:
 
     def get_barrier_type(self):
         return self.__barrier_type
+
+    def set_who_place_barrier(self, player):
+        self.__who_place_barrier = player
+
+    def get_who_place_barrier(self):
+        return self.__who_place_barrier
