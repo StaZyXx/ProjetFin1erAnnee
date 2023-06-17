@@ -45,6 +45,8 @@ class Game:
     def start(self, size: int, players: int, amount_barrier, is_each_turn: bool):
         self.__is_each_turn = is_each_turn
         self.__board_size = size
+        self.__amount_players = players
+        self.__amount_barrier = amount_barrier
 
         self.create_board()
         self.place_player(players, amount_barrier, is_each_turn)
@@ -75,6 +77,7 @@ class Game:
         return self.__current_player
 
     def create_board(self):
+        self.__cases = []
         size = self.__board_size * 2 - 1
         y = 2
         z = 2
@@ -360,6 +363,10 @@ class Game:
 
     def stop_game(self):
         self.__is_started = False
+        self.__player = []
+
+    def restart(self):
+        self.start(self.__board_size, self.__amount_players, self.__amount_barrier, self.__is_each_turn)
 
     def amount_barrier(self):
         return self.__amount[int(self.__board_size / 2 - 1)]

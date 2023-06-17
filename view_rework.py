@@ -951,7 +951,8 @@ class View:
                         self.boucle_home_page()
                         self.__running = False
                     elif self.__get_restart.collidepoint(self.__cursor_pos):
-                        self.boucle_param(self.__mode,self.__is_each_turn)
+                        self.__game.restart()
+                        self.boucle_game()
                         self.__running = False
 
     def page_finish_game(self):
