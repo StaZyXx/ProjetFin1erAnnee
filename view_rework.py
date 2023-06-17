@@ -10,6 +10,7 @@ from case import CaseType, BarrierType
 from game import Game
 from multiplayer import Multiplayer
 from network import Client
+import network
 
 
 class View:
@@ -378,7 +379,7 @@ class View:
                         self.players_requis = 2
                         self.__game = Multiplayer(True, 2)
                         self.__thread_add_player = threading.Thread(
-                            target=self.__game.wait_for_all_players)  # création du thread
+                            target=self.starting_thread_listening_for_clients)  # création du thread
                         self.__thread_add_player.start()  # lancement du thread
                         self.boucle_param("multiplayer", False)
                     elif self.__get_back.collidepoint(self.__cursor_pos):
@@ -387,9 +388,26 @@ class View:
                         self.players_requis = 4
                         self.__game = Multiplayer(True, 4)
                         self.__thread_add_player = threading.Thread(
-                            target=self.__game.wait_for_all_players)  # création du thread
+                            target=self.starting_thread_listening_for_clients)  # création du thread
                         self.__thread_add_player.start()  # lancement du thread
                         self.boucle_param("multiplayer", False)
+
+    def starting_thread_listening_for_clients(self):
+        print("je suis la")
+        self.__current_player_for_listen = 1
+        self.__game.wait_for_all_players()
+        self.__listen_player_1 = threading.Thread(
+            target=self.listen_new_player)
+        self.__listen_player_1.start()
+        self.__current_player_for_listen += 1
+        if self.players_requis == 4 :
+            self.__listen_player_2 = threading.Thread(
+                target=self.listen_new_player)
+            self.__listen_player_2.start()
+            self.__current_player_for_listen += 1
+            self.__listen_player_3 = threading.Thread(
+                target=self.listen_new_player)
+            self.__listen_player_3.start()
 
     def loop_game_type(self):
         self.choice_game_type()
@@ -557,19 +575,61 @@ class View:
             self.lobby()
 
     def listen_new_player(self):
+        num_client = 0
+        #self.afficher_popup()
+        if self.__game.is_server() :
+            num_client = self.__current_player_for_listen
+            client_list = {
+                1: self.__game.get_server().get_client1(),
+                2: self.__game.get_server().get_client2(),
+                3: self.__game.get_server().get_client3()
+            }
+        print(f"je suis le client {num_client}")
         dico = {"type": "None"}
-        while dico["type"] != "parameter":
-            dico = self.__game.get_client().receipt_message_client()
+        while self.__game.is_started():
+            if num_client == 0:
+                dico = self.__game.get_client().receipt_message_client()
+            else:
+                dico = network.receipt_message_client(client_list[num_client])
+
             if dico["type"] == "player":
                 print(f"Le player {dico['num_player']} à rejoins la partie")
                 self.player_acctu += 1
                 self.lobby()
-        self.__game.start(dico["size"], dico["nbr_joueur"], dico["nbr_barrier"], True)
-        self.if_play = False
-        self.__running = False
-        self.__mode = "game"
-        self.game_page()
-        self.__game.managements_sends()
+            elif dico["type"] == "parameter" :
+                self.__game.start(dico["size"], dico["nbr_joueur"], dico["nbr_barrier"], True)
+                self.if_play = False
+                self.__running = False
+                self.__mode = "game"
+                self.game_page()
+            else :
+                self.__game.action_player(dico)
+
+    def afficher_popup(self):
+        # Création de la surface pour le pop-up
+        popup_surface = pygame.Surface((300, 100))
+        popup_surface.fill(self.__WHITE)
+        popup_rect = popup_surface.get_rect()
+        popup_rect.center = (self.__size.index(0)//2, self.__size.index(1)//2)
+
+        # Affichage du texte sur le pop-up
+
+        texte_surface = self.__48_font.render("c'est pas bon", True, self.__BLACK)
+        texte_rect = texte_surface.get_rect()
+        texte_rect.center = popup_rect.center
+
+        # Boucle principale du pop-up
+        popup_ouvert = True
+        while popup_ouvert:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    popup_ouvert = False
+
+            # Affichage du pop-up
+            self.__screen.fill(self.__WHITE)
+            self.__screen.blit(popup_surface, popup_rect)
+            self.__screen.blit(texte_surface, texte_rect)
+            pygame.display.flip()
 
     def lobby(self):
         pygame.init()
@@ -986,6 +1046,7 @@ class View:
                 self.bucle_page_finish_game()
             for event in pygame.event.get():  # récupérer un event
                 if event.type == pygame.QUIT:  # Si l'event est du type fermer la fenetre
+
                     self.__running = False
                     pygame.quit()
             self.game_page()
