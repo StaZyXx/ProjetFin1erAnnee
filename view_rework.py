@@ -44,6 +44,7 @@ class View:
         self.gestion_loading_page()
 
     def gestion_loading_page(self):
+        self.__a_player_to_leave = True
         self.loading_page()
         time.sleep(0.5)
         self.boucle_home_page()
@@ -67,6 +68,7 @@ class View:
         pygame.display.flip()  # Mettre a jour l'affichage
 
     def boucle_home_page(self):
+        print("je suis dans la boucle")
         self.home_page()
         self.__running = True
         # Boucle du jeu
@@ -116,12 +118,17 @@ class View:
         self.__leave = self.__64_font.render('Quitter', False, (self.__WHITE))
         self.__get_leave = self.__leave.get_rect()
         self.__get_leave.topleft = (700, 610)
-
         self.__screen.blit(self.__blue_image, (0, 0))
         self.__screen.blit(self.__quorridor, (590, 125))
         self.__screen.blit(self.__solo, (730, 315))
         self.__screen.blit(self.__multiplayer, (660, 460))
         self.__screen.blit(self.__leave, (700, 610))
+
+        if self.__a_player_to_leave :
+            self.__a_player_to_leave = False
+            self.__player_have_leave = self.__64_font.render("L'hébergeur a quitté la partie", False, (self.__RED))
+            self.__screen.blit(self.__player_have_leave, (480, 700))
+
 
         pygame.display.flip()  # Mettre a jour l'affichage
 
@@ -145,6 +152,7 @@ class View:
                     if self.__get_back.collidepoint(self.__cursor_pos):
                         if mode == "multiplayer":
                             self.__game.get_server().close_socket()
+                        self.__running = False
                         self.boucle_home_page()
                     if mode != "multiplayer":
                         if self.__get_nbr_player2.collidepoint(self.__cursor_pos):
@@ -378,6 +386,7 @@ class View:
                     if self.__get_2players.collidepoint(self.__cursor_pos):
                         self.players_requis = 2
                         self.__game = Multiplayer(True, 2)
+                        self.__first_game_or_not = 1
                         self.__thread_add_player = threading.Thread(
                             target=self.starting_thread_listening_for_clients)  # création du thread
                         self.__thread_add_player.start()  # lancement du thread
@@ -387,6 +396,7 @@ class View:
                     elif self.__get_4players.collidepoint(self.__cursor_pos):
                         self.players_requis = 4
                         self.__game = Multiplayer(True, 4)
+                        self.__first_game_or_not = 1
                         self.__thread_add_player = threading.Thread(
                             target=self.starting_thread_listening_for_clients)  # création du thread
                         self.__thread_add_player.start()  # lancement du thread
@@ -395,7 +405,9 @@ class View:
     def starting_thread_listening_for_clients(self):
         print("je suis la")
         self.__current_player_for_listen = 1
-        self.__game.wait_for_all_players()
+        if self.__first_game_or_not == 1:
+            self.__game.wait_for_all_players()
+            self.__first_game_or_not += 1
         self.__listen_player_1 = threading.Thread(
             target=self.listen_new_player)
         self.__listen_player_1.start()
@@ -591,45 +603,29 @@ class View:
                 dico = self.__game.get_client().receipt_message_client()
             else:
                 dico = network.receipt_message_client(client_list[num_client])
-
+            print(dico)
             if dico["type"] == "player":
                 print(f"Le player {dico['num_player']} à rejoins la partie")
                 self.player_acctu += 1
                 self.lobby()
             elif dico["type"] == "parameter" :
+                self.__board_size = dico["size"]
                 self.__game.start(dico["size"], dico["nbr_joueur"], dico["nbr_barrier"], True)
                 self.if_play = False
                 self.__running = False
                 self.__mode = "game"
                 self.game_page()
+            elif dico["type"] == "logout" :
+                if self.__game.is_server():
+                    print("un player a deco")
+                else :
+                    self.__a_player_to_leave = True
+                    self.__game.stop_game()
+                    self.__game.get_client().close_socket()
+
             else :
                 self.__game.action_player(dico)
-
-    def afficher_popup(self):
-        # Création de la surface pour le pop-up
-        popup_surface = pygame.Surface((300, 100))
-        popup_surface.fill(self.__WHITE)
-        popup_rect = popup_surface.get_rect()
-        popup_rect.center = (self.__size.index(0)//2, self.__size.index(1)//2)
-
-        # Affichage du texte sur le pop-up
-
-        texte_surface = self.__48_font.render("c'est pas bon", True, self.__BLACK)
-        texte_rect = texte_surface.get_rect()
-        texte_rect.center = popup_rect.center
-
-        # Boucle principale du pop-up
-        popup_ouvert = True
-        while popup_ouvert:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    popup_ouvert = False
-
-            # Affichage du pop-up
-            self.__screen.fill(self.__WHITE)
-            self.__screen.blit(popup_surface, popup_rect)
-            self.__screen.blit(texte_surface, texte_rect)
-            pygame.display.flip()
+        self.__mode = "multiplayer"
 
     def lobby(self):
         pygame.init()
@@ -735,6 +731,7 @@ class View:
     def game_page(self):
         if not self.__game.is_started():
             return
+        self.boucle_sounds("music")
         pygame.init()
         self.__is_update = True
         cases_items = {}
@@ -1006,23 +1003,37 @@ class View:
             mixer.music.load("./songs/move_player.wav")
         elif arg == "place":
             mixer.music.load("./songs/place_barrier.wav")
+        elif arg == "music":
+            mixer.music.load("./songs/jazz.wav")
+            mixer.music.set_volume(1)
         mixer.music.play()
+        mixer.music.stop()
+
 
     def boucle_game(self):
+        self.__a_player_to_leave = False
         self.__running = True
         pygame.display.update()
         while self.__running:
             if not self.__game.is_started():
                 self.__game.change_is_started()
                 self.bucle_page_finish_game()
+                return
             for event in pygame.event.get():  # récupérer un event
                 if event.type == pygame.QUIT:  # Si l'event est du type fermer la fenetre
-
+                    dico = {"type":"logout"}
+                    if self.__game.is_server():
+                        self.__game.get_server().send_message_server_all_client(dico, None)
+                    else:
+                        self.__game.get_client().send_message_client(dico)
                     self.__running = False
                     pygame.quit()
             self.game_page()
 
     def bucle_page_finish_game(self):
+        if self.__a_player_to_leave:
+            self.boucle_home_page()
+            return
         self.page_finish_game()
         self.__running = True
         # Boucle du jeu
@@ -1037,6 +1048,18 @@ class View:
                         self.boucle_home_page()
                         self.__running = False
                     elif self.__get_restart.collidepoint(self.__cursor_pos):
+                        print("je suis bien dans restart")
+                        print(f"mode = {self.__mode}")
+                        if self.__mode == "multiplayer" or self.__mode == "game":
+                            print("dans multi")
+                            self.__game.reset_current_player_for_sends_and_receive()
+                            if self.__game.is_server():
+                                self.starting_thread_listening_for_clients()
+                            else :
+                                self.__thread_listen_player = threading.Thread(
+                                    target=self.listen_new_player)  # création du thread
+                                self.__thread_listen_player.start()
+
                         self.__game.restart()
                         self.boucle_game()
                         self.__running = False
@@ -1047,9 +1070,10 @@ class View:
 
         pygame.draw.rect(self.__blue_image5, self.__BLUE, (460, 100, 650, 500))
 
-        self.__restart = self.__96_font.render("Recommencer", False, (self.__WHITE))
-        self.__get_restart = self.__restart.get_rect()
-        self.__get_restart.topleft = (550, 250)
+        if not self.__a_player_to_leave :
+            self.__restart = self.__96_font.render("Recommencer", False, (self.__WHITE))
+            self.__get_restart = self.__restart.get_rect()
+            self.__get_restart.topleft = (550, 250)
 
         self.__menu = self.__96_font.render("Menu principal", False, (self.__WHITE))
         self.__get_menu = self.__menu.get_rect()

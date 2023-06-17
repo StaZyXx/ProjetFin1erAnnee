@@ -39,6 +39,9 @@ class Client:
         data = data.decode("utf8")
         return data
 
+    def close_socket(self):
+        self.__socket.close()
+
 
 def receipt_message_client(recipient):
     data = b''

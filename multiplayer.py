@@ -81,8 +81,10 @@ class Multiplayer(Game):
         if (self.__is_server and self.__current_player_for_sends_and_receive == 0) or (
                 not self.__is_server and self.__current_player_for_sends_and_receive == self.__client.get_me_player()):
             result = super().move_player_with_direction(direction)
+            print(result)
             dico = {"type": "move", "direction": direction}
-            if result == 1:
+            if result == 1 or result == 0:
+
                 if self.__is_server:
                     self.__server.send_message_server_all_client(dico, None)
                 else:
@@ -99,17 +101,10 @@ class Multiplayer(Game):
 
         print(f"c'est au joueur {self.__current_player_for_sends_and_receive} !")
 
-    def managements_sends(self):
-        if (not self.__is_server or self.__current_player_for_sends_and_receive != 0) and (
-                self.__is_server or self.__current_player_for_sends_and_receive != self.__client.get_me_player()):
-            thread = threading.Thread(target=self.receive_movement)  # création du thread
-            thread.start()
+    def reset_current_player_for_sends_and_receive(self):
+        print("reset reset_current_player_for_sends_and_receive")
+        self.__current_player_for_sends_and_receive = 0
 
-    def receive_movement(self):
-        if self.__is_server:
-            self.receive_move_player_with_direction_server()
-        else:
-            self.receive_move_player_with_direction_client()
 
     def wait_for_all_players(self):
         self.__server.add_all_player(self.__nbr_player)

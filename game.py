@@ -1,5 +1,6 @@
 import random
 import threading
+import time
 from typing import List
 
 from case import Case, CaseType, BarrierType
@@ -59,6 +60,11 @@ class Game:
 
     def change_is_started(self):
         self.__is_started = True
+
+    def change_is_started_for_false(self):
+        self.__is_started = False
+
+
 
     def set_started(self, is_started: bool):
         self.__is_started = is_started
@@ -378,6 +384,7 @@ class Game:
         self.__player = []
 
     def restart(self):
+        self.__is_started = True
         self.start(self.__board_size, self.__amount_players, self.__amount_barrier, self.__is_each_turn)
 
     def amount_barrier(self):
