@@ -95,7 +95,7 @@ class Multiplayer(Game):
         else:
             self.__current_player_for_sends_and_receive = 0
 
-        self.managements_sends()
+        #self.managements_sends()
 
         print(f"c'est au joueur {self.__current_player_for_sends_and_receive} !")
 

@@ -95,6 +95,7 @@ class Server:
             self.__player_had_join += 1
             self.listen(self.__player_had_join)
             print("le client 3 est la")
+            self.__player_had_join += 1
         print("le jeu est pret")
         return "ok"
 
@@ -138,3 +139,5 @@ class Server:
             if self.__client3 is not None:
                 self.__client3.send(message.encode())
                 print("j'ai envoyé au 3")
+
+
