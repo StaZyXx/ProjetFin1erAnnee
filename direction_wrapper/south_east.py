@@ -10,28 +10,34 @@ class SouthEast(DirectionWrapper):
     def adapt_for_jump(self, x, y) -> (int, int):
         return 0, 0
 
-    def can_move(self, location: [int, int]) -> bool:
+    def can_move(self, location: [int, int], id) -> bool:
         if not self.get_game().has_case(location[0] + 2, location[1] + 2) or \
-                self.get_game().get_case(location[0] + 2, location[1] + 2).has_player():
+                self.get_game().get_case(location[0] + 2, location[1] + 2).check_has_player_without_same_player(id):
             return False
-
         # CHECK x +2
         if self.get_game().has_case(location[0], location[1] + 2) and \
-                self.get_game().get_case(location[0], location[1] + 2).has_player() and \
+                self.get_game().get_case(location[0], location[1] + 2).check_has_player_without_same_player(id) and \
                 self.get_game().has_case(location[0], location[1] + 3) and \
                 self.get_game().get_case(location[0], location[1] + 3).get_case_type() == CaseType.BARRIER and \
                 self.get_game().get_case(location[0], location[1] + 1).get_case_type() != CaseType.BARRIER and \
                 self.get_game().get_case(location[0] + 1, location[1] + 2).get_barrier_type() != CaseType.BARRIER:
+
+            print(self.get_game().get_case(location[0], location[1] + 2).get_player().get_id())
+            print(id)
+            print("can move fdp 5")
             return True
 
         # CHECK y +2
-        return self.get_game().has_case(location[0] + 2, location[1]) and \
-            self.get_game().get_case(location[0] + 2, location[1]).has_player() \
-            and self.get_game().has_case(location[0] + 3, location[1]) \
-            and self.get_game().get_case(location[0] + 3, location[1]) \
+        if self.get_game().has_case(location[0] + 2, location[1]) and \
+                self.get_game().get_case(location[0] + 2, location[1]).check_has_player_without_same_player(id) \
+                and self.get_game().has_case(location[0] + 3, location[1]) \
+                and self.get_game().get_case(location[0] + 3, location[1]) \
                 .get_case_type() == CaseType.BARRIER and \
-            self.get_game().get_case(location[0] + 1, location[1]).get_case_type() != CaseType.BARRIER and \
-            self.get_game().get_case(location[0] + 2, location[1] + 1).get_barrier_type() != CaseType.BARRIER
+                self.get_game().get_case(location[0] + 1, location[1]).get_case_type() != CaseType.BARRIER and \
+                self.get_game().get_case(location[0] + 2, location[1] + 1).get_barrier_type() != CaseType.BARRIER:
+            print("can move fdp 6")
+            return True
+        return False
 
     def adapt_for_move(self, location: [int, int]) -> [int, int]:
         return location[0] + 2, location[1] + 2
@@ -41,6 +47,3 @@ class SouthEast(DirectionWrapper):
         self.get_game().get_case(x + 2, y + 2).set_player(player)
         player.set_location(x + 2, y + 2)
         self.get_game().get_case(x, y).set_player(0)
-
-    def can_adapt_for_jump(self, x, y):
-        return False

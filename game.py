@@ -128,18 +128,19 @@ class Game:
                 self.get_case(x + 2, y).set_who_place_barrier(self.__current_player.get_id())
             if not self.check_all_path():
                 print("Barrier removed at " + str(x) + " " + str(y) + " " + str(barrier_type))
-                if barrier_type == BarrierType.HORIZONTAL:
-                    self.get_case(x, y).set_case_type(CaseType.SLOT_BARRIER_HORIZONTAL)
-                    self.get_case(x, y + 2).set_case_type(CaseType.SLOT_BARRIER_HORIZONTAL)
-                else:
-                    self.get_case(x, y).set_case_type(CaseType.SLOT_BARRIER_VERTICAL)
-                    self.get_case(x + 2, y).set_case_type(CaseType.SLOT_BARRIER_VERTICAL)
+                self.remove_barrier(x, y, barrier_type)
                 return False
         else:
             return False
-        self.__current_player.decrease_amount_barrier()
         return True
 
+    def remove_barrier(self, x, y, barrier_type):
+        if barrier_type == BarrierType.HORIZONTAL:
+            self.get_case(x, y).set_case_type(CaseType.SLOT_BARRIER_HORIZONTAL)
+            self.get_case(x, y + 2).set_case_type(CaseType.SLOT_BARRIER_HORIZONTAL)
+        else:
+            self.get_case(x, y).set_case_type(CaseType.SLOT_BARRIER_VERTICAL)
+            self.get_case(x + 2, y).set_case_type(CaseType.SLOT_BARRIER_VERTICAL)
     def determine_direction(self, y, x):
         playerY, playerX = self.__current_player.get_location()
 
@@ -173,7 +174,7 @@ class Game:
 
     def move_player_with_direction(self, direction):
         dw = self.__direction_wrapper[direction]
-        if dw.can_adapt_for_jump(self.__current_player.get_location()[0], self.__current_player.get_location()[1]):
+        if dw.player_can_jump(self.__current_player):
             self.jump_player(self.__current_player, direction)
             if self.check_winner() is not None:
                 self.stop_game()
@@ -196,8 +197,7 @@ class Game:
             location = None
             if self.__direction_wrapper[direction].player_can_move(self.__current_player):
                 location = self.__direction_wrapper[direction].adapt_for_move(self.__current_player.get_location())
-            elif self.__direction_wrapper[direction].can_adapt_for_jump(self.__current_player.get_location()[0],
-                                                                        self.__current_player.get_location()[1]):
+            elif self.__direction_wrapper[direction].player_can_jump(self.__current_player):
                 location = self.__direction_wrapper[direction].adapt_for_jump(self.__current_player.get_location()[0],
                                                                               self.__current_player.get_location()[1])
             if location is not None:
@@ -250,12 +250,15 @@ class Game:
             self.get_case(self.__board_size - 1, self.__board_size * 2 - 2).set_player(player4)
 
     def check_all_path(self):
-
         has_win = [False] * len(self.__player)
 
-        for index, player in enumerate(self.__player):
-            self.check_path(player, has_win, index)
+        print(has_win)
 
+
+        for i in range(len(self.__player)):
+            self.check_path(self.__player[i], has_win, i)
+
+        print(has_win)
         for win in has_win:
             if not win:
                 return False
@@ -263,6 +266,7 @@ class Game:
 
     def check_path(self, player: Player, has_win, index):
         currentLocation = player.get_location()
+        print("currentLocation", currentLocation)
         locations_to_explore = [currentLocation]  # Liste des positions à explorer
         explored_locations = set()  # Ensemble des positions explorées
 
@@ -270,12 +274,11 @@ class Game:
             new_locations = []  # Liste temporaire pour stocker les nouvelles positions à explorer
             for location in locations_to_explore:
                 for direction in Direction:
-                    x, y = self.get_relative_location(location, direction)
+                    x, y = self.get_relative_location(location, player.get_id(), direction)
 
                     if x == -1 or y == -1:
                         continue
 
-                    print("check", index, player.get_id(), [x, y])
                     if self.check_win_with_location(player, [x, y]):
                         # Un chemin a été trouvé pour ce joueur
 
@@ -289,9 +292,13 @@ class Game:
 
             locations_to_explore = new_locations
 
-    def get_relative_location(self, location: [int, int], direction: Direction):
-        if self.__direction_wrapper[direction].can_move(location):
+    def get_relative_location(self, location: [int, int], id, direction: Direction):
+        if self.__direction_wrapper[direction].can_move(location, id):
             return self.__direction_wrapper[direction].adapt_for_move(location)
+        elif self.__direction_wrapper[direction].can_adapt_for_jump(self.__current_player.get_location()[0],
+                                                                 self.__current_player.get_location()[1], id):
+            return self.__direction_wrapper[direction].adapt_for_jump(self.__current_player.get_location()[0],
+                                                                          self.__current_player.get_location()[1])
         else:
             return -1, -1
 
