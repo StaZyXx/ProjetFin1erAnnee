@@ -682,7 +682,7 @@ class View:
         self.__current_player = self.__game.get_current_player().get_id()
         colors = {
             1: self.__RED,
-            2: self.__BLUE,
+            2: self.__BLUE_BORDER,
             3: self.__YELLOW,
             4: self.__GREEN
         }
@@ -750,12 +750,12 @@ class View:
                     elif case.get_case_type() == CaseType.BARRIER:
                         if case.get_barrier_type() == BarrierType.HORIZONTAL:
                             rect = utils.HashableRect(
-                                pygame.draw.rect(self.__blue_image4, self.__RED,
+                                pygame.draw.rect(self.__blue_image4, colors[case.get_who_place_barrier()],
                                                  (separator + i * 28, separator + j * 28 + 20, 48, 10)))
 
                         elif case.get_barrier_type() == BarrierType.VERTICAL:
                             rect = utils.HashableRect(
-                                pygame.draw.rect(self.__blue_image4, self.__RED,
+                                pygame.draw.rect(self.__blue_image4, colors[case.get_who_place_barrier()],
                                                  (separator + i * 28 + 20, separator + j * 28, 10, 48)))
 
                     cases_items.update({rect: (j, i)})

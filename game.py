@@ -114,6 +114,12 @@ class Game:
         if direction.can_place_barrier(x, y, barrier_type):
             print("Barrier placed at " + str(x) + " " + str(y) + " " + str(barrier_type))
             direction.place_barrier(x, y, barrier_type)
+            if barrier_type == BarrierType.HORIZONTAL:
+                self.get_case(x, y).set_who_place_barrier(self.__current_player.get_id())
+                self.get_case(x, y + 2).set_who_place_barrier(self.__current_player.get_id())
+            else:
+                self.get_case(x, y).set_who_place_barrier(self.__current_player.get_id())
+                self.get_case(x + 2, y).set_who_place_barrier(self.__current_player.get_id())
             if not self.check_all_path():
                 print("Barrier removed at " + str(x) + " " + str(y) + " " + str(barrier_type))
                 if barrier_type == BarrierType.HORIZONTAL:
