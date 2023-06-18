@@ -41,6 +41,8 @@ class View:
 
         self.__game = None
 
+        mixer.init()
+
         self.gestion_loading_page()
 
     def gestion_loading_page(self):
@@ -731,7 +733,7 @@ class View:
     def game_page(self):
         if not self.__game.is_started():
             return
-        self.boucle_sounds("music")
+
         pygame.init()
         self.__is_update = True
         cases_items = {}
@@ -1027,22 +1029,20 @@ class View:
         pygame.display.flip()
 
     def boucle_sounds(self, arg):
-        mixer.init()
         if arg == "move":
             mixer.music.load("./songs/move_player.wav")
         elif arg == "place":
             mixer.music.load("./songs/place_barrier.wav")
-        elif arg == "music":
-            mixer.music.load("./songs/jazz.wav")
-            mixer.music.set_volume(1)
+
         mixer.music.play()
-        mixer.music.stop()
 
 
     def boucle_game(self):
         self.__a_player_to_leave = False
         self.__running = True
         pygame.display.update()
+        threading.Thread(target=self.play_music).start()
+
         while self.__running:
             if not self.__game.is_started():
                 self.__game.change_is_started()
@@ -1058,6 +1058,14 @@ class View:
                     self.__running = False
                     pygame.quit()
             self.game_page()
+
+    def play_music(self):
+        while self.__game.is_started:
+            mixer.music.load("./songs/jazz.wav")
+            mixer.music.set_volume(1)
+            mixer.music.play()
+
+            time.sleep(30)
 
     def bucle_page_finish_game(self):
         if self.__a_player_to_leave:
