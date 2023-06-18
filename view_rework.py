@@ -1082,7 +1082,7 @@ class View:
                                 self.send_leave()
                         finally:
                             self.__running = False
-                            pygame.quit()
+                    pygame.quit()
                     self.stop_music()
                     self.__running = False
                     pygame.quit()
@@ -1169,10 +1169,17 @@ class View:
         while self.__running:
             pygame.time.Clock().tick(60)
             for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    self.stop_music()
-                    self.__running = False
-                    pygame.quit()
+                if event.type == pygame.QUIT:  # Si l'event est du type fermer la fenetre
+                    if type(self.__game) == Multiplayer:
+                        try:
+                            if self.__mode == "multiplayer" or self.__mode == "game":
+                                self.send_leave()
+                        finally:
+                            self.__running = False
+                            pygame.quit()
+                    else :
+                        self.__running = False
+                        pygame.quit()
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     self.__cursor_pos = pygame.mouse.get_pos()
                     if self.__get_menu.collidepoint(self.__cursor_pos):
@@ -1190,9 +1197,10 @@ class View:
                     elif self.__get_restart.collidepoint(self.__cursor_pos):
                         has_leave = False
                         if self.__mode == "multiplayer" or self.__mode == "game":
-                            if not self.__player_leave:
-                                if type(self.__game) == Multiplayer:
+                            if type(self.__game) == Multiplayer:
+                                if not self.__player_leave:
                                     self.__game.reset_current_player_for_sends_and_receive()
+                                else :
                                     has_leave = True
                         if not has_leave:
                             self.stop_music()
