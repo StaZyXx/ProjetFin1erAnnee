@@ -1,3 +1,3 @@
-from view_rework import View
+from view import View
 
 View()
