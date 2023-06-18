@@ -35,7 +35,7 @@ class View:
         self.__screen = pygame.display.set_mode((1500, 850))  # Définit la taille de la fenetre
         self.__background = pygame.image.load("./assets/background.jpg").convert()  # Charge l'image
 
-        pygame.mixer.set_num_channels(3)
+        pygame.mixer.set_num_channels(6)
 
         # Création des tailles de polices
         self.__96_font = pygame.font.SysFont('./fonts/Carme.ttf', 96, bold=False)
