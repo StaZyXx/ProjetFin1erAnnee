@@ -26,6 +26,10 @@ class View:
         self.__GREEN = (0, 255, 0)
         self.__BLUE_BORDER = (0, 47, 213)
 
+
+        self.__is_mute = False
+
+
         pygame.init()
         pygame.display.set_caption("Quorridor")  # Nom de la fenêtre
         self.__screen = pygame.display.set_mode((1500, 850))  # Définit la taille de la fenetre
@@ -864,6 +868,12 @@ class View:
         for event in pygame.event.get():
 
             if event.type == pygame.MOUSEBUTTONDOWN or event.type == pygame.MOUSEBUTTONUP:
+                if self.__img1_pos.collidepoint(event.pos):
+                    self.__is_mute = not self.__is_mute
+                    if self.__is_mute:
+                        self.stop_music()
+                    else:
+                        self.play_music()
                 for rect, (i, j) in cases_items.items():
                     if rect is not None and rect.collidepoint(event.pos):
                         case = self.__game.get_case(i, j)
@@ -912,6 +922,32 @@ class View:
         self.__blue_barrier = pygame.transform.scale(self.__blue_barrier, (75, 64))
         self.__yellow_barrier = pygame.transform.scale(self.__yellow_barrier, (75, 64))
         self.__green_barrier = pygame.transform.scale(self.__green_barrier, (75, 64))
+
+        if self.__is_mute:
+            self.__image1 = pygame.image.load("./assets/image1.png").convert_alpha()
+            self.__image1 = pygame.transform.scale(self.__image1, (75, 64))
+            self.__img1_pos = self.__image1.get_rect()
+            self.__img1_pos.topleft = (1400, 25)
+            if self.__img1_pos.collidepoint(pygame.mouse.get_pos()):
+
+                self.__image1 = pygame.image.load("./assets/image.png").convert_alpha()
+                self.__image1 = pygame.transform.scale(self.__image1, (75, 64))
+                self.__screen.blit(self.__image1, (1400, 25))
+            else:
+                self.__screen.blit(self.__image1, (1400, 25))
+        else:
+            self.__image1 = pygame.image.load("./assets/image3.png").convert_alpha()
+            self.__image1 = pygame.transform.scale(self.__image1, (75, 64))
+            self.__img1_pos = self.__image1.get_rect()
+            self.__img1_pos.topleft = (1400, 25)
+            if self.__img1_pos.collidepoint(pygame.mouse.get_pos()):
+
+                self.__image1 = pygame.image.load("./assets/image2.png").convert_alpha()
+                self.__image1 = pygame.transform.scale(self.__image1, (75, 64))
+                self.__screen.blit(self.__image1, (1400, 25))
+            else:
+                self.__screen.blit(self.__image1, (1400, 25))
+
         if not self.__game.is_started():
             return
         if type(self.__game) == Multiplayer:
@@ -1044,6 +1080,8 @@ class View:
         pygame.display.flip()
 
     def boucle_sounds(self, arg):
+        if self.__is_mute:
+            return
         if arg == "move":
             music = pygame.mixer.Sound("./songs/move_player.wav")
             pygame.mixer.find_channel().play(music)
@@ -1052,7 +1090,6 @@ class View:
             pygame.mixer.find_channel().play(music)
 
     def boucle_game(self):
-
         self.__a_player_to_leave = False
         self.__running = True
         pygame.display.update()
@@ -1071,16 +1108,19 @@ class View:
                             self.__game.get_server().send_message_server_all_client(dico, None)
                         else:
                             self.__game.get_client().send_message_client(dico)
-                    pygame.mixer.music.stop()
+                    self.stop_music()
                     self.__running = False
                     pygame.quit()
             self.game_page()
 
     def play_music(self):
         music = pygame.mixer.Sound("./songs/jazz.wav")
-        channel = pygame.mixer.find_channel()
-        channel.set_volume(0.5)
-        channel.play(music, loops=10)
+        self.__channel_music = pygame.mixer.find_channel()
+        self.__channel_music.set_volume(0.5)
+        self.__channel_music.play(music, loops=120)
+
+    def stop_music(self):
+        self.__channel_music.stop()
 
     def bucle_page_finish_game(self):
         if self.__a_player_to_leave:
@@ -1093,6 +1133,7 @@ class View:
             pygame.time.Clock().tick(60)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
+                    self.stop_music()
                     self.__running = False
                     pygame.quit()
                 if event.type == pygame.MOUSEBUTTONDOWN:
@@ -1104,15 +1145,17 @@ class View:
                         print("je suis bien dans restart")
                         print(f"mode = {self.__mode}")
                         if self.__mode == "multiplayer" or self.__mode == "game":
-                            print("dans multi")
-                            self.__game.reset_current_player_for_sends_and_receive()
-                            if self.__game.is_server():
-                                self.starting_thread_listening_for_clients()
-                            else:
-                                self.__thread_listen_player = threading.Thread(
-                                    target=self.listen_new_player)  # création du thread
-                                self.__thread_listen_player.start()
+                            if type(self.__game) == Multiplayer:
+                                print("dans multi")
+                                self.__game.reset_current_player_for_sends_and_receive()
+                                if self.__game.is_server():
+                                    self.starting_thread_listening_for_clients()
+                                else:
+                                    self.__thread_listen_player = threading.Thread(
+                                        target=self.listen_new_player)  # création du thread
+                                    self.__thread_listen_player.start()
 
+                        self.stop_music()
                         self.__game.restart()
                         self.boucle_game()
                         self.__running = False
