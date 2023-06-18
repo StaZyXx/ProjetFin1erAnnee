@@ -1,6 +1,4 @@
 import random
-import threading
-import time
 from typing import List
 
 from case import Case, CaseType, BarrierType
@@ -43,6 +41,8 @@ class Game:
             11: 24,
         }
 
+        self.__winner = None
+
     def start(self, size: int, players: int, amount_barrier, is_each_turn: bool):
         self.__is_each_turn = is_each_turn
         self.__board_size = size
@@ -52,6 +52,7 @@ class Game:
         self.create_board()
         self.place_player(players, amount_barrier, is_each_turn)
         self.__is_started = True
+
     def get_is_each_turn(self):
         return self.__is_each_turn
 
@@ -64,8 +65,6 @@ class Game:
     def change_is_started_for_false(self):
         self.__is_started = False
 
-
-
     def set_started(self, is_started: bool):
         self.__is_started = is_started
 
@@ -74,13 +73,18 @@ class Game:
 
     def get_case(self, x, y) -> Case:
         return self.__cases[x][y]
+
     def get_players(self):
         return self.__player
+
     def get_player(self, index: int) -> Player:
         return self.__player[index - 1]
 
     def get_current_player(self):
         return self.__current_player
+
+    def get_winner(self):
+        return self.__winner
 
     def create_board(self):
         self.__cases = []
@@ -118,7 +122,6 @@ class Game:
             return False
         direction = self.__direction_wrapper[Direction.DEFAULT]
         if direction.can_place_barrier(x, y, barrier_type):
-            print("Barrier placed at " + str(x) + " " + str(y) + " " + str(barrier_type))
             direction.place_barrier(x, y, barrier_type)
             if barrier_type == BarrierType.HORIZONTAL:
                 self.get_case(x, y).set_who_place_barrier(self.__current_player.get_id())
@@ -127,7 +130,6 @@ class Game:
                 self.get_case(x, y).set_who_place_barrier(self.__current_player.get_id())
                 self.get_case(x + 2, y).set_who_place_barrier(self.__current_player.get_id())
             if not self.check_all_path():
-                print("Barrier removed at " + str(x) + " " + str(y) + " " + str(barrier_type))
                 self.remove_barrier(x, y, barrier_type)
                 return False
         else:
@@ -141,6 +143,7 @@ class Game:
         else:
             self.get_case(x, y).set_case_type(CaseType.SLOT_BARRIER_VERTICAL)
             self.get_case(x + 2, y).set_case_type(CaseType.SLOT_BARRIER_VERTICAL)
+
     def determine_direction(self, y, x):
         playerY, playerX = self.__current_player.get_location()
 
@@ -176,7 +179,9 @@ class Game:
         dw = self.__direction_wrapper[direction]
         if dw.player_can_jump(self.__current_player):
             self.jump_player(self.__current_player, direction)
-            if self.check_winner() is not None:
+            winner = self.check_winner()
+            if winner  is not None:
+                self.__winner = winner
                 self.stop_game()
                 return False
             self.switch_player()
@@ -184,7 +189,9 @@ class Game:
 
         if dw.player_can_move(self.__current_player):
             dw.move(self.__current_player)
+            winner = self.check_winner()
             if self.check_winner() is not None:
+                self.__winner = winner
                 self.stop_game()
                 return False
             self.switch_player()
@@ -216,7 +223,8 @@ class Game:
                 return True
         return False
 
-    def place_player(self, amount: int, amount_barrier, is_each_turn):  # A vérifier que les pions tombent bien au millieu du plateau
+    def place_player(self, amount: int, amount_barrier,
+                     is_each_turn):  # A vérifier que les pions tombent bien au millieu du plateau
         player1 = Player(1)
         player1.set_amount_barrier(amount_barrier / amount)
         player2 = Player(2)
@@ -252,13 +260,9 @@ class Game:
     def check_all_path(self):
         has_win = [False] * len(self.__player)
 
-        print(has_win)
-
-
         for i in range(len(self.__player)):
             self.check_path(self.__player[i], has_win, i)
 
-        print(has_win)
         for win in has_win:
             if not win:
                 return False
@@ -266,7 +270,6 @@ class Game:
 
     def check_path(self, player: Player, has_win, index):
         currentLocation = player.get_location()
-        print("currentLocation", currentLocation)
         locations_to_explore = [currentLocation]  # Liste des positions à explorer
         explored_locations = set()  # Ensemble des positions explorées
 
@@ -392,35 +395,32 @@ class Game:
                         return
                     direction = random.randint(0, len(self.__direction_wrapper) - 1)
                     is_moving = self.move_player_with_direction(list(self.__direction_wrapper.keys())[direction])
+
     def move_intelligent(self):
         can_move = True
         x, y = self.get_current_player().get_location()
         if self.get_current_player().get_id() == 2:
-            for i in range (x+1, self.__board_size * 2, 2):
+            for i in range(x + 1, self.__board_size * 2, 2):
                 if self.has_case(i, y) and self.get_case(i, y).get_case_type() == CaseType.BARRIER:
                     can_move = False
             if can_move:
                 self.move_player_with_direction(Direction.SOUTH)
 
         if self.get_current_player().get_id() == 3:
-            for i in range (y+1, self.__board_size * 2, 2):
+            for i in range(y + 1, self.__board_size * 2, 2):
                 if self.has_case(x, i) and self.get_case(x, i).get_case_type() == CaseType.BARRIER:
                     can_move = False
             if can_move:
                 self.move_player_with_direction(Direction.EAST)
 
         if self.get_current_player().get_id() == 4:
-            for i in range (y-1, 1, -2):
+            for i in range(y - 1, 1, -2):
                 if self.has_case(x, i) and self.get_case(x, i).get_case_type() == CaseType.BARRIER:
                     can_move = False
             if can_move:
                 self.move_player_with_direction(Direction.WEST)
 
         return can_move
-
-
-
-
 
     def place_intelligent_barrier(self):
         if self.__current_player.get_id() == 2:
@@ -450,7 +450,6 @@ class Game:
                 return True
             elif self.place_barrier(x + 1, y, BarrierType.HORIZONTAL):
                 return True
-
 
     def stop_game(self):
         self.__is_started = False

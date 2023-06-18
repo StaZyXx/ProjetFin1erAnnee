@@ -14,7 +14,8 @@ class East(DirectionWrapper):
         x, y = location
         if self.get_game().has_case(x, y + 2):
 
-            if self.get_game().has_case(x, y + 1) and self.get_game().get_case(x, y + 1).get_case_type() == CaseType.BARRIER:
+            if self.get_game().has_case(x, y + 1) and self.get_game().get_case(x,
+                                                                               y + 1).get_case_type() == CaseType.BARRIER:
                 return False
             return self.get_game().get_case(x, y + 2).get_case_type() == CaseType.DEFAULT and not \
                 self.get_game().get_case(x, y + 2).check_has_player_without_same_player(id)

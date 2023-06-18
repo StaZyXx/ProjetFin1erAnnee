@@ -13,11 +13,13 @@ class DefaultDirection(DirectionWrapper):
     def can_place_barrier(self, x, y, barrier_type: BarrierType) -> bool:
 
         if barrier_type == BarrierType.HORIZONTAL:
-            return self.get_game().has_case(x,y) and self.get_game().get_case(x, y).get_case_type() == CaseType.SLOT_BARRIER_HORIZONTAL and \
+            return self.get_game().has_case(x, y) and self.get_game().get_case(x,
+                                                                               y).get_case_type() == CaseType.SLOT_BARRIER_HORIZONTAL and \
                 self.get_game().has_case(x, y + 2) and \
                 self.get_game().get_case(x, y + 2).get_case_type() == CaseType.SLOT_BARRIER_HORIZONTAL
 
-        return self.get_game().has_case(x,y) and  self.get_game().get_case(x, y).get_case_type() == CaseType.SLOT_BARRIER_VERTICAL and \
+        return self.get_game().has_case(x, y) and self.get_game().get_case(x,
+                                                                           y).get_case_type() == CaseType.SLOT_BARRIER_VERTICAL and \
             self.get_game().has_case(x + 2, y) and \
             self.get_game().get_case(x + 2, y).get_case_type() == CaseType.SLOT_BARRIER_VERTICAL
 

@@ -20,7 +20,6 @@ class SouthWest(DirectionWrapper):
                 self.get_game().get_case(location[0], location[1] - 3).get_case_type() == CaseType.BARRIER and \
                 self.get_game().get_case(location[0], location[1] - 1).get_case_type() != CaseType.BARRIER and \
                 self.get_game().get_case(location[0] + 1, location[1] - 2).get_case_type() != CaseType.BARRIER:
-            print("can move fdp 7")
             return True
         if self.get_game().has_case(location[0] + 2, location[1]) and \
                 self.get_game().get_case(location[0] + 2, location[1]).check_has_player_without_same_player(id) \
@@ -29,8 +28,8 @@ class SouthWest(DirectionWrapper):
                 .get_case_type() == CaseType.BARRIER and \
                 self.get_game().get_case(location[0] + 1, location[1]).get_case_type() != CaseType.BARRIER and \
                 self.get_game().get_case(location[0] + 2, location[1] - 1).get_case_type() != CaseType.BARRIER:
-            print("can move fdp 8")
             return True
+
     def adapt_for_move(self, location: [int, int]) -> [int, int]:
         return location[0] + 2, location[1] - 2
 

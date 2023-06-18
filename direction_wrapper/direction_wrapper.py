@@ -1,4 +1,4 @@
-from case import CaseType, BarrierType
+from case import BarrierType
 
 
 class DirectionWrapper:

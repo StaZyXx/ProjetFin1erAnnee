@@ -27,6 +27,7 @@ class South(DirectionWrapper):
 
     def adapt_for_jump(self, x, y) -> (int, int):
         return x + 4, y
+
     def jump(self, player):
         x, y = player.get_location()
         self.get_game().get_case(x + 4, y).set_player(player)
@@ -34,7 +35,6 @@ class South(DirectionWrapper):
         self.get_game().get_case(x, y).set_player(0)
 
     def can_adapt_for_jump(self, x, y, id):
-
         if not self.get_game().has_case(x + 2, y): return False
         if not self.get_game().get_case(x + 2, y).check_has_player_without_same_player(id): return False
         if not self.get_game().has_case(x + 1, y): return False

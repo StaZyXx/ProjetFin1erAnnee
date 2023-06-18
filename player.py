@@ -14,10 +14,13 @@ class Player:
 
     def decrease_amount_barrier(self):
         self.__amount_barrier -= 1
+
     def set_bot(self):
         self.__is_bot = True
+
     def is_bot(self):
         return self.__is_bot
+
     def get_id(self) -> int:
         return self.__id
 

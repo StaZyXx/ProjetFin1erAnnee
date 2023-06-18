@@ -14,20 +14,15 @@ class SouthEast(DirectionWrapper):
         if not self.get_game().has_case(location[0] + 2, location[1] + 2) or \
                 self.get_game().get_case(location[0] + 2, location[1] + 2).check_has_player_without_same_player(id):
             return False
-        # CHECK x +2
+
         if self.get_game().has_case(location[0], location[1] + 2) and \
                 self.get_game().get_case(location[0], location[1] + 2).check_has_player_without_same_player(id) and \
                 self.get_game().has_case(location[0], location[1] + 3) and \
                 self.get_game().get_case(location[0], location[1] + 3).get_case_type() == CaseType.BARRIER and \
                 self.get_game().get_case(location[0], location[1] + 1).get_case_type() != CaseType.BARRIER and \
                 self.get_game().get_case(location[0] + 1, location[1] + 2).get_barrier_type() != CaseType.BARRIER:
-
-            print(self.get_game().get_case(location[0], location[1] + 2).get_player().get_id())
-            print(id)
-            print("can move fdp 5")
             return True
 
-        # CHECK y +2
         if self.get_game().has_case(location[0] + 2, location[1]) and \
                 self.get_game().get_case(location[0] + 2, location[1]).check_has_player_without_same_player(id) \
                 and self.get_game().has_case(location[0] + 3, location[1]) \
@@ -35,7 +30,6 @@ class SouthEast(DirectionWrapper):
                 .get_case_type() == CaseType.BARRIER and \
                 self.get_game().get_case(location[0] + 1, location[1]).get_case_type() != CaseType.BARRIER and \
                 self.get_game().get_case(location[0] + 2, location[1] + 1).get_barrier_type() != CaseType.BARRIER:
-            print("can move fdp 6")
             return True
         return False
 

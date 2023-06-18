@@ -1,17 +1,15 @@
-import threading
-
 from game import Game
 from network import Server, receipt_message_client, Client
 
 
 class Multiplayer(Game):
 
-    def __init__(self, is_server, nbr_player, client=None):
+    def __init__(self, is_server, amount_players, client=None):
         self.__current_player_for_sends_and_receive = 0
 
         self.__if_had_play = False
 
-        self.__nbr_player = nbr_player
+        self.__amount_players = amount_players
         self.__is_server = is_server
 
         if is_server:
@@ -81,7 +79,6 @@ class Multiplayer(Game):
         if (self.__is_server and self.__current_player_for_sends_and_receive == 0) or (
                 not self.__is_server and self.__current_player_for_sends_and_receive == self.__client.get_me_player()):
             result = super().move_player_with_direction(direction)
-            print(result)
             dico = {"type": "move", "direction": direction}
             if result == 1 or result == 0:
 
@@ -92,19 +89,13 @@ class Multiplayer(Game):
 
     def switch_player(self):
         super().switch_player()
-        if self.__current_player_for_sends_and_receive != self.__nbr_player - 1:
+        if self.__current_player_for_sends_and_receive != self.__amount_players - 1:
             self.__current_player_for_sends_and_receive += 1
         else:
             self.__current_player_for_sends_and_receive = 0
 
-        #self.managements_sends()
-
-        print(f"c'est au joueur {self.__current_player_for_sends_and_receive} !")
-
     def reset_current_player_for_sends_and_receive(self):
-        print("reset reset_current_player_for_sends_and_receive")
         self.__current_player_for_sends_and_receive = 0
 
-
     def wait_for_all_players(self):
-        self.__server.add_all_player(self.__nbr_player)
+        self.__server.add_all_player(self.__amount_players)
