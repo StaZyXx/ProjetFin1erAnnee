@@ -46,7 +46,7 @@ class View:
         self.gestion_loading_page()
 
     def gestion_loading_page(self):
-        self.__a_player_to_leave = True
+        self.__a_player_to_leave = False
         self.loading_page()
         time.sleep(0.5)
         self.boucle_home_page()
@@ -197,19 +197,26 @@ class View:
                         if self.__nbr_barr < max_barr:
                             self.__nbr_barr += 4
                     elif self.__get_start_game.collidepoint(event.pos):
-                        if self.__nbr_joueur != None and self.__board_size != None:
+                        if mode == "multiplayer":
+                            self.__nbr_joueur = self.players_requis
+                        if self.__nbr_joueur != 0 and self.__board_size != None:
                             if mode == "solo":
                                 self.__game = Game()
                                 self.__game.start(self.__board_size, self.__nbr_joueur,
                                                   self.__nbr_barr, is_each_turn)
+                                self.game_page()
+                                self.__running = False
+                                self.__mode = "game"
                             elif mode == "multiplayer":
-                                self.__game.start(self.__board_size, self.players_requis, self.__nbr_barr, True)
-                                info_game = {"type": "parameter", "size": self.__board_size,
-                                             "nbr_joueur": self.players_requis, "nbr_barrier": self.__nbr_barr}
-                                self.__game.get_server().send_message_server_all_client(info_game, None)
-                            self.game_page()
-                            self.__running = False
-                            self.__mode = "game"
+                                print(f"les joueurs ont rejooins : {self.__game.get_server().see_if_all_player_join(self.__nbr_joueur)}")
+                                if self.__game.get_server().see_if_all_player_join(self.__nbr_joueur):
+                                    self.__game.start(self.__board_size, self.players_requis, self.__nbr_barr, True)
+                                    info_game = {"type": "parameter", "size": self.__board_size,
+                                                 "nbr_joueur": self.players_requis, "nbr_barrier": self.__nbr_barr}
+                                    self.__game.get_server().send_message_server_all_client(info_game, None)
+                                    self.game_page()
+                                    self.__running = False
+                                    self.__mode = "game"
 
                     self.param_game(mode)
 
@@ -387,6 +394,7 @@ class View:
                     self.__cursor_pos = pygame.mouse.get_pos()
                     if self.__get_2players.collidepoint(self.__cursor_pos):
                         self.players_requis = 2
+                        self.__nbr_joueur = 2
                         self.__game = Multiplayer(True, 2)
                         self.__first_game_or_not = 1
                         self.__thread_add_player = threading.Thread(
@@ -397,6 +405,7 @@ class View:
                         self.boucle_home_page()
                     elif self.__get_4players.collidepoint(self.__cursor_pos):
                         self.players_requis = 4
+                        self.__nbr_joueur = 4
                         self.__game = Multiplayer(True, 4)
                         self.__first_game_or_not = 1
                         self.__thread_add_player = threading.Thread(
@@ -405,8 +414,8 @@ class View:
                         self.boucle_param("multiplayer", False)
 
     def starting_thread_listening_for_clients(self):
-        print("je suis la")
-        self.__current_player_for_listen = 1
+        self.__stop_listen = True
+        self.__current_player_for_listen = 0
         if self.__first_game_or_not == 1:
             self.__game.wait_for_all_players()
             self.__first_game_or_not += 1
@@ -564,6 +573,7 @@ class View:
         self.__running = True
         self.player_acctu = num_client + 1
         self.lobby()
+        self.__stop_listen = True
         self.__thread_listen_player = threading.Thread(target=self.listen_new_player)  # création du thread
         self.__thread_listen_player.start()
 
@@ -589,8 +599,9 @@ class View:
             self.lobby()
 
     def listen_new_player(self):
+        print(f"listen = {self.__stop_listen}")
         num_client = 0
-        #self.afficher_popup()
+        print(f"is server = {self.__game.is_server()}")
         if self.__game.is_server() :
             num_client = self.__current_player_for_listen
             client_list = {
@@ -600,10 +611,11 @@ class View:
             }
         print(f"je suis le client {num_client}")
         dico = {"type": "None"}
-        while self.__game.is_started():
+        while self.__stop_listen:
             if num_client == 0:
                 dico = self.__game.get_client().receipt_message_client()
             else:
+                print(client_list[num_client])
                 dico = network.receipt_message_client(client_list[num_client])
             print(dico)
             if dico["type"] == "player":
@@ -621,13 +633,15 @@ class View:
                 if self.__game.is_server():
                     print("un player a deco")
                 else :
+                    self.__mode = "multiplayer"
                     self.__a_player_to_leave = True
+                    self.__stop_listen = False
                     self.__game.stop_game()
                     self.__game.get_client().close_socket()
 
             else :
                 self.__game.action_player(dico)
-        self.__mode = "multiplayer"
+
 
     def lobby(self):
         pygame.init()
@@ -1050,13 +1064,13 @@ class View:
                 return
             for event in pygame.event.get():  # récupérer un event
                 if event.type == pygame.QUIT:  # Si l'event est du type fermer la fenetre
-                    dico = {"type":"logout"}
-                    if self.__game.is_server():
-                        self.__game.get_server().send_message_server_all_client(dico, None)
-                    else:
-                        self.__game.get_client().send_message_client(dico)
-                    self.__running = False
-                    pygame.quit()
+                    try :
+                        if self.__mode == "multiplayer" or self.__mode == "game":
+                            print(f"je passe la condition {self.__mode}")
+                            self.send_leave()
+                    finally:
+                        self.__running = False
+                        pygame.quit()
             self.game_page()
 
     def play_music(self):
@@ -1082,24 +1096,38 @@ class View:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     self.__cursor_pos = pygame.mouse.get_pos()
                     if self.__get_menu.collidepoint(self.__cursor_pos):
+
+                        if self.__mode == "multiplayer" or self.__mode == "game":
+                            self.__mode = None
+                            self.send_leave()
+                            self.__stop_listen = False
+                            if self.__game.is_server():
+                                self.__game.get_server().close_socket()
+                            else :
+                                self.__game.get_client().close_socket()
+
                         self.boucle_home_page()
                         self.__running = False
                     elif self.__get_restart.collidepoint(self.__cursor_pos):
-                        print("je suis bien dans restart")
-                        print(f"mode = {self.__mode}")
                         if self.__mode == "multiplayer" or self.__mode == "game":
-                            print("dans multi")
                             self.__game.reset_current_player_for_sends_and_receive()
-                            if self.__game.is_server():
-                                self.starting_thread_listening_for_clients()
-                            else :
-                                self.__thread_listen_player = threading.Thread(
-                                    target=self.listen_new_player)  # création du thread
-                                self.__thread_listen_player.start()
+                            #if self.__game.is_server():
+                                #self.starting_thread_listening_for_clients()
+                            #else :
+                                #self.__thread_listen_player = threading.Thread(
+                                    #target=self.listen_new_player)  # création du thread
+                                #self.__thread_listen_player.start()
 
                         self.__game.restart()
                         self.boucle_game()
                         self.__running = False
+
+    def send_leave(self):
+        dico = {"type": "logout"}
+        if self.__game.is_server():
+            self.__game.get_server().send_message_server_all_client(dico, None)
+        else:
+            self.__game.get_client().send_message_client(dico)
 
     def page_finish_game(self):
         self.__screen.blit(self.__background, (0, 0))

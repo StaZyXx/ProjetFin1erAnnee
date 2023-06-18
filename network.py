@@ -102,6 +102,19 @@ class Server:
         print("le jeu est pret")
         return "ok"
 
+    def see_if_all_player_join(self,nbr_player):
+        nbr_player_co = 1
+        if self.__client1 != None :
+            nbr_player_co += 1
+            if self.__client2 != None :
+                nbr_player_co += 1
+                if self.__client3 != None :
+                    nbr_player_co += 1
+        if nbr_player_co == nbr_player:
+            return True
+        return False
+
+
     def listen(self, player):
         self.__socket.listen(5)
         if player == 1:
