@@ -429,7 +429,7 @@ class View:
 
     def starting_thread_listening_for_clients(self):
         self.__stop_listen = True
-        self.__current_player_for_listen = 0
+        self.__current_player_for_listen = 1
         if self.__first_game_or_not == 1:
             self.__game.wait_for_all_players()
             self.__first_game_or_not += 1
