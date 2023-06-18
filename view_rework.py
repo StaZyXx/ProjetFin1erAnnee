@@ -5,12 +5,12 @@ import pygame
 from pygame import mixer
 from pygame.locals import *
 
+import network
 import utils
 from case import CaseType, BarrierType
 from game import Game
 from multiplayer import Multiplayer
 from network import Client
-import network
 
 
 class View:
@@ -39,7 +39,7 @@ class View:
         self.__48_font = pygame.font.SysFont('./fonts/Carme.ttf', 48, bold=False)
         self.__32_font = pygame.font.SysFont('./fonts/Carme.ttf', 32, bold=False)
 
-        #load images players
+        # load images players
         self.__img_red_player = pygame.image.load("./assets/red_player.png").convert_alpha()
         self.__img_blue_player = pygame.image.load("./assets/blue_player.png").convert_alpha()
         self.__img_yellow_player = pygame.image.load("./assets/yellow_player.png").convert_alpha()
@@ -921,7 +921,8 @@ class View:
                     f"Vous êtes le joueur 1:       X{int(self.__game.get_player(1).get_amount_barrier())}", False,
                     self.__RED)
                 self.__player2 = self.__48_font.render(
-                    f"Joueur 2:       X{int(self.__game.get_player(2).get_amount_barrier())}", False, self.__BLUE_PLAYER)
+                    f"Joueur 2:       X{int(self.__game.get_player(2).get_amount_barrier())}", False,
+                    self.__BLUE_PLAYER)
                 self.__screen.blit(self.__player1, (710, 220))
                 self.__screen.blit(self.__player2, (710, 320))
                 self.__screen.blit(self.__red_barrier, (1200, 205))
@@ -967,7 +968,8 @@ class View:
                         f"Joueur 4:       X{int(self.__game.get_player(4).get_amount_barrier())}", False,
                         (self.__GREEN))
                     self.__player2 = self.__48_font.render(
-                        f"Joueur 2:       X{int(self.__game.get_player(2).get_amount_barrier())}", False, (self.__BLUE_PLAYER))
+                        f"Joueur 2:       X{int(self.__game.get_player(2).get_amount_barrier())}", False,
+                        (self.__BLUE_PLAYER))
                     self.__player1 = self.__48_font.render(
                         f"Joueur 1:       X{int(self.__game.get_player(1).get_amount_barrier())}", False, (self.__RED))
                     self.__screen.blit(self.__player3, (710, 220))
@@ -986,7 +988,8 @@ class View:
                         f"Joueur 3:       X{int(self.__game.get_player(3).get_amount_barrier())}", False,
                         (self.__YELLOW))
                     self.__player2 = self.__48_font.render(
-                        f"Joueur 2:       X{int(self.__game.get_player(2).get_amount_barrier())}", False, (self.__BLUE_PLAYER))
+                        f"Joueur 2:       X{int(self.__game.get_player(2).get_amount_barrier())}", False,
+                        (self.__BLUE_PLAYER))
                     self.__player1 = self.__48_font.render(
                         f"Joueur 1:       X{int(self.__game.get_player(1).get_amount_barrier())}", False, (self.__RED))
                     self.__screen.blit(self.__player4, (710, 220))
@@ -1002,7 +1005,8 @@ class View:
                 self.__player1 = self.__48_font.render(
                     f"Joueur 1:       X{int(self.__game.get_player(1).get_amount_barrier())}", False, self.__RED)
                 self.__player2 = self.__48_font.render(
-                    f"Joueur 2:       X{int(self.__game.get_player(2).get_amount_barrier())}", False, self.__BLUE_PLAYER)
+                    f"Joueur 2:       X{int(self.__game.get_player(2).get_amount_barrier())}", False,
+                    self.__BLUE_PLAYER)
                 self.__screen.blit(self.__player1, (710, 220))
                 self.__screen.blit(self.__player2, (710, 320))
                 self.__screen.blit(self.__red_barrier, (1200, 205))
@@ -1021,7 +1025,8 @@ class View:
                     f"Vous êtes le joueur 1:       X{int(self.__game.get_player(1).get_amount_barrier())}", False,
                     self.__RED)
                 self.__player2 = self.__48_font.render(
-                    f"Joueur 2:       X{int(self.__game.get_player(2).get_amount_barrier())}", False, self.__BLUE_PLAYER)
+                    f"Joueur 2:       X{int(self.__game.get_player(2).get_amount_barrier())}", False,
+                    self.__BLUE_PLAYER)
                 self.__screen.blit(self.__player1, (710, 220))
                 self.__screen.blit(self.__player2, (710, 320))
                 self.__screen.blit(self.__red_barrier, (1200, 205))
@@ -1041,10 +1046,10 @@ class View:
     def boucle_sounds(self, arg):
         if arg == "move":
             music = pygame.mixer.Sound("./songs/move_player.wav")
-            pygame.mixer.find_channel().play(music, loops=0, maxtime=0, fade_ms=0)
+            pygame.mixer.find_channel().play(music)
         elif arg == "place":
             music = pygame.mixer.Sound("./songs/place_barrier.wav")
-            pygame.mixer.find_channel().play(music, loops=0, maxtime=0, fade_ms=0)
+            pygame.mixer.find_channel().play(music)
 
     def boucle_game(self):
 
@@ -1053,6 +1058,7 @@ class View:
         pygame.display.update()
         self.play_music()
         while self.__running:
+            pygame.time.Clock().tick(60)
             if not self.__game.is_started():
                 self.__game.change_is_started()
                 self.bucle_page_finish_game()
@@ -1065,13 +1071,16 @@ class View:
                             self.__game.get_server().send_message_server_all_client(dico, None)
                         else:
                             self.__game.get_client().send_message_client(dico)
+                    pygame.mixer.music.stop()
                     self.__running = False
                     pygame.quit()
             self.game_page()
 
     def play_music(self):
         music = pygame.mixer.Sound("./songs/jazz.wav")
-        pygame.mixer.find_channel().play(music, loops=10, maxtime=0, fade_ms=0)
+        channel = pygame.mixer.find_channel()
+        channel.set_volume(0.5)
+        channel.play(music, loops=10)
 
     def bucle_page_finish_game(self):
         if self.__a_player_to_leave:
@@ -1081,6 +1090,7 @@ class View:
         self.__running = True
         # Boucle du jeu
         while self.__running:
+            pygame.time.Clock().tick(60)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.__running = False
