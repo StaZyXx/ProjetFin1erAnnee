@@ -645,12 +645,8 @@ class View:
             elif dico["type"] == "logout":
                 if self.__game.is_server():
                     print("un player a deco")
-<<<<<<< HEAD
                 else :
                     self.__mode = "multiplayer"
-=======
-                else:
->>>>>>> e229408627dfe4d5e026b8a6a2cddcc8033815f6
                     self.__a_player_to_leave = True
                     self.__stop_listen = False
                     self.__game.stop_game()
@@ -1122,25 +1118,17 @@ class View:
                 return
             for event in pygame.event.get():  # récupérer un event
                 if event.type == pygame.QUIT:  # Si l'event est du type fermer la fenetre
-<<<<<<< HEAD
-                    try :
-                        if self.__mode == "multiplayer" or self.__mode == "game":
-                            print(f"je passe la condition {self.__mode}")
-                            self.send_leave()
-                    finally:
-                        self.__running = False
-                        pygame.quit()
-=======
-                    dico = {"type": "logout"}
                     if type(self.__game) == Multiplayer:
-                        if self.__game.is_server():
-                            self.__game.get_server().send_message_server_all_client(dico, None)
-                        else:
-                            self.__game.get_client().send_message_client(dico)
+                        try :
+                            if self.__mode == "multiplayer" or self.__mode == "game":
+                                print(f"je passe la condition {self.__mode}")
+                                self.send_leave()
+                        finally:
+                            self.__running = False
+                            pygame.quit()
                     self.stop_music()
                     self.__running = False
                     pygame.quit()
->>>>>>> 4752099058c0da83b70b119c7bb4401104137f05
             self.game_page()
 
     def play_music(self):
@@ -1183,34 +1171,9 @@ class View:
                         self.__running = False
                     elif self.__get_restart.collidepoint(self.__cursor_pos):
                         if self.__mode == "multiplayer" or self.__mode == "game":
-<<<<<<< HEAD
-                            self.__game.reset_current_player_for_sends_and_receive()
-<<<<<<< HEAD
-                            #if self.__game.is_server():
-                                #self.starting_thread_listening_for_clients()
-                            #else :
-                                #self.__thread_listen_player = threading.Thread(
-                                    #target=self.listen_new_player)  # création du thread
-                                #self.__thread_listen_player.start()
-=======
-                            if self.__game.is_server():
-                                self.starting_thread_listening_for_clients()
-                            else:
-                                self.__thread_listen_player = threading.Thread(
-                                    target=self.listen_new_player)  # création du thread
-                                self.__thread_listen_player.start()
->>>>>>> e229408627dfe4d5e026b8a6a2cddcc8033815f6
-=======
                             if type(self.__game) == Multiplayer:
                                 print("dans multi")
                                 self.__game.reset_current_player_for_sends_and_receive()
-                                if self.__game.is_server():
-                                    self.starting_thread_listening_for_clients()
-                                else:
-                                    self.__thread_listen_player = threading.Thread(
-                                        target=self.listen_new_player)  # création du thread
-                                    self.__thread_listen_player.start()
->>>>>>> 4752099058c0da83b70b119c7bb4401104137f05
 
                         self.stop_music()
                         self.__game.restart()
