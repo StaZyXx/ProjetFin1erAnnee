@@ -1113,6 +1113,7 @@ class View:
         while self.__running:
             pygame.time.Clock().tick(60)
             if not self.__game.is_started():
+                self.stop_music()
                 self.__game.change_is_started()
                 self.bucle_page_finish_game()
                 return
