@@ -359,32 +359,100 @@ class Game:
             return
         list_slot_barrier = []
         if random.randint(0, 100) < 29:
-            for i in range(len(self.get_cases())):
-                for j in range(len(self.get_cases()[i])):
-                    if self.get_case(j, i).get_case_type() == CaseType.SLOT_BARRIER_HORIZONTAL:
-                        list_slot_barrier.append((i, j, BarrierType.HORIZONTAL))
-                    elif self.get_case(j, i).get_case_type() == CaseType.SLOT_BARRIER_VERTICAL:
-                        list_slot_barrier.append((i, j, BarrierType.VERTICAL))
+            if not self.place_intelligent_barrier():
+                for i in range(len(self.get_cases())):
+                    for j in range(len(self.get_cases()[i])):
+                        if self.get_case(j, i).get_case_type() == CaseType.SLOT_BARRIER_HORIZONTAL:
+                            list_slot_barrier.append((i, j, BarrierType.HORIZONTAL))
+                        elif self.get_case(j, i).get_case_type() == CaseType.SLOT_BARRIER_VERTICAL:
+                            list_slot_barrier.append((i, j, BarrierType.VERTICAL))
 
-            has_place = False
-            amount_try = 50
-            while not has_place and amount_try > 0:
-                amount_try -= 1
-                barrier_index = random.randint(0, len(list_slot_barrier) - 1)
-                x, y, case_type = list_slot_barrier[barrier_index]
-                if self.place_barrier(y, x, case_type):
-                    has_place = True
-                    self.switch_player()
-            if amount_try == 0:
+                has_place = False
+                amount_try = 50
+                while not has_place and amount_try > 0:
+                    amount_try -= 1
+                    barrier_index = random.randint(0, len(list_slot_barrier) - 1)
+                    x, y, case_type = list_slot_barrier[barrier_index]
+                    if self.place_barrier(y, x, case_type):
+                        has_place = True
+                        self.switch_player()
+                if amount_try == 0:
+                    is_moving = False
+                    while not is_moving:
+                        if not self.is_started():
+                            return
+                        direction = random.randint(0, len(self.__direction_wrapper) - 1)
+                        is_moving = self.move_player_with_direction(list(self.__direction_wrapper.keys())[direction])
+            else:
+                self.get_current_player().decrease_amount_barrier()
+                self.switch_player()
+        else:
+            if not self.move_intelligent():
                 is_moving = False
                 while not is_moving:
+                    if not self.is_started():
+                        return
                     direction = random.randint(0, len(self.__direction_wrapper) - 1)
                     is_moving = self.move_player_with_direction(list(self.__direction_wrapper.keys())[direction])
-        else:
-            is_moving = False
-            while not is_moving:
-                direction = random.randint(0, len(self.__direction_wrapper) - 1)
-                is_moving = self.move_player_with_direction(list(self.__direction_wrapper.keys())[direction])
+    def move_intelligent(self):
+        can_move = True
+        x, y = self.get_current_player().get_location()
+        if self.get_current_player().get_id() == 2:
+            for i in range (x+1, self.__board_size * 2, 2):
+                if self.has_case(i, y) and self.get_case(i, y).get_case_type() == CaseType.BARRIER:
+                    can_move = False
+            if can_move:
+                self.move_player_with_direction(Direction.SOUTH)
+
+        if self.get_current_player().get_id() == 3:
+            for i in range (y+1, self.__board_size * 2, 2):
+                if self.has_case(x, i) and self.get_case(x, i).get_case_type() == CaseType.BARRIER:
+                    can_move = False
+            if can_move:
+                self.move_player_with_direction(Direction.EAST)
+
+        if self.get_current_player().get_id() == 4:
+            for i in range (y-1, 1, -2):
+                if self.has_case(x, i) and self.get_case(x, i).get_case_type() == CaseType.BARRIER:
+                    can_move = False
+            if can_move:
+                self.move_player_with_direction(Direction.WEST)
+
+        return can_move
+
+
+
+
+
+    def place_intelligent_barrier(self):
+        if self.__current_player.get_id() == 2:
+            target = self.get_player(1)
+            x, y = target.get_location()
+            if self.place_barrier(x - 1, y, BarrierType.HORIZONTAL):
+                return True
+            elif self.place_barrier(x, y + 1, BarrierType.VERTICAL):
+                return True
+            elif self.place_barrier(x, y - 1, BarrierType.VERTICAL):
+                return True
+        if self.__current_player.get_id() == 3:
+            target = self.get_player(4)
+            x, y = target.get_location()
+            if self.place_barrier(x, y - 1, BarrierType.VERTICAL):
+                return True
+            elif self.place_barrier(x - 1, y, BarrierType.HORIZONTAL):
+                return True
+            elif self.place_barrier(x + 1, y, BarrierType.HORIZONTAL):
+                return True
+        if self.__current_player.get_id() == 4:
+            target = self.get_player(3)
+            x, y = target.get_location()
+            if self.place_barrier(x, y + 1, BarrierType.VERTICAL):
+                return True
+            elif self.place_barrier(x - 1, y, BarrierType.HORIZONTAL):
+                return True
+            elif self.place_barrier(x + 1, y, BarrierType.HORIZONTAL):
+                return True
+
 
     def stop_game(self):
         self.__is_started = False
