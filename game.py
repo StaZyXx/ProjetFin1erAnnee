@@ -295,10 +295,8 @@ class Game:
     def get_relative_location(self, location: [int, int], id, direction: Direction):
         if self.__direction_wrapper[direction].can_move(location, id):
             return self.__direction_wrapper[direction].adapt_for_move(location)
-        elif self.__direction_wrapper[direction].can_adapt_for_jump(self.__current_player.get_location()[0],
-                                                                 self.__current_player.get_location()[1], id):
-            return self.__direction_wrapper[direction].adapt_for_jump(self.__current_player.get_location()[0],
-                                                                          self.__current_player.get_location()[1])
+        elif self.__direction_wrapper[direction].can_adapt_for_jump(location[0], location[1], id):
+            return self.__direction_wrapper[direction].adapt_for_jump(location[0], location[1])
         else:
             return -1, -1
 
