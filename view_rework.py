@@ -59,6 +59,7 @@ class View:
 
     def gestion_loading_page(self):
         self.__a_player_to_leave = False
+        self.__show_popup = False
         self.loading_page()
         time.sleep(0.5)
         self.boucle_home_page()
@@ -82,7 +83,6 @@ class View:
         pygame.display.flip()  # Mettre a jour l'affichage
 
     def boucle_home_page(self):
-        print("je suis dans la boucle")
         self.home_page()
         self.__running = True
         # Boucle du jeu
@@ -116,7 +116,7 @@ class View:
         self.__screen.blit(self.__background, (0, 0))
 
         pygame.draw.rect(self.__blue_image, self.__WHITE, (530, 100, 520, 100))
-        self.__quorridor = self.__96_font.render('QUORRIDOR', False, (self.__BLACK))
+        self.__quorridor = self.__96_font.render('QUORIDOR', False, (self.__BLACK))
 
         self.__rect_solo = pygame.draw.rect(self.__blue_image, self.__BLUE, (460, 300, 650, 75))
         self.__solo = self.__64_font.render('Solo', False, (self.__WHITE))
@@ -140,7 +140,7 @@ class View:
 
         if self.__a_player_to_leave:
             self.__a_player_to_leave = False
-            self.__player_have_leave = self.__64_font.render("L'hébergeur a quitté la partie", False, (self.__RED))
+            self.__player_have_leave = self.__64_font.render("Un joueur a quitté la partie", False, (self.__RED))
             self.__screen.blit(self.__player_have_leave, (480, 700))
 
         pygame.display.flip()  # Mettre a jour l'affichage
@@ -393,6 +393,7 @@ class View:
 
         pygame.display.flip()
 
+
     def boucle_choice_nbr_player(self):
         self.choice_nbr_player()
         self.__running = True
@@ -642,18 +643,31 @@ class View:
                 self.__running = False
                 self.__mode = "game"
                 self.game_page()
+            elif dico["type"] == "pause":
+                if dico["etat"] == "put":
+                    #self.pop_up_for_pause()
+                    self.__show_popup = True
+                else :
+                    self.__show_popup = False
+                print(self.__show_popup)
             elif dico["type"] == "logout":
                 if self.__game.is_server():
-                    print("un player a deco")
+                    dico = {"type": "logout"}
+                    self.__game.get_server().send_message_server_all_client(dico, num_client)
+
+                self.__mode = "multiplayer"
+                self.__a_player_to_leave = True
+                self.__stop_listen = False
+                self.__game.change_is_started_for_false()
+                self.__game.stop_game()
+                if self.__game.is_server():
+                    self.__game.get_server().close_socket()
                 else :
-                    self.__mode = "multiplayer"
-                    self.__a_player_to_leave = True
-                    self.__stop_listen = False
-                    self.__game.stop_game()
                     self.__game.get_client().close_socket()
 
             else:
                 self.__game.action_player(dico)
+        print(f"l'écoute du player {num_client} est stop")
 
 
     def lobby(self):
@@ -853,8 +867,8 @@ class View:
 
                     cases_items.update({rect: (j, i)})
 
-        pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (700, 75, 600, 75))
 
+        pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (700, 75, 600, 75))
         self.__turn_player = self.__48_font.render(
             "Au tour du joueur " + str(self.__current_player), False, (colors[self.__current_player]))
 
@@ -882,6 +896,10 @@ class View:
                                              (separator + (i + 2) * 28, separator + j * 28 + 20, 48, 10)))
 
         for event in pygame.event.get():
+            print("j'att les events")
+            print(f"show popup : {self.__show_popup}")
+            if self.__show_popup:
+                self.pop_up_for_pause()
 
             if event.type == pygame.MOUSEBUTTONDOWN or event.type == pygame.MOUSEBUTTONUP:
                 if self.__img1_pos.collidepoint(event.pos):
@@ -890,6 +908,16 @@ class View:
                         self.stop_music()
                     else:
                         self.play_music()
+
+                elif self.__burger_pos.collidepoint(event.pos):
+                    print("mise en pause")
+                    if type(self.__game) == Multiplayer:
+                        self.send_pause_put()
+                    self.pop_up_for_pause()
+
+
+
+
                 for rect, (i, j) in cases_items.items():
                     if rect is not None and rect.collidepoint(event.pos):
                         case = self.__game.get_case(i, j)
@@ -919,6 +947,7 @@ class View:
                                 self.__turn_player = self.__48_font.render(
                                     f"Au tour du joueur " + str(self.__current_player), False, (self.__WHITE))
 
+
         pygame.draw.rect(self.__blue_image4, self.__DARK_BLUE, (700, 200, 600, 75))
         if len(self.__game.get_players()) == 2:
             pygame.draw.rect(self.__blue_image4, self.__BLUE, (700, 300, 500, 75))
@@ -939,30 +968,38 @@ class View:
         self.__yellow_barrier = pygame.transform.scale(self.__yellow_barrier, (75, 64))
         self.__green_barrier = pygame.transform.scale(self.__green_barrier, (75, 64))
 
+        self.__burger_image = pygame.image.load("./assets/boutton_menu.png").convert()
+        self.__burger_image = pygame.transform.scale(self.__burger_image, (75, 75))
+        self.__screen.blit(self.__burger_image, (1400, 25))
+        self.__burger_pos = self.__burger_image.get_rect()
+        self.__burger_pos.topleft = (1400, 25)
+
+
+
         if self.__is_mute:
             self.__image1 = pygame.image.load("./assets/image1.png").convert_alpha()
             self.__image1 = pygame.transform.scale(self.__image1, (75, 64))
             self.__img1_pos = self.__image1.get_rect()
-            self.__img1_pos.topleft = (1400, 25)
+            self.__img1_pos.topleft = (1400, 750)
             if self.__img1_pos.collidepoint(pygame.mouse.get_pos()):
 
                 self.__image1 = pygame.image.load("./assets/image.png").convert_alpha()
                 self.__image1 = pygame.transform.scale(self.__image1, (75, 64))
-                self.__screen.blit(self.__image1, (1400, 25))
+                self.__screen.blit(self.__image1, (1400, 750))
             else:
-                self.__screen.blit(self.__image1, (1400, 25))
+                self.__screen.blit(self.__image1, (1400, 750))
         else:
             self.__image1 = pygame.image.load("./assets/image3.png").convert_alpha()
             self.__image1 = pygame.transform.scale(self.__image1, (75, 64))
             self.__img1_pos = self.__image1.get_rect()
-            self.__img1_pos.topleft = (1400, 25)
+            self.__img1_pos.topleft = (1400, 750)
             if self.__img1_pos.collidepoint(pygame.mouse.get_pos()):
 
                 self.__image1 = pygame.image.load("./assets/image2.png").convert_alpha()
                 self.__image1 = pygame.transform.scale(self.__image1, (75, 64))
-                self.__screen.blit(self.__image1, (1400, 25))
+                self.__screen.blit(self.__image1, (1400, 750))
             else:
-                self.__screen.blit(self.__image1, (1400, 25))
+                self.__screen.blit(self.__image1, (1400, 750))
 
         if not self.__game.is_started():
             return
@@ -1012,7 +1049,7 @@ class View:
                     self.__screen.blit(self.__red_barrier, (1100, 485))
 
             if len(self.__game.get_players()) == 4:
-                if multiplayer.get_client().get_me_player() == 2:
+                if not multiplayer.is_server() and multiplayer.get_client().get_me_player() == 2:
                     self.__player3 = self.__48_font.render(
                         f"Vous êtes le joueur 3:       X{int(self.__game.get_player(3).get_amount_barrier())}", False,
                         (self.__YELLOW))
@@ -1028,11 +1065,11 @@ class View:
                     self.__screen.blit(self.__player1, (710, 320))
                     self.__screen.blit(self.__player2, (710, 400))
                     self.__screen.blit(self.__player4, (710, 480))
-                    self.__screen.blit(self.__yellow_barrier, (1200, 225))
+                    self.__screen.blit(self.__yellow_barrier, (1200, 205))
                     self.__screen.blit(self.__green_barrier, (1100, 325))
                     self.__screen.blit(self.__blue_barrier, (1100, 405))
                     self.__screen.blit(self.__red_barrier, (1100, 485))
-                elif multiplayer.get_client().get_me_player() == 3:
+                elif not multiplayer.is_server() and multiplayer.get_client().get_me_player() == 3:
                     self.__player4 = self.__48_font.render(
                         f"Vous êtes le joueur 4:       X{int(self.__game.get_player(4).get_amount_barrier())}", False,
                         (self.__GREEN))
@@ -1048,7 +1085,7 @@ class View:
                     self.__screen.blit(self.__player1, (710, 320))
                     self.__screen.blit(self.__player2, (710, 400))
                     self.__screen.blit(self.__player3, (710, 480))
-                    self.__screen.blit(self.__green_barrier, (1200, 225))
+                    self.__screen.blit(self.__green_barrier, (1200, 205))
                     self.__screen.blit(self.__yellow_barrier, (1100, 325))
                     self.__screen.blit(self.__blue_barrier, (1100, 405))
                     self.__screen.blit(self.__red_barrier, (1100, 485))
@@ -1093,6 +1130,8 @@ class View:
                     self.__screen.blit(self.__yellow_barrier, (1100, 385))
                     self.__screen.blit(self.__green_barrier, (1100, 465))
 
+
+
         pygame.display.flip()
 
     def boucle_sounds(self, arg):
@@ -1131,6 +1170,36 @@ class View:
                     pygame.quit()
             self.game_page()
 
+    def pop_up_for_pause(self):
+        self.pop_up()
+        self.__show_popup = True
+
+        while self.__show_popup:
+            for event in pygame.event.get():
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    self.__cursor_pos = pygame.mouse.get_pos()
+                    if self.__get_resume.collidepoint(self.__cursor_pos):
+                        if type(self.__game) == Multiplayer:
+                            self.send_pause_stop()
+                        self.__show_popup = False
+
+
+
+    def pop_up(self):
+        self.popup = pygame.Surface((1500, 850),pygame.SRCALPHA)
+        self.popup.fill(self.__BLUE)
+
+        self.__resume = self.__96_font.render("Reprendre", False, (self.__BLACK))
+        self.__get_resume = self.__resume.get_rect()
+        self.__get_resume.topleft = (650, 400)
+
+
+        self.__screen.blit(self.popup, (0, 0))
+        self.__screen.blit(self.__resume,(650,400))
+
+        pygame.display.update()
+
+
     def play_music(self):
         music = pygame.mixer.Sound("./songs/jazz.wav")
         self.__channel_music = pygame.mixer.find_channel()
@@ -1157,10 +1226,9 @@ class View:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     self.__cursor_pos = pygame.mouse.get_pos()
                     if self.__get_menu.collidepoint(self.__cursor_pos):
-
-                        if self.__mode == "multiplayer" or self.__mode == "game":
-                            self.__mode = None
-                            self.send_leave()
+                        if type(self.__game) == Multiplayer:
+                            if not self.__a_player_to_leave:
+                                self.send_leave()
                             self.__stop_listen = False
                             if self.__game.is_server():
                                 self.__game.get_server().close_socket()
@@ -1170,18 +1238,37 @@ class View:
                         self.boucle_home_page()
                         self.__running = False
                     elif self.__get_restart.collidepoint(self.__cursor_pos):
+                        execut = 1
                         if self.__mode == "multiplayer" or self.__mode == "game":
-                            if type(self.__game) == Multiplayer:
-                                print("dans multi")
-                                self.__game.reset_current_player_for_sends_and_receive()
-
-                        self.stop_music()
-                        self.__game.restart()
-                        self.boucle_game()
-                        self.__running = False
+                            print(self.__a_player_to_leave)
+                            if not self.__a_player_to_leave:
+                                if type(self.__game) == Multiplayer:
+                                    self.__game.reset_current_player_for_sends_and_receive()
+                            else :
+                                execut = 0
+                        if execut :
+                            self.stop_music()
+                            self.__game.restart()
+                            self.boucle_game()
+                            self.__running = False
 
     def send_leave(self):
+        print("j'envoie le leave")
         dico = {"type": "logout"}
+        if self.__game.is_server():
+            self.__game.get_server().send_message_server_all_client(dico, None)
+        else:
+            self.__game.get_client().send_message_client(dico)
+
+    def send_pause_put(self):
+        dico = {"type": "pause","etat" : "put"}
+        if self.__game.is_server():
+            self.__game.get_server().send_message_server_all_client(dico, None)
+        else:
+            self.__game.get_client().send_message_client(dico)
+
+    def send_pause_stop(self):
+        dico = {"type": "pause","etat" : "stop"}
         if self.__game.is_server():
             self.__game.get_server().send_message_server_all_client(dico, None)
         else:
