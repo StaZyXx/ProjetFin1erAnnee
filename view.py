@@ -28,6 +28,50 @@ class View:
 
         self.__is_mute = False
 
+        self.__francais =  {"solo": "Solo",
+                            "multiplayer": "Multijoueur",
+                            "leave":"Quitter",
+                            "playerhadleave":"Un joueur a quitté la partie",
+                            "2players":"2 joueurs",
+                            "startgame":"Lancer la partie",
+                            "create":"Crée",
+                            "join":"Rejoindre",
+                            "choiceIA": "Contre IA",
+                            "miltilocal": "Chacun son tour",
+                            "consigneadress": "Entrez l'adresse pour vous connecter !",
+                            "adress": "Adresse de connexion : ",
+                            "join" : "Rejoindre",
+                            "sup": "Supprimer",
+                            "prb_connection":"Connexion au serveur échoué !",
+                            "att_player":"En attente des joueurs",
+                            "have_join":" ont rejoint !"
+                            }
+
+        self.__english = {"solo": "Singleplayer",
+                            "multiplayer": "Multplayer",
+                            "leave": "Leave",
+                            "playerhadleave": "A player has left the game",
+                            "2players":"2 players",
+                            "4players": "4 players",
+                            "startgame":"Start the game",
+                            "create":"Create",
+                            "join":"Join",
+                            "choiceIA": "Against an AI",
+                            "miltilocal": "Each in turn",
+                            "consigneadress": "Enter the address to connect!",
+                            "adress": "Login address : ",
+                            "join": "Join",
+                            "sup": "Delete",
+                            "prb_connection":"Connection to server failed !",
+                            "att_player":"Waiting for players",
+                            "have_join": " have joined!"
+                            }
+
+        self.__world_langue = [self.__francais,self.__english]
+        self.__image_langue = ["./assets/royaume_uni.png","./assets/france.png"]
+
+        self.__langue = self.__francais
+
         pygame.init()
         pygame.display.set_caption("Quorridor")  # Nom de la fenêtre
         self.__screen = pygame.display.set_mode((1500, 850))  # Définit la taille de la fenetre
@@ -83,6 +127,7 @@ class View:
         pygame.display.flip()  # Mettre a jour l'affichage
 
     def loop_home_page(self):
+        self.__indice = 0
         self.home_page()
         self.__running = True
         # Boucle du jeu
@@ -94,7 +139,6 @@ class View:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     self.__cursor_pos = pygame.mouse.get_pos()
                     if self.__get_solo.collidepoint(self.__cursor_pos):
-
                         self.__running = False
                         self.__mode = "solo"
                     elif self.__get_multiplayer.collidepoint(self.__cursor_pos):
@@ -102,6 +146,15 @@ class View:
                         self.__mode = "multiplayer"
                     elif self.__get_leave.collidepoint(self.__cursor_pos):
                         pygame.quit()
+                    elif self.__get_choice_langue.collidepoint(self.__cursor_pos):
+                        print(self.__indice,len(self.__world_langue)-1)
+                        if self.__indice == len(self.__world_langue)-1:
+                            self.__indice = 0
+                        else :
+                            self.__indice += 1
+                        self.__indice
+                        self.__langue = self.__world_langue[self.__indice]
+                        self.home_page()
 
         if self.__mode == "solo":
             self.loop_game_type()
@@ -118,28 +171,35 @@ class View:
         self.__quorridor = self.__96_font.render('QUORIDOR', False, self.__BLACK)
 
         self.__rect_solo = pygame.draw.rect(self.__surface, self.__BLUE, (460, 300, 650, 75))
-        self.__solo = self.__64_font.render('Solo', False, self.__WHITE)
+        self.__solo = self.__64_font.render(self.__langue["solo"], False, self.__WHITE)
         self.__get_solo = self.__solo.get_rect()
         self.__get_solo.topleft = (700, 300)
 
         pygame.draw.rect(self.__surface, self.__BLUE, (460, 450, 650, 75))
-        self.__multiplayer = self.__64_font.render('Multijoueur', False, self.__WHITE)
+        self.__multiplayer = self.__64_font.render(self.__langue["multiplayer"], False, self.__WHITE)
         self.__get_multiplayer = self.__multiplayer.get_rect()
         self.__get_multiplayer.topleft = (700, 450)
 
         pygame.draw.rect(self.__surface, self.__BLUE, (460, 600, 650, 75))
-        self.__leave = self.__64_font.render('Quitter', False, self.__WHITE)
+        self.__leave = self.__64_font.render(self.__langue["leave"], False, self.__WHITE)
         self.__get_leave = self.__leave.get_rect()
         self.__get_leave.topleft = (700, 610)
+
+        self.__choice_langue = pygame.image.load(self.__image_langue[self.__indice]).convert_alpha()
+        self.__choice_langue = pygame.transform.scale(self.__choice_langue, (112.5, 67.5))
+        self.__get_choice_langue = self.__choice_langue.get_rect()
+        self.__get_choice_langue.topleft = (100, 100)
+
         self.__screen.blit(self.__surface, (0, 0))
         self.__screen.blit(self.__quorridor, (590, 125))
         self.__screen.blit(self.__solo, (730, 315))
         self.__screen.blit(self.__multiplayer, (660, 460))
         self.__screen.blit(self.__leave, (700, 610))
+        self.__screen.blit(self.__choice_langue, (100, 100))
 
         if self.__player_leave:
             self.__player_leave = False
-            self.__player_has_leave = self.__64_font.render("Un joueur a quitté la partie", False, self.__RED)
+            self.__player_has_leave = self.__64_font.render(self.__langue["playerhadleave"], False, self.__RED)
             self.__screen.blit(self.__player_has_leave, (480, 700))
 
         pygame.display.flip()  # Mettre a jour l'affichage
@@ -248,11 +308,11 @@ class View:
             pygame.draw.rect(self.__surface, self.__player2_color, (425, 240, 209, 58))
             pygame.draw.rect(self.__surface, self.__player4_color, (875, 240, 209, 58))
 
-            self.__select_2_players = self.__48_font.render('2 joueurs', False, (self.__WHITE))
+            self.__select_2_players = self.__48_font.render(self.__langue["2players"], False, (self.__WHITE))
             self.__get_select_2_players_rect = self.__select_2_players.get_rect()
             self.__get_select_2_players_rect.topleft = (450, 250)
 
-            self.__select_4_players = self.__48_font.render('4 joueurs', False, (self.__WHITE))
+            self.__select_4_players = self.__48_font.render(self.__langue["4players"], False, (self.__WHITE))
             self.__get_select_4_players_rect = self.__select_4_players.get_rect()
             self.__get_select_4_players_rect.topleft = (900, 250)
 
@@ -310,7 +370,7 @@ class View:
 
         pygame.draw.rect(self.__surface, self.__DARK_BLUE, (600, 590, 350, 60))
 
-        self.__start_game = self.__48_font.render('Lancer la partie', False, (self.__WHITE))
+        self.__start_game = self.__48_font.render(self.__langue["startgame"], False, (self.__WHITE))
 
         self.__get_start_game = self.__start_game.get_rect()
         self.__get_start_game.topleft = (650, 600)
@@ -376,11 +436,11 @@ class View:
         pygame.draw.rect(self.__surface, self.__DARK_BLUE, (200, 200, 1100, 150))
         pygame.draw.rect(self.__surface, self.__DARK_BLUE, (200, 400, 1100, 150))
 
-        self.__server = self.__96_font.render("Créer", False, (self.__WHITE))
+        self.__server = self.__96_font.render(self.__langue["create"], False, (self.__WHITE))
         self.__get_server = self.__server.get_rect()
         self.__get_server.topleft = (700, 250)
 
-        self.__client = self.__96_font.render("Rejoindre", False, (self.__WHITE))
+        self.__client = self.__96_font.render(self.__langue["join"], False, (self.__WHITE))
         self.__get_client = self.__client.get_rect()
         self.__get_client.topleft = (650, 450)
 
@@ -473,11 +533,11 @@ class View:
         pygame.draw.rect(self.__surface, self.__DARK_BLUE, (200, 200, 1100, 150))
         pygame.draw.rect(self.__surface, self.__DARK_BLUE, (200, 400, 1100, 150))
 
-        self.__versus_ia = self.__96_font.render("Contre une IA", False, (self.__WHITE))
+        self.__versus_ia = self.__96_font.render(self.__langue["choiceIA"], False, (self.__WHITE))
         self.__get_versus_ia = self.__versus_ia.get_rect()
         self.__get_versus_ia.topleft = (525, 250)
 
-        self.__each_turn = self.__96_font.render("Chacun son tour", False, (self.__WHITE))
+        self.__each_turn = self.__96_font.render(self.__langue["miltilocal"], False, (self.__WHITE))
         self.__get_each_turn = self.__each_turn.get_rect()
         self.__get_each_turn.topleft = (475, 450)
 
@@ -500,11 +560,11 @@ class View:
         pygame.draw.rect(self.__surface, self.__DARK_BLUE, (200, 200, 1100, 150))
         pygame.draw.rect(self.__surface, self.__DARK_BLUE, (200, 400, 1100, 150))
 
-        self.__versus_ia = self.__96_font.render("2 joueurs", False, (self.__WHITE))
+        self.__versus_ia = self.__96_font.render(self.__langue["2players"], False, (self.__WHITE))
         self.__get_2_players = self.__versus_ia.get_rect()
         self.__get_2_players.topleft = (700, 250)
 
-        self.__each_turn = self.__96_font.render("4 joueurs", False, (self.__WHITE))
+        self.__each_turn = self.__96_font.render(self.__langue["4players"], False, (self.__WHITE))
         self.__get_4_players = self.__each_turn.get_rect()
         self.__get_4_players.topleft = (650, 450)
 
@@ -661,8 +721,8 @@ class View:
         pygame.init()
         self.__surface = pygame.Surface((1500, 850), pygame.SRCALPHA)
 
-        self.__loading_word = self.__64_font.render(f"En attente des joueurs {self.__point}", False, (self.__WHITE))
-        self.__affichage_nbr_player = self.__64_font.render(f"{self.player_acctu} joueur(s) sont présents", False,
+        self.__loading_word = self.__64_font.render(f"{self.__langue['att_player']} {self.__point}", False, (self.__WHITE))
+        self.__affichage_nbr_player = self.__64_font.render(f"{self.player_acctu} {self.__langue['have_join']}", False,
                                                             (self.__WHITE))
 
         self.__screen.blit(self.__background, (0, 0))
@@ -676,7 +736,7 @@ class View:
         self.__surface = pygame.Surface((1500, 850), pygame.SRCALPHA)
 
         pygame.draw.rect(self.__surface, self.__DARK_BLUE, (115, 100, 650, 35))
-        self.__consigne = self.__48_font.render(f"Entrez l'adresse pour vous connectez !", False, (self.__WHITE))
+        self.__consigne = self.__48_font.render(f"{self.__langue['consigneadress']}", False, (self.__WHITE))
 
         pygame.draw.rect(self.__surface, self.__DARK_BLUE, (100, 200, 65, 65))
         pygame.draw.rect(self.__surface, self.__DARK_BLUE, (100, 300, 65, 65))
@@ -703,16 +763,18 @@ class View:
         self.__get_point = self.__point.get_rect()
         self.__get_point.topleft = (715, 500)
 
-        self.__adress_final = self.__48_font.render(f"Adresse de connexion : {self.__address}", False, (self.__WHITE))
+
+
+        self.__adress_final = self.__48_font.render(f"{self.__langue['adress']}{self.__address}", False, (self.__WHITE))
 
         if self.__has_connection_error:
-            self.__erreur = self.__48_font.render("Connexion au serveur échoué !", False, (self.__RED))
+            self.__erreur = self.__48_font.render(self.__langue["prb_connection"], False, (self.__RED))
 
-        self.__supprimer = self.__96_font.render("Supprimer", False, (self.__RED))
+        self.__supprimer = self.__96_font.render(self.__langue["sup"], False, (self.__RED))
         self.__get_supprimer = self.__supprimer.get_rect()
         self.__get_supprimer.topleft = (1000, 500)
 
-        self.__join = self.__96_font.render("Rejoindre", False, (self.__GREEN))
+        self.__join = self.__96_font.render(self.__langue["join"], False, (self.__GREEN))
         self.__get_join = self.__join.get_rect()
         self.__get_join.topleft = (1000, 600)
 
