@@ -33,8 +33,9 @@ class View:
                             "leave":"Quitter",
                             "playerhadleave":"Un joueur a quitté la partie",
                             "2players":"2 joueurs",
+                            "4players": "4 joueurs",
                             "startgame":"Lancer la partie",
-                            "create":"Crée",
+                            "create":"Créer",
                             "join":"Rejoindre",
                             "choiceIA": "Contre IA",
                             "miltilocal": "Chacun son tour",
@@ -48,7 +49,7 @@ class View:
                             }
 
         self.__english = {"solo": "Singleplayer",
-                            "multiplayer": "Multplayer",
+                            "multiplayer": "Multiplayer",
                             "leave": "Leave",
                             "playerhadleave": "A player has left the game",
                             "2players":"2 players",
@@ -147,7 +148,6 @@ class View:
                     elif self.__get_leave.collidepoint(self.__cursor_pos):
                         pygame.quit()
                     elif self.__get_choice_langue.collidepoint(self.__cursor_pos):
-                        print(self.__indice,len(self.__world_langue)-1)
                         if self.__indice == len(self.__world_langue)-1:
                             self.__indice = 0
                         else :

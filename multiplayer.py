@@ -80,6 +80,7 @@ class Multiplayer(Game):
                 not self.__is_server and self.__current_player_for_sends_and_receive == self.__client.get_me_player()):
             result = super().move_player_with_direction(direction)
             dico = {"type": "move", "direction": direction}
+            print(result,self.is_server())
             if result == 1 or result == 0:
 
                 if self.__is_server:
